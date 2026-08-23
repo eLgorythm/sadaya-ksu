@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_formatters.dart';
+import '../../../../core/widgets/common_widgets.dart';
 import '../../domain/entities/saving_entities.dart';
 import '../cubit/savings_cubit.dart';
 import '../widgets/saving_transaction_sheet.dart';
@@ -50,25 +51,11 @@ class _SavingsView extends StatelessWidget {
         builder: (context, state) {
           switch (state) {
             case SavingsLoadInProgress():
-              return const Center(child: CircularProgressIndicator());
+              return const LoadingView();
             case SavingsFailure(:final message):
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Text(message, textAlign: TextAlign.center),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: () =>
-                          GetIt.I<SavingsCubit>().load(member.id),
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Coba Lagi'),
-                    ),
-                  ],
-                ),
+              return ErrorStateView(
+                message: message,
+                onRetry: () => GetIt.I<SavingsCubit>().load(member.id),
               );
             case SavingsLoadSuccess():
               return RefreshIndicator(
@@ -145,15 +132,12 @@ class _SavingsView extends StatelessWidget {
                     Text('Riwayat Transaksi',
                         style: Theme.of(context).textTheme.titleMedium),
                     if (state.summary.transactions.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 32),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 32),
                         child: Center(
                           child: Text(
                             'Belum ada transaksi simpanan.',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(color: Colors.grey),
+                            style: TextStyle(color: Colors.grey),
                           ),
                         ),
                       )

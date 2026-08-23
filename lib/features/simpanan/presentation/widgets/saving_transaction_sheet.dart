@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_input_formatters.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/common_widgets.dart';
+import '../../../../core/widgets/sadaya_message.dart';
 import '../../domain/entities/saving_entities.dart';
 import '../cubit/saving_form_cubit.dart';
 
@@ -27,10 +28,8 @@ class SavingTransactionSheet extends StatefulWidget {
     required List<SavingsTypeEntity> types,
   }) {
     final withdrawal = transactionType == 'withdrawal';
-    return showModalBottomSheet(
+    return showSadayaBottomSheet(
       context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
       builder: (_) => SavingTransactionSheet(
         memberId: memberId,
         transactionType: transactionType,
@@ -92,45 +91,31 @@ class _SavingTransactionSheetState extends State<SavingTransactionSheet> {
           switch (state) {
             case SavingFormSuccess():
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(_isDeposit
+              SadayaMessage.success(
+                context,
+                _isDeposit
                     ? 'Setoran berhasil dicatat & diposting ke buku besar'
-                    : 'Penarikan berhasil dicatat & diposting ke buku besar'),
-                backgroundColor: AppColors.primaryGreen,
-              ));
+                    : 'Penarikan berhasil dicatat & diposting ke buku besar',
+              );
             case SavingFormFailure(:final message):
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(message),
-                backgroundColor: AppColors.negativeRed,
-              ));
+              SadayaMessage.error(context, message);
             default:
               break;
           }
         },
         builder: (context, state) {
           final saving = state is SavingFormSaving;
-          return SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(20, 16, 20,
-                24 + MediaQuery.of(context).viewInsets.bottom),
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _isDeposit ? 'Setoran Simpanan' : 'Penarikan Simpanan',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ],
-                  ),
+                  SheetHeader(
+                      title: _isDeposit
+                          ? 'Setoran Simpanan'
+                          : 'Penarikan Simpanan'),
                   const SizedBox(height: 12),
                   if (widget.types.isEmpty)
                     Padding(
@@ -220,31 +205,6 @@ class _SavingTransactionSheetState extends State<SavingTransactionSheet> {
           );
         },
       ),
-    );
-  }
-}
-
-/// Memformat angka ribuan saat diketik: 20000 -> 20.000
-class ThousandsSeparatorInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
-    if (digits.isEmpty) {
-      return const TextEditingValue(text: '');
-    }
-    final buffer = StringBuffer();
-    for (var i = 0; i < digits.length; i++) {
-      buffer.write(digits[i]);
-      final remaining = digits.length - i - 1;
-      if (remaining > 0 && remaining % 3 == 0) buffer.write('.');
-    }
-    final formatted = buffer.toString();
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

@@ -3,6 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../anggota/domain/entities/member_entity.dart';
+import '../../../simpanan/presentation/pages/savings_page.dart'
+    show MemberSavingsTarget;
+import '../../../pinjaman/presentation/pages/loans_page.dart'
+    show MemberLoanTarget;
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 
@@ -49,13 +54,37 @@ class HomePage extends StatelessWidget {
                 label: 'Anggota',
                 onTap: () => context.push('/anggota'),
               ),
-              const _MenuTile(
+              _MenuTile(
                 icon: Icons.savings_outlined,
                 label: 'Simpanan',
+                onTap: () => _openWithPickedMember(
+                  context,
+                  pickerTitle: 'Pilih Anggota — Simpanan',
+                  onPicked: (member) => context.push(
+                    '/simpanan/${member.id}',
+                    extra: MemberSavingsTarget(
+                      id: member.id,
+                      name: member.name,
+                      memberNumber: member.memberNumber,
+                    ),
+                  ),
+                ),
               ),
-              const _MenuTile(
+              _MenuTile(
                 icon: Icons.account_balance_wallet_outlined,
                 label: 'Pinjaman',
+                onTap: () => _openWithPickedMember(
+                  context,
+                  pickerTitle: 'Pilih Anggota — Pinjaman',
+                  onPicked: (member) => context.push(
+                    '/pinjaman/${member.id}',
+                    extra: MemberLoanTarget(
+                      id: member.id,
+                      name: member.name,
+                      memberNumber: member.memberNumber,
+                    ),
+                  ),
+                ),
               ),
               const _MenuTile(
                 icon: Icons.receipt_long_outlined,
@@ -74,6 +103,18 @@ class HomePage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _openWithPickedMember(
+    BuildContext context, {
+    required String pickerTitle,
+    required ValueChanged<MemberEntity> onPicked,
+  }) async {
+    final member = await context.push<MemberEntity>(
+      '/pilih-anggota',
+      extra: {'title': pickerTitle},
+    );
+    if (member != null && context.mounted) onPicked(member);
   }
 
   void _confirmSignOut(BuildContext context) {

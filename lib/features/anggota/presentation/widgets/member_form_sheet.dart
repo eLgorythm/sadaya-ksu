@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/common_widgets.dart';
+import '../../../../core/widgets/sadaya_message.dart';
 import '../../domain/entities/member_entity.dart';
 import '../cubit/member_form_cubit.dart';
 
@@ -14,10 +15,8 @@ class MemberFormSheet extends StatefulWidget {
   final MemberEntity? member;
 
   static Future<void> show(BuildContext context, {MemberEntity? member}) {
-    return showModalBottomSheet(
+    return showSadayaBottomSheet(
       context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
       builder: (_) => MemberFormSheet(member: member),
     );
   }
@@ -93,45 +92,27 @@ class _MemberFormSheetState extends State<MemberFormSheet> {
           switch (state) {
             case MemberFormSuccess(:final isEdit):
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(isEdit ? 'Anggota diperbarui' : 'Anggota ditambahkan'),
-                backgroundColor: AppColors.primaryGreen,
-              ));
+              SadayaMessage.success(
+                  context, isEdit ? 'Anggota diperbarui' : 'Anggota ditambahkan');
             case MemberFormFailure(:final message):
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(message),
-                backgroundColor: AppColors.negativeRed,
-              ));
+              SadayaMessage.error(context, message);
             default:
               break;
           }
         },
         builder: (context, state) {
           final saving = state is MemberFormSaving;
-          return SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(20, 16, 20,
-                24 + MediaQuery.of(context).viewInsets.bottom),
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _isEdit
-                              ? 'Edit Anggota #${widget.member!.memberNumber}'
-                              : 'Tambah Anggota Baru',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ],
-                  ),
+                  SheetHeader(
+                      title: _isEdit
+                          ? 'Edit Anggota #${widget.member!.memberNumber}'
+                          : 'Tambah Anggota Baru'),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _nameController,
@@ -193,9 +174,7 @@ class _MemberFormSheetState extends State<MemberFormSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child:
-                                CircularProgressIndicator(strokeWidth: 2),
-                          )
+                            child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.save_outlined),
                     label: Text(saving ? 'Menyimpan...' : 'Simpan'),
                   ),

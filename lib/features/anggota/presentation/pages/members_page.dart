@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_formatters.dart';
+import '../../../../core/widgets/common_widgets.dart';
+import '../../../pinjaman/presentation/pages/loans_page.dart'
+    show MemberLoanTarget;
 import '../../../simpanan/presentation/pages/savings_page.dart'
     show MemberSavingsTarget;
 import '../../domain/entities/member_entity.dart';
@@ -154,44 +157,21 @@ class _MembersViewState extends State<_MembersView> {
               builder: (context, state) {
                 switch (state) {
                   case MembersLoadInProgress():
-                    return const Center(child: CircularProgressIndicator());
+                    return const LoadingView();
                   case MembersFailure(:final message):
-                    return Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 32),
-                            child: Text(message, textAlign: TextAlign.center),
-                          ),
-                          const SizedBox(height: 12),
-                          OutlinedButton.icon(
-                            onPressed: () => GetIt.I<MembersCubit>().load(),
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Coba Lagi'),
-                          ),
-                        ],
-                      ),
+                    return ErrorStateView(
+                      message: message,
+                      onRetry: () => GetIt.I<MembersCubit>().load(),
                     );
                   case MembersLoadSuccess(:final members):
                     if (members.isEmpty) {
                       return RefreshIndicator(
                         onRefresh: () async =>
                             await GetIt.I<MembersCubit>().load(),
-                        child: ListView(
-                          padding: const EdgeInsets.only(top: 120),
-                          children: const [
-                            Icon(Icons.group_outlined,
-                                size: 64, color: Colors.grey),
-                            SizedBox(height: 12),
-                            Center(
-                              child: Text(
-                                'Belum ada anggota.\nTekan tombol "Anggota Baru" untuk menambah.',
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ],
+                        child: const EmptyStateView(
+                          icon: Icons.group_outlined,
+                          message:
+                              'Belum ada anggota.\nTekan tombol "Anggota Baru" untuk menambah.',
                         ),
                       );
                     }
@@ -213,6 +193,14 @@ class _MembersViewState extends State<_MembersView> {
                             onViewSavings: () => context.push(
                               '/simpanan/${member.id}',
                               extra: MemberSavingsTarget(
+                                id: member.id,
+                                name: member.name,
+                                memberNumber: member.memberNumber,
+                              ),
+                            ),
+                            onViewLoans: () => context.push(
+                              '/pinjaman/${member.id}',
+                              extra: MemberLoanTarget(
                                 id: member.id,
                                 name: member.name,
                                 memberNumber: member.memberNumber,
@@ -266,12 +254,14 @@ class _MemberCard extends StatelessWidget {
     required this.onEdit,
     required this.onToggleStatus,
     required this.onViewSavings,
+    required this.onViewLoans,
   });
 
   final MemberEntity member;
   final VoidCallback onEdit;
   final VoidCallback onToggleStatus;
   final VoidCallback onViewSavings;
+  final VoidCallback onViewLoans;
 
   @override
   Widget build(BuildContext context) {
@@ -314,24 +304,9 @@ class _MemberCard extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: member.isActive
-                    ? AppColors.primaryGreen.withValues(alpha: 0.15)
-                    : Colors.grey.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                member.isActive ? 'Aktif' : 'Nonaktif',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: member.isActive
-                      ? AppColors.primaryGreen
-                      : Colors.grey.shade700,
-                ),
-              ),
+            StatusBadge(
+              label: member.isActive ? 'Aktif' : 'Nonaktif',
+              status: member.isActive ? 'active' : 'inactive',
             ),
             PopupMenuButton<String>(
               onSelected: (value) {
@@ -341,6 +316,8 @@ class _MemberCard extends StatelessWidget {
                   onToggleStatus();
                 } else if (value == 'savings') {
                   onViewSavings();
+                } else if (value == 'loans') {
+                  onViewLoans();
                 }
               },
               itemBuilder: (_) => [
@@ -360,6 +337,15 @@ class _MemberCard extends StatelessWidget {
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(Icons.savings_outlined),
                     title: Text('Simpanan'),
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'loans',
+                  child: ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.account_balance_outlined),
+                    title: Text('Pinjaman'),
                   ),
                 ),
                 PopupMenuItem(
