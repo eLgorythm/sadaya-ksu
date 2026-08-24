@@ -21,23 +21,24 @@ class SavingTransactionSheet extends StatefulWidget {
   final String transactionType;
   final List<SavingsTypeEntity> types;
 
-  static Future<void> show(
+  static Future<bool> show(
     BuildContext context, {
     required String memberId,
     required String transactionType,
     required List<SavingsTypeEntity> types,
-  }) {
+  }) async {
     final withdrawal = transactionType == 'withdrawal';
-    return showSadayaBottomSheet(
-      context: context,
-      builder: (_) => SavingTransactionSheet(
-        memberId: memberId,
-        transactionType: transactionType,
-        types: withdrawal
-            ? types.where((t) => t.isWithdrawable).toList()
-            : types.where((t) => !t.isSystemManaged).toList(),
-      ),
-    );
+    return await showSadayaBottomSheet<bool>(
+          context: context,
+          builder: (_) => SavingTransactionSheet(
+            memberId: memberId,
+            transactionType: transactionType,
+            types: withdrawal
+                ? types.where((t) => t.isWithdrawable).toList()
+                : types.where((t) => !t.isSystemManaged).toList(),
+          ),
+        ) ??
+        false;
   }
 
   @override
@@ -90,13 +91,16 @@ class _SavingTransactionSheetState extends State<SavingTransactionSheet> {
         listener: (context, state) {
           switch (state) {
             case SavingFormSuccess():
-              Navigator.of(context).pop();
               SadayaMessage.success(
                 context,
                 _isDeposit
                     ? 'Setoran berhasil dicatat & diposting ke buku besar'
                     : 'Penarikan berhasil dicatat & diposting ke buku besar',
               );
+
+              /// Tutup sheet sendiri dengan hasil true —
+              /// halaman pemanggil yang me-reload saldo/riwayat.
+              Navigator.of(context).pop(true);
             case SavingFormFailure(:final message):
               SadayaMessage.error(context, message);
             default:
@@ -113,9 +117,10 @@ class _SavingTransactionSheetState extends State<SavingTransactionSheet> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SheetHeader(
-                      title: _isDeposit
-                          ? 'Setoran Simpanan'
-                          : 'Penarikan Simpanan'),
+                    title: _isDeposit
+                        ? 'Setoran Simpanan'
+                        : 'Penarikan Simpanan',
+                  ),
                   const SizedBox(height: 12),
                   if (widget.types.isEmpty)
                     Padding(
@@ -138,13 +143,11 @@ class _SavingTransactionSheetState extends State<SavingTransactionSheet> {
                             selected: _selectedType?.code == type.code,
                             onSelected: saving
                                 ? null
-                                : (_) =>
-                                    setState(() => _selectedType = type),
+                                : (_) => setState(() => _selectedType = type),
                             labelStyle: TextStyle(
-                              fontWeight:
-                                  _selectedType?.code == type.code
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
+                              fontWeight: _selectedType?.code == type.code
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                       ],
@@ -182,22 +185,25 @@ class _SavingTransactionSheetState extends State<SavingTransactionSheet> {
                   ],
                   const SizedBox(height: 20),
                   FilledButton.icon(
-                    onPressed:
-                        saving || widget.types.isEmpty ? null : _submit,
+                    onPressed: saving || widget.types.isEmpty ? null : _submit,
                     icon: saving
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child:
-                                CircularProgressIndicator(strokeWidth: 2))
-                        : Icon(_isDeposit
-                            ? Icons.south_outlined
-                            : Icons.north_outlined),
-                    label: Text(saving
-                        ? 'Memproses...'
-                        : _isDeposit
-                            ? 'Simpan Setoran'
-                            : 'Simpan Penarikan'),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Icon(
+                            _isDeposit
+                                ? Icons.south_outlined
+                                : Icons.north_outlined,
+                          ),
+                    label: Text(
+                      saving
+                          ? 'Memproses...'
+                          : _isDeposit
+                          ? 'Simpan Setoran'
+                          : 'Simpan Penarikan',
+                    ),
                   ),
                 ],
               ),

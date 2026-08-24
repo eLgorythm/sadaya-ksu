@@ -84,7 +84,9 @@ class _MembersViewState extends State<_MembersView> {
     return Scaffold(
       appBar: AppBar(title: const Text('Data Anggota')),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => MemberFormSheet.show(context),
+        onPressed: () => MemberFormSheet.show(context).then((saved) {
+          if (saved) GetIt.I<MembersCubit>().load();
+        }),
         icon: const Icon(Icons.person_add_alt_1),
         label: const Text('Anggota Baru'),
       ),
@@ -186,8 +188,11 @@ class _MembersViewState extends State<_MembersView> {
                           final member = members[index];
                           return _MemberCard(
                             member: member,
-                            onEdit: () =>
-                                MemberFormSheet.show(context, member: member),
+                            onEdit: () => MemberFormSheet.show(context,
+                                    member: member)
+                                .then((saved) {
+                              if (saved) GetIt.I<MembersCubit>().load();
+                            }),
                             onToggleStatus: () =>
                                 _confirmStatusChange(context, member),
                             onViewSavings: () => context.push(

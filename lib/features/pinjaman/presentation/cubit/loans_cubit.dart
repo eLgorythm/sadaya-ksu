@@ -50,11 +50,7 @@ class LoansCubit extends Cubit<LoansState> {
         await _loanRepository.getLoanDetail(current.detail.loan.id);
     switch (result) {
       case Ok(:final value):
-        emit(LoansDetailLoaded(
-          memberId: memberId,
-          detail: value,
-          justPaid: true,
-        ));
+        emit(LoansDetailLoaded(memberId: memberId, detail: value));
       case Err():
         break;
     }

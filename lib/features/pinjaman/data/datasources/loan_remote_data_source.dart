@@ -19,7 +19,10 @@ class LoanRemoteDataSource {
   Future<List<Map<String, dynamic>>> fetchSchedules(String loanId) async {
     final rows = await _client
         .from('installment_schedules')
-        .select()
+
+        /// Embed tanggal bayar (relasi FK schedule_id) agar UI bisa
+        /// menampilkan "Dibayar pada <tanggal>" untuk jadwal lunas.
+        .select('*, installment_payments(payment_date)')
         .eq('loan_id', loanId)
         .order('installment_number', ascending: true);
     return rows.cast<Map<String, dynamic>>();
@@ -42,9 +45,13 @@ class LoanRemoteDataSource {
       'p_member_id': memberId,
       'p_principal': principal,
       'p_tenor': tenor,
-      'p_disbursement_date': disbursementDate
-          ?.toIso8601String()
-          .substring(0, 10),
+
+      /// PENTING: jangan kirim key dengan nilai null eksplisit —
+      /// Postgres memperlakukannya sebagai NULL sungguhan sehingga
+      /// DEFAULT current_date di RPC tidak berlaku.
+      if (disbursementDate != null)
+        'p_disbursement_date':
+            disbursementDate.toIso8601String().substring(0, 10),
       'p_notes': notes,
     }).select().single();
   }

@@ -14,11 +14,12 @@ class MemberFormSheet extends StatefulWidget {
 
   final MemberEntity? member;
 
-  static Future<void> show(BuildContext context, {MemberEntity? member}) {
-    return showSadayaBottomSheet(
-      context: context,
-      builder: (_) => MemberFormSheet(member: member),
-    );
+  static Future<bool> show(BuildContext context, {MemberEntity? member}) async {
+    return await showSadayaBottomSheet<bool>(
+          context: context,
+          builder: (_) => MemberFormSheet(member: member),
+        ) ??
+        false;
   }
 
   @override
@@ -91,9 +92,14 @@ class _MemberFormSheetState extends State<MemberFormSheet> {
         listener: (context, state) {
           switch (state) {
             case MemberFormSuccess(:final isEdit):
-              Navigator.of(context).pop();
               SadayaMessage.success(
-                  context, isEdit ? 'Anggota diperbarui' : 'Anggota ditambahkan');
+                context,
+                isEdit ? 'Anggota diperbarui' : 'Anggota ditambahkan',
+              );
+
+              /// Tutup sheet sendiri dengan hasil true —
+              /// halaman pemanggil yang me-reload daftar.
+              Navigator.of(context).pop(true);
             case MemberFormFailure(:final message):
               SadayaMessage.error(context, message);
             default:
@@ -110,9 +116,10 @@ class _MemberFormSheetState extends State<MemberFormSheet> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SheetHeader(
-                      title: _isEdit
-                          ? 'Edit Anggota #${widget.member!.memberNumber}'
-                          : 'Tambah Anggota Baru'),
+                    title: _isEdit
+                        ? 'Edit Anggota #${widget.member!.memberNumber}'
+                        : 'Tambah Anggota Baru',
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _nameController,
@@ -152,9 +159,11 @@ class _MemberFormSheetState extends State<MemberFormSheet> {
                         labelText: 'Tanggal Bergabung *',
                         prefixIcon: Icon(Icons.calendar_today_outlined),
                       ),
-                      child: Text(_joinDate == null
-                          ? 'Pilih tanggal'
-                          : AppFormatters.date(_joinDate!)),
+                      child: Text(
+                        _joinDate == null
+                            ? 'Pilih tanggal'
+                            : AppFormatters.date(_joinDate!),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -174,7 +183,8 @@ class _MemberFormSheetState extends State<MemberFormSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.save_outlined),
                     label: Text(saving ? 'Menyimpan...' : 'Simpan'),
                   ),

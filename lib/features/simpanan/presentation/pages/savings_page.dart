@@ -111,7 +111,9 @@ class _SavingsView extends StatelessWidget {
                         memberId: member.id,
                         transactionType: 'deposit',
                         types: state.types,
-                      ),
+                      ).then((saved) {
+                        if (saved) GetIt.I<SavingsCubit>().load(member.id);
+                      }),
                       icon: const Icon(Icons.add_card_outlined),
                       label: const Text('Setor Simpanan'),
                     ),
@@ -123,7 +125,11 @@ class _SavingsView extends StatelessWidget {
                                 memberId: member.id,
                                 transactionType: 'withdrawal',
                                 types: state.types,
-                              )
+                              ).then((saved) {
+                                if (saved) {
+                                  GetIt.I<SavingsCubit>().load(member.id);
+                                }
+                              })
                           : null,
                       icon: const Icon(Icons.remove_circle_outline),
                       label: const Text('Tarik Simpanan (Mana Suka)'),

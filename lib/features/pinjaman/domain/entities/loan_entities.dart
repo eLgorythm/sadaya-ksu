@@ -58,6 +58,7 @@ class InstallmentScheduleEntity extends Equatable {
     required this.interestAmount,
     required this.totalAmount,
     required this.status,
+    this.paidDate,
   });
 
   final String id;
@@ -68,6 +69,10 @@ class InstallmentScheduleEntity extends Equatable {
   final double totalAmount;
   final String status;
 
+  /// Tanggal pembayaran terakhir (dari installment_payments).
+  /// Null bila belum ada pembayaran.
+  final DateTime? paidDate;
+
   bool get isPaid => status == 'paid';
   bool get isPartial => status == 'partial';
   bool get isPending => status == 'pending';
@@ -75,7 +80,7 @@ class InstallmentScheduleEntity extends Equatable {
   @override
   List<Object?> get props => [
         id, installmentNumber, dueDate, principalAmount,
-        interestAmount, totalAmount, status,
+        interestAmount, totalAmount, status, paidDate,
       ];
 }
 

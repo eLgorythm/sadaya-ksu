@@ -42,8 +42,7 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
 
   double get _adminFee => (_principal * 0.03 * 100).roundToDouble() / 100;
 
-  double get _monthlyPrincipal =>
-      _principal > 0 ? _principal / _tenor : 0;
+  double get _monthlyPrincipal => _principal > 0 ? _principal / _tenor : 0;
 
   double get _monthlyInterest => _principal * _rate;
 
@@ -53,8 +52,16 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
       value: _cubit,
       child: BlocConsumer<LoanFormCubit, LoanFormState>(
         listener: (context, state) {
-          if (state is LoanFormFailure) {
-            SadayaMessage.error(context, state.message);
+          switch (state) {
+            case LoanFormSuccess(:final loan):
+
+              /// Tutup sheet sendiri dan kembalikan hasilnya —
+              /// halaman pemanggil yang me-reload daftar.
+              Navigator.of(context).pop(loan);
+            case LoanFormFailure(:final message):
+              SadayaMessage.error(context, message);
+            default:
+              break;
           }
         },
         builder: (context, state) {
@@ -78,12 +85,16 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
                       prefixIcon: Icon(Icons.payments_outlined),
                       hintText: 'mis. 2.000.000',
                     ),
-                    validator: Validators.positiveAmount(label: 'Jumlah pinjaman'),
+                    validator: Validators.positiveAmount(
+                      label: 'Jumlah pinjaman',
+                    ),
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 14),
-                  Text('Tenor (bulan)',
-                      style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    'Tenor (bulan)',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                   const SizedBox(height: 6),
                   Wrap(
                     spacing: 8,
@@ -102,19 +113,24 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
                   const SizedBox(height: 6),
                   InfoBox(
                     children: [
-                      Text('Bunga ${(_rate * 100).toStringAsFixed(1)}%/bulan'
-                          ' (${_tenor < 10 ? 'jangka pendek' : 'normal'})',
-                          style: const TextStyle(fontSize: 12)),
+                      Text(
+                        'Bunga ${(_rate * 100).toStringAsFixed(1)}%/bulan'
+                        ' (${_tenor < 10 ? 'jangka pendek' : 'normal'})',
+                        style: const TextStyle(fontSize: 12),
+                      ),
                       if (_principal > 0) ...[
                         const SizedBox(height: 4),
                         Text(
-                            'Administrasi 3%: Rp ${_adminFee.toStringAsFixed(0)} (dipotong saat pencairan)',
-                            style: const TextStyle(fontSize: 12)),
+                          'Administrasi 3%: Rp ${_adminFee.toStringAsFixed(0)} (dipotong saat pencairan)',
+                          style: const TextStyle(fontSize: 12),
+                        ),
                         Text(
-                            'Cicilan/bulan: pokok Rp ${_monthlyPrincipal.toStringAsFixed(0)} + jasa Rp ${_monthlyInterest.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600)),
+                          'Cicilan/bulan: pokok Rp ${_monthlyPrincipal.toStringAsFixed(0)} + jasa Rp ${_monthlyInterest.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ],
                     ],
                   ),
@@ -145,7 +161,8 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.add_business_outlined),
                     label: Text(saving ? 'Memproses...' : 'Cairkan Pinjaman'),
                   ),

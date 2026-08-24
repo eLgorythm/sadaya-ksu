@@ -34,15 +34,13 @@ class LoansDetailLoaded extends LoansState {
   const LoansDetailLoaded({
     required this.memberId,
     required this.detail,
-    this.justPaid = false,
   });
 
   final String memberId;
   final LoanDetail detail;
-  final bool justPaid;
 
   @override
-  List<Object?> get props => [memberId, detail, justPaid];
+  List<Object?> get props => [memberId, detail];
 }
 
 class LoansFailure extends LoansState {
