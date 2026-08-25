@@ -515,6 +515,16 @@ class _ShuCard extends StatelessWidget {
                   label: '${a.key} (${((a.value ?? 0) * 100).toStringAsFixed(a.value! * 100 == (a.value! * 100).roundToDouble() ? 0 : 2)}%)',
                   value: AppFormatters.rupiah(shu.allocationOf(a.value)),
                 ),
+            if ((shu.notes ?? '').isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                shu.notes!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      color: AppTheme.statusColor('inactive'),
+                    ),
+              ),
+            ],
             if (shu.isDistributed && shu.distributionDate != null) ...[
               const Divider(height: 20),
               Text(
