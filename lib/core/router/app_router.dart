@@ -6,6 +6,8 @@ import '../../features/anggota/presentation/pages/member_picker_page.dart';
 import '../../features/anggota/presentation/pages/members_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dashboard/presentation/pages/home_page.dart';
+import '../../features/dana/presentation/pages/dana_page.dart';
+import '../../features/keuangan/presentation/pages/keuangan_page.dart';
 import '../../features/pinjaman/presentation/pages/loans_page.dart';
 import '../../features/simpanan/presentation/pages/savings_page.dart';
 import 'go_router_refresh_stream.dart';
@@ -35,6 +37,14 @@ class AppRouter {
           GoRoute(
             path: '/anggota',
             builder: (_, _) => const MembersPage(),
+          ),
+          GoRoute(
+            path: '/keuangan',
+            builder: (_, _) => const KeuanganPage(),
+          ),
+          GoRoute(
+            path: '/dana',
+            builder: (_, _) => const DanaPage(),
           ),
           GoRoute(
             path: '/pilih-anggota',

@@ -215,6 +215,22 @@ begin
       v_pembangunan, v_swk, v_kesra
     );
 
+    -- Pemasukan otomatis ke Buku Dana (sesuai jenis dana)
+    insert into public.fund_transactions (
+      fund_type, transaction_type, transaction_date, amount,
+      description, source_type, reference_id, created_by
+    ) values
+      ('welfare', 'income', current_date, v_kesra,
+       'Distribusi jasa angsuran', 'interest_distribution', v_pay.id, auth.uid()),
+      ('social', 'income', current_date, v_sosial,
+       'Distribusi jasa angsuran', 'interest_distribution', v_pay.id, auth.uid()),
+      ('education', 'income', current_date, v_pendidikan,
+       'Distribusi jasa angsuran', 'interest_distribution', v_pay.id, auth.uid()),
+      ('crk', 'income', current_date, v_crk,
+       'Distribusi jasa angsuran', 'interest_distribution', v_pay.id, auth.uid()),
+      ('development', 'income', current_date, v_pembangunan,
+       'Distribusi jasa angsuran', 'interest_distribution', v_pay.id, auth.uid());
+
     -- SWK masuk saldo simpanan anggota (jurnal sudah tercakup jurnal utama)
     if v_swk > 0 then
       insert into public.savings_transactions (

@@ -86,13 +86,15 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              const _MenuTile(
+              _MenuTile(
                 icon: Icons.receipt_long_outlined,
                 label: 'Kas Umum',
+                onTap: () => context.push('/keuangan'),
               ),
-              const _MenuTile(
-                icon: Icons.insights_outlined,
-                label: 'Keuangan',
+              _MenuTile(
+                icon: Icons.volunteer_activism_outlined,
+                label: 'Dana & SHU',
+                onTap: () => context.push('/dana'),
               ),
               const _MenuTile(
                 icon: Icons.settings_outlined,

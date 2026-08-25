@@ -27,6 +27,13 @@ class AppTheme {
         elevation: 0,
         centerTitle: false,
       ),
+      // Tab bar di atas AppBar hijau: indikator putih jelas.
+      tabBarTheme: const TabBarThemeData(
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white70,
+        indicatorColor: Colors.white,
+        dividerColor: Colors.white24,
+      ),
       cardTheme: CardThemeData(
         elevation: 0,
         color: Colors.white,

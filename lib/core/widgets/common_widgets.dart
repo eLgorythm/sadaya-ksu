@@ -67,6 +67,7 @@ class EmptyStateView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(top: 120),
       children: [
         Icon(icon, size: 64, color: AppTheme.statusColor('inactive')),
