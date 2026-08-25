@@ -96,6 +96,16 @@ class HomePage extends StatelessWidget {
                 label: 'Dana & SHU',
                 onTap: () => context.push('/dana'),
               ),
+              _MenuTile(
+                icon: Icons.inventory_2_outlined,
+                label: 'Aset',
+                onTap: () => context.push('/aset'),
+              ),
+              _MenuTile(
+                icon: Icons.cookie_outlined,
+                label: 'Usaha Keripik',
+                onTap: () => context.push('/usaha'),
+              ),
               const _MenuTile(
                 icon: Icons.settings_outlined,
                 label: 'Pengaturan',
