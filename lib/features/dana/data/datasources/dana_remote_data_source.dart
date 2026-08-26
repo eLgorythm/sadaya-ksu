@@ -34,6 +34,15 @@ class DanaRemoteDataSource {
     });
   }
 
+  Future<Map<String, dynamic>> fetchShuCalculation(int fiscalYear) async {
+    final result = await _client
+        .rpc('calculate_shu_for_year', params: {'p_year': fiscalYear});
+    if (result == null || (result as List).isEmpty) {
+      return {'total_revenue': 0, 'total_expense': 0, 'net_shu': 0};
+    }
+    return Map<String, dynamic>.from(result.first);
+  }
+
   Future<List<Map<String, dynamic>>> fetchShuDistributions() async {
     final rows = await _client
         .from('shu_distributions')

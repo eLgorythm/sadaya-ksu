@@ -49,6 +49,22 @@ class DanaRepositoryImpl implements DanaRepository {
   }
 
   @override
+  Future<Result<ShuCalculation>> calculateShu(int fiscalYear) async {
+    try {
+      final row = await _dataSource.fetchShuCalculation(fiscalYear);
+      return Ok(ShuCalculation(
+        totalRevenue: (row['total_revenue'] as num).toDouble(),
+        totalExpense: (row['total_expense'] as num).toDouble(),
+        netShu: (row['net_shu'] as num).toDouble(),
+      ));
+    } on PostgrestException catch (e) {
+      return Err(Failure(message: e.message));
+    } catch (_) {
+      return const Err(Failure(message: 'Gagal menghitung SHU dari buku besar'));
+    }
+  }
+
+  @override
   Future<Result<List<ShuDistribution>>> getShuDistributions() async {
     try {
       final rows = await _dataSource.fetchShuDistributions();

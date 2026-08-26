@@ -43,6 +43,22 @@ class FundTransaction extends Equatable {
       ];
 }
 
+/// Hasil perhitungan SHU dari buku besar (ledger).
+class ShuCalculation extends Equatable {
+  const ShuCalculation({
+    required this.totalRevenue,
+    required this.totalExpense,
+    required this.netShu,
+  });
+
+  final double totalRevenue;
+  final double totalExpense;
+  final double netShu;
+
+  @override
+  List<Object?> get props => [totalRevenue, totalExpense, netShu];
+}
+
 class ShuDistribution extends Equatable {
   const ShuDistribution({
     required this.id,

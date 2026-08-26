@@ -12,6 +12,8 @@ abstract interface class DanaRepository {
     required DateTime date,
   });
 
+  Future<Result<ShuCalculation>> calculateShu(int fiscalYear);
+
   Future<Result<List<ShuDistribution>>> getShuDistributions();
 
   Future<Result<String>> createShuDistribution({

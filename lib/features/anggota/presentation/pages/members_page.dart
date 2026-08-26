@@ -303,6 +303,25 @@ class _MemberCard extends StatelessWidget {
               Text(member.phone!, maxLines: 1),
             Text('Masuk: ${AppFormatters.date(member.joinDate)}',
                 style: const TextStyle(fontSize: 12)),
+            if (member.notes?.isNotEmpty ?? false)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Row(
+                  children: [
+                    Icon(Icons.notes, size: 12, color: Colors.grey.shade500),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(member.notes!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade700,
+                              fontStyle: FontStyle.italic)),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
         isThreeLine: true,

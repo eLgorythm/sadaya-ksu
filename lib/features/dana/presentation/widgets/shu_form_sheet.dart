@@ -43,6 +43,7 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
   final _notesController = TextEditingController();
 
   int _year = DateTime.now().year;
+  bool _loadingLedger = false;
 
   /// Bila aktif, setelah tersimpan status langsung jadi "disetujui"
   /// sehingga tinggal menekan Distribusikan di tab SHU.
@@ -117,6 +118,24 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
   }
 
   double get _netShu => (_totalShu - _tax).clamp(0, double.infinity);
+
+  Future<void> _autoFillFromLedger() async {
+    setState(() => _loadingLedger = true);
+    final calc = await _cubit.fetchLedgerSummary(_year);
+    if (!mounted) return;
+    setState(() => _loadingLedger = false);
+    if (calc == null) return;
+    _totalController.text = _moneyText(calc.netShu);
+    if (calc.netShu <= 0) {
+      SadayaMessage.info(context, 'Tidak ada laba bersih untuk tahun $_year');
+    } else {
+      SadayaMessage.success(
+          context,
+          'Terisi dari buku besar: ${AppFormatters.rupiah(calc.totalRevenue)} '
+          '− ${AppFormatters.rupiah(calc.totalExpense)}');
+    }
+    setState(() {});
+  }
 
   Widget _pctField(String label, TextEditingController controller) {
     return TextFormField(
@@ -208,6 +227,21 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                     ],
                     onChanged:
                         saving ? null : (value) => setState(() => _year = value!),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: (saving || _loadingLedger || _isEdit)
+                        ? null
+                        : _autoFillFromLedger,
+                    icon: _loadingLedger
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.auto_fix_high_outlined, size: 18),
+                    label: Text(_loadingLedger
+                        ? 'Mengambil data...'
+                        : 'Ambil dari Buku Besar'),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
