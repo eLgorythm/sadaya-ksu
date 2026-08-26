@@ -29,7 +29,7 @@ class AsetRemoteDataSource {
     required double salvageValue,
     required int usefulLifeYears,
   }) async {
-    await _client.from('assets').insert({
+    final row = await _client.from('assets').insert({
       'name': name,
       if (description != null && description.isNotEmpty)
         'description': description,
@@ -37,6 +37,14 @@ class AsetRemoteDataSource {
       'acquisition_cost': cost,
       'salvage_value': salvageValue,
       'useful_life_years': usefulLifeYears,
+    }).select('id').single();
+
+    // Auto-post ke ledger: debit 1120 Inventaris / credit 1111 Kas
+    await _client.rpc('post_asset_acquisition', params: {
+      'p_asset_id': row['id'],
+      'p_amount': cost,
+      'p_date': acquisitionDate.toIso8601String().substring(0, 10),
+      'p_description': 'Pembelian aset: $name',
     });
   }
 
@@ -63,6 +71,8 @@ class AsetRemoteDataSource {
 
   /// Riwayat penyusutan terhapus otomatis (FK on delete cascade).
   Future<void> deleteAsset(String id) async {
+    // Void jurnal ledger aset terlebih dahulu
+    await _client.rpc('void_asset_ledger', params: {'p_asset_id': id});
     await _client.from('assets').delete().eq('id', id);
   }
 

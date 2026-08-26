@@ -9,6 +9,8 @@ import '../../features/dashboard/presentation/pages/home_page.dart';
 import '../../features/aset/presentation/pages/aset_page.dart';
 import '../../features/dana/presentation/pages/dana_page.dart';
 import '../../features/usaha/presentation/pages/usaha_page.dart';
+import '../../features/pajak/presentation/pages/pajak_page.dart';
+import '../../features/laporan/presentation/pages/balance_sheet_page.dart';
 import '../../features/keuangan/presentation/pages/keuangan_page.dart';
 import '../../features/pinjaman/presentation/pages/loans_page.dart';
 import '../../features/simpanan/presentation/pages/savings_page.dart';
@@ -55,6 +57,14 @@ class AppRouter {
           GoRoute(
             path: '/usaha',
             builder: (_, _) => const UsahaPage(),
+          ),
+          GoRoute(
+            path: '/pajak',
+            builder: (_, _) => const PajakPage(),
+          ),
+          GoRoute(
+            path: '/laporan/neraca',
+            builder: (_, _) => const BalanceSheetPage(),
           ),
           GoRoute(
             path: '/pilih-anggota',

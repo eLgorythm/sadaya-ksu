@@ -106,6 +106,16 @@ class HomePage extends StatelessWidget {
                 label: 'Usaha Keripik',
                 onTap: () => context.push('/usaha'),
               ),
+              _MenuTile(
+                icon: Icons.receipt_outlined,
+                label: 'Pajak',
+                onTap: () => context.push('/pajak'),
+              ),
+              _MenuTile(
+                icon: Icons.account_balance_outlined,
+                label: 'Neraca',
+                onTap: () => context.push('/laporan/neraca'),
+              ),
               const _MenuTile(
                 icon: Icons.settings_outlined,
                 label: 'Pengaturan',

@@ -110,20 +110,20 @@ class UsahaRemoteDataSource {
     String? buyer,
     String? notes,
   }) async {
-    await _client.from('chip_sales').insert({
-      'product_type': productType,
-      'sale_date': date.toIso8601String().substring(0, 10),
-      'quantity': quantity,
-      'unit': unit,
-      'unit_price': unitPrice,
-      'total_price': quantity * unitPrice,
-      if (buyer != null && buyer.isNotEmpty) 'buyer': buyer,
-      if (notes != null && notes.isNotEmpty) 'notes': notes,
-      'created_by': _client.auth.currentUser?.id,
+    await _client.rpc('record_chip_sale', params: {
+      'p_product_type': productType,
+      'p_date': date.toIso8601String().substring(0, 10),
+      'p_quantity': quantity,
+      'p_unit': unit,
+      'p_unit_price': unitPrice,
+      'p_total_price': quantity * unitPrice,
+      'p_buyer': buyer,
+      'p_notes': notes,
     });
   }
 
   Future<void> deleteSale(String id) async {
+    await _client.rpc('void_chip_sale', params: {'p_sale_id': id});
     await _client.from('chip_sales').delete().eq('id', id);
   }
 }
