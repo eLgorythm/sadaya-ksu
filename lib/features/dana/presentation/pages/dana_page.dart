@@ -38,7 +38,9 @@ class _DanaPageState extends State<DanaPage>
   @override
   void initState() {
     super.initState();
-    _cubit.load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _cubit.load();
+    });
     _tabController.addListener(_onTabChanged);
   }
 
@@ -82,8 +84,8 @@ class _DanaPageState extends State<DanaPage>
               return TabBarView(
                 controller: _tabController,
                 children: [
-                  _FundTab(state: state, onReload: _cubit.load),
-                  _ShuTab(state: state, onReload: _cubit.load),
+                  _FundTab(state: state, onReload: () => _cubit.load(silent: true)),
+                  _ShuTab(state: state, onReload: () => _cubit.load(silent: true)),
                 ],
               );
           }
@@ -94,7 +96,7 @@ class _DanaPageState extends State<DanaPage>
           final saved = isShuTab
               ? await ShuFormSheet.show(context)
               : await FundTransactionSheet.show(context);
-          if (saved) _cubit.load();
+          if (saved) _cubit.load(silent: true);
         },
         icon: Icon(
             isShuTab ? Icons.calculate_outlined : Icons.add_chart_outlined),

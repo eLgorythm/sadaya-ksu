@@ -9,13 +9,28 @@ import '../../domain/entities/cash_entities.dart';
 import '../cubit/keuangan_cubit.dart';
 import '../widgets/cash_form_sheet.dart';
 
-class KeuanganPage extends StatelessWidget {
+class KeuanganPage extends StatefulWidget {
   const KeuanganPage({super.key});
+
+  @override
+  State<KeuanganPage> createState() => _KeuanganPageState();
+}
+
+class _KeuanganPageState extends State<KeuanganPage> {
+  late final KeuanganCubit _cubit = GetIt.I<KeuanganCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _cubit.load();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<KeuanganCubit>.value(
-      value: GetIt.I<KeuanganCubit>()..load(),
+      value: _cubit,
       child: const _KeuanganView(),
     );
   }
@@ -63,7 +78,7 @@ class _KeuanganView extends StatelessWidget {
                   children: [
                     RefreshIndicator(
                       onRefresh: () async =>
-                          await GetIt.I<KeuanganCubit>().load(),
+                          await GetIt.I<KeuanganCubit>().load(silent: true),
                       child: _BookListView(
                         entries: state.cashEntries,
                         balance: state.cashBalance,
@@ -74,7 +89,7 @@ class _KeuanganView extends StatelessWidget {
                     ),
                     RefreshIndicator(
                       onRefresh: () async =>
-                          await GetIt.I<KeuanganCubit>().load(),
+                          await GetIt.I<KeuanganCubit>().load(silent: true),
                       child: _BookListView(
                         entries: state.bankEntries,
                         balance: state.bankBalance,
@@ -98,7 +113,7 @@ class _KeuanganView extends StatelessWidget {
     final book = DefaultTabController.of(context).index == 0 ? 'cash' : 'bank';
     final saved = await CashFormSheet.show(context, initialBook: book);
     if (saved && context.mounted) {
-      GetIt.I<KeuanganCubit>().load();
+      GetIt.I<KeuanganCubit>().load(silent: true);
     }
   }
 }

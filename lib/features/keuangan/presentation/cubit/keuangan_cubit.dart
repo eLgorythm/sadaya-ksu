@@ -56,8 +56,10 @@ class KeuanganCubit extends Cubit<KeuanganState> {
     return result;
   }
 
-  Future<void> load() async {
-    emit(const KeuanganLoadInProgress());
+  Future<void> load({bool silent = false}) async {
+    if (!silent || state is! KeuanganLoaded) {
+      emit(const KeuanganLoadInProgress());
+    }
     final cash = await _getEntries('cash');
     final bank = await _getEntries('bank');
     final categories = await _getCategories(const NoParams());

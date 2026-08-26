@@ -31,8 +31,10 @@ class DanaCubit extends Cubit<DanaState> {
   final CancelShuDistribution _cancelDistribution;
 
   /// Memuat ulang seluruh data modul dana & SHU.
-  Future<void> load() async {
-    emit(const DanaLoadInProgress());
+  Future<void> load({bool silent = false}) async {
+    if (!silent || state is! DanaLoaded) {
+      emit(const DanaLoadInProgress());
+    }
 
     final fundResult = await _getFundTransactions(const NoParams());
     final List<FundTransaction> funds;

@@ -12,16 +12,31 @@ import '../cubit/loans_cubit.dart';
 import '../widgets/create_loan_sheet.dart';
 import '../widgets/pay_installment_sheet.dart';
 
-class LoansPage extends StatelessWidget {
+class LoansPage extends StatefulWidget {
   const LoansPage({super.key, required this.member});
 
   final MemberLoanTarget member;
 
   @override
+  State<LoansPage> createState() => _LoansPageState();
+}
+
+class _LoansPageState extends State<LoansPage> {
+  late final LoansCubit _cubit = GetIt.I<LoansCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _cubit.load(widget.member.id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<LoansCubit>.value(
-      value: GetIt.I<LoansCubit>()..load(member.id),
-      child: _LoansView(member: member),
+      value: _cubit,
+      child: _LoansView(member: widget.member),
     );
   }
 }
@@ -53,7 +68,7 @@ class _LoansView extends StatelessWidget {
         context,
         'Pinjaman #${loan.loanNumber} dicairkan. Jadwal ${loan.tenor} cicilan dibuat.',
       );
-      context.read<LoansCubit>().load(member.id);
+      context.read<LoansCubit>().load(member.id, silent: true);
     }
   }
 
@@ -133,7 +148,7 @@ class _LoanListView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (loans.isEmpty) {
       return RefreshIndicator(
-        onRefresh: () async => await context.read<LoansCubit>().load(memberId),
+        onRefresh: () async => await context.read<LoansCubit>().load(memberId, silent: true),
         child: const EmptyStateView(
           icon: Icons.account_balance_outlined,
           message:

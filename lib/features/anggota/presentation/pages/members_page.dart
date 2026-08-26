@@ -14,13 +14,28 @@ import '../../domain/entities/member_entity.dart';
 import '../cubit/members_cubit.dart';
 import '../widgets/member_form_sheet.dart';
 
-class MembersPage extends StatelessWidget {
+class MembersPage extends StatefulWidget {
   const MembersPage({super.key});
+
+  @override
+  State<MembersPage> createState() => _MembersPageState();
+}
+
+class _MembersPageState extends State<MembersPage> {
+  late final MembersCubit _cubit = GetIt.I<MembersCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _cubit.load();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<MembersCubit>.value(
-      value: GetIt.I<MembersCubit>()..load(),
+      value: _cubit,
       child: const _MembersView(),
     );
   }
@@ -167,10 +182,10 @@ class _MembersViewState extends State<_MembersView> {
                     );
                   case MembersLoadSuccess(:final members):
                     if (members.isEmpty) {
-                      return RefreshIndicator(
-                        onRefresh: () async =>
-                            await GetIt.I<MembersCubit>().load(),
-                        child: const EmptyStateView(
+                    return RefreshIndicator(
+                      onRefresh: () async =>
+                          await GetIt.I<MembersCubit>().load(silent: true),
+                      child: const EmptyStateView(
                           icon: Icons.group_outlined,
                           message:
                               'Belum ada anggota.\nTekan tombol "Anggota Baru" untuk menambah.',
@@ -179,7 +194,7 @@ class _MembersViewState extends State<_MembersView> {
                     }
                     return RefreshIndicator(
                       onRefresh: () async =>
-                          await GetIt.I<MembersCubit>().load(),
+                          await GetIt.I<MembersCubit>().load(silent: true),
                       child: ListView.separated(
                         padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
                         itemCount: members.length,
@@ -191,7 +206,7 @@ class _MembersViewState extends State<_MembersView> {
                             onEdit: () => MemberFormSheet.show(context,
                                     member: member)
                                 .then((saved) {
-                              if (saved) GetIt.I<MembersCubit>().load();
+          if (saved) GetIt.I<MembersCubit>().load(silent: true);
                             }),
                             onToggleStatus: () =>
                                 _confirmStatusChange(context, member),

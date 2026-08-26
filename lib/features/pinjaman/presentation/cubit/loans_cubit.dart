@@ -17,8 +17,10 @@ class LoansCubit extends Cubit<LoansState> {
   final GetMemberLoans _getMemberLoans;
   final LoanRepository _loanRepository;
 
-  Future<void> load(String memberId) async {
-    emit(LoansLoadInProgress(memberId: memberId));
+  Future<void> load(String memberId, {bool silent = false}) async {
+    if (!silent || state is! LoansListLoaded) {
+      emit(LoansLoadInProgress(memberId: memberId));
+    }
     final result = await _getMemberLoans(memberId);
     switch (result) {
       case Ok(:final value):

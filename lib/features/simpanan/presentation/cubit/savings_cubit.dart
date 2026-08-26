@@ -17,8 +17,10 @@ class SavingsCubit extends Cubit<SavingsState> {
   final GetMemberSavings _getMemberSavings;
   final GetSavingsTypes _getSavingsTypes;
 
-  Future<void> load(String memberId) async {
-    emit(SavingsLoadInProgress(memberId: memberId));
+  Future<void> load(String memberId, {bool silent = false}) async {
+    if (!silent || state is! SavingsLoadSuccess) {
+      emit(SavingsLoadInProgress(memberId: memberId));
+    }
     final typesResult = await _getSavingsTypes(const NoParams());
     switch (typesResult) {
       case Ok(:final value):

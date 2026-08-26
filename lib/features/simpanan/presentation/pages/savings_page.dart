@@ -9,16 +9,31 @@ import '../../domain/entities/saving_entities.dart';
 import '../cubit/savings_cubit.dart';
 import '../widgets/saving_transaction_sheet.dart';
 
-class SavingsPage extends StatelessWidget {
+class SavingsPage extends StatefulWidget {
   const SavingsPage({super.key, required this.member});
 
   final MemberSavingsTarget member;
 
   @override
+  State<SavingsPage> createState() => _SavingsPageState();
+}
+
+class _SavingsPageState extends State<SavingsPage> {
+  late final SavingsCubit _cubit = GetIt.I<SavingsCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _cubit.load(widget.member.id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<SavingsCubit>.value(
-      value: GetIt.I<SavingsCubit>()..load(member.id),
-      child: _SavingsView(member: member),
+      value: _cubit,
+      child: _SavingsView(member: widget.member),
     );
   }
 }
@@ -60,7 +75,7 @@ class _SavingsView extends StatelessWidget {
             case SavingsLoadSuccess():
               return RefreshIndicator(
                 onRefresh: () async =>
-                    await GetIt.I<SavingsCubit>().load(member.id),
+                    await GetIt.I<SavingsCubit>().load(member.id, silent: true),
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                   children: [
@@ -112,7 +127,7 @@ class _SavingsView extends StatelessWidget {
                         transactionType: 'deposit',
                         types: state.types,
                       ).then((saved) {
-                        if (saved) GetIt.I<SavingsCubit>().load(member.id);
+                        if (saved) GetIt.I<SavingsCubit>().load(member.id, silent: true);
                       }),
                       icon: const Icon(Icons.add_card_outlined),
                       label: const Text('Setor Simpanan'),
@@ -127,7 +142,7 @@ class _SavingsView extends StatelessWidget {
                                 types: state.types,
                               ).then((saved) {
                                 if (saved) {
-                                  GetIt.I<SavingsCubit>().load(member.id);
+                                  GetIt.I<SavingsCubit>().load(member.id, silent: true);
                                 }
                               })
                           : null,
