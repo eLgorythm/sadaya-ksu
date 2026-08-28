@@ -19,12 +19,21 @@ declare
   v_total_expense numeric;
   v_balanced boolean;
   v_year integer;
+  v_total_anggota integer;
+  v_anggota_aktif integer;
+  v_anggota_nonaktif integer;
 begin
   if auth.uid() is null then
     raise exception 'AUTH_REQUIRED';
   end if;
 
   v_year := extract(year from current_date)::int;
+
+  -- Total anggota
+  select count(*) into v_total_anggota from public.members;
+  select count(*) into v_anggota_aktif
+    from public.members where status = 'active';
+  v_anggota_nonaktif := v_total_anggota - v_anggota_aktif;
 
   -- Total Kas & Bank (1111 + 1112)
   select coalesce(sum(debit_amount - credit_amount), 0) into v_kas_bank
@@ -88,7 +97,10 @@ begin
     'stok_keripik', v_stok_keripik,
     'ekuitas', v_total_equity,
     'kewajiban', v_total_liability,
-    'balanced', v_balanced
+    'balanced', v_balanced,
+    'total_anggota', v_total_anggota,
+    'anggota_aktif', v_anggota_aktif,
+    'anggota_nonaktif', v_anggota_nonaktif
   );
 end;
 $$;

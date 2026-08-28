@@ -44,6 +44,9 @@ class _HomePageState extends State<HomePage> {
   double _ekuitas = 0;
   double _stokKeripik = 0;
   bool _balanced = false;
+  int _totalAnggota = 0;
+  int _anggotaAktif = 0;
+  int _anggotaNonaktif = 0;
   bool _loadingSummary = true;
   ModuleCategory _selectedCategory = ModuleCategory.all;
 
@@ -65,6 +68,10 @@ class _HomePageState extends State<HomePage> {
           _ekuitas = (data['ekuitas'] as num?)?.toDouble() ?? 0;
           _stokKeripik = (data['stok_keripik'] as num?)?.toDouble() ?? 0;
           _balanced = data['balanced'] as bool? ?? false;
+          _totalAnggota = (data['total_anggota'] as num?)?.toInt() ?? 0;
+          _anggotaAktif = (data['anggota_aktif'] as num?)?.toInt() ?? 0;
+          _anggotaNonaktif =
+              (data['anggota_nonaktif'] as num?)?.toInt() ?? 0;
           _loadingSummary = false;
         });
       }
@@ -190,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                 height: 120,
                 child: Center(child: CircularProgressIndicator()),
               )
-            else
+            else ...[
               _HeroCard(
                 kasBank: _kasBank,
                 piutang: _piutang,
@@ -198,6 +205,13 @@ class _HomePageState extends State<HomePage> {
                 stokKeripik: _stokKeripik,
                 balanced: _balanced,
               ),
+              const SizedBox(height: 10),
+              _MemberStatsRow(
+                total: _totalAnggota,
+                aktif: _anggotaAktif,
+                nonaktif: _anggotaNonaktif,
+              ),
+            ],
             const SizedBox(height: 16),
 
             // Quick actions
@@ -558,6 +572,115 @@ class _HeroMetric extends StatelessWidget {
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
+
+/// Deret statistik anggota di bawah hero card.
+class _MemberStatsRow extends StatelessWidget {
+  const _MemberStatsRow({
+    required this.total,
+    required this.aktif,
+    required this.nonaktif,
+  });
+
+  final int total;
+  final int aktif;
+  final int nonaktif;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _StatItem(
+              label: 'Total Anggota',
+              value: total,
+              icon: Icons.group_outlined,
+              color: AppColors.brand700,
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 28,
+            color: Colors.grey.shade200,
+          ),
+          Expanded(
+            child: _StatItem(
+              label: 'Aktif',
+              value: aktif,
+              icon: Icons.check_circle_outline,
+              color: const Color(0xFF16A34A),
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 28,
+            color: Colors.grey.shade200,
+          ),
+          Expanded(
+            child: _StatItem(
+              label: 'Nonaktif',
+              value: nonaktif,
+              icon: Icons.remove_circle_outline,
+              color: const Color(0xFF9CA3AF),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final int value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 13, color: color),
+            const SizedBox(width: 4),
+            Text(
+              '$value',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 9,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
