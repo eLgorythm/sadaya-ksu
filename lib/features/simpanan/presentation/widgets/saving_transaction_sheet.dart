@@ -35,7 +35,9 @@ class SavingTransactionSheet extends StatefulWidget {
             transactionType: transactionType,
             types: withdrawal
                 ? types.where((t) => t.isWithdrawable).toList()
-                : types.where((t) => !t.isSystemManaged).toList(),
+                : types
+                    .where((t) => !t.isSystemManaged && t.code != 'DIV')
+                    .toList(),
           ),
         ) ??
         false;

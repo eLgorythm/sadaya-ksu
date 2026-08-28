@@ -57,8 +57,14 @@ alter table public.savings_types
   check (code in ('SP', 'SWB', 'SMS', 'SWK', 'DIV'));
 
 insert into public.savings_types (code, name, interest_rate, is_withdrawable, is_system_managed)
-values ('DIV', 'Dividen SHU', 0.0000, true, false)
+values ('DIV', 'Dividen SHU', 0.0000, true, true)
 on conflict (code) do nothing;
+
+-- Dividen dikelola sistem: tidak boleh disetor manual (bersihkan flag lama bila ada)
+update public.savings_types
+   set is_system_managed = true,
+       is_withdrawable = true
+ where code = 'DIV';
 
 -- 3. Update create_savings_transaction: tambah mapping DIV -> 3118 (SHU)
 create or replace function public.create_savings_transaction(
