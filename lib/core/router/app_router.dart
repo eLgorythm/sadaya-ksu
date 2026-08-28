@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../features/anggota/presentation/pages/member_picker_page.dart';
 import '../../features/anggota/presentation/pages/members_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/dashboard/presentation/pages/home_page.dart';
+import '../../features/dashboard/presentation/pages/main_shell_page.dart';
 import '../../features/aset/presentation/pages/aset_page.dart';
 import '../../features/dana/presentation/pages/dana_page.dart';
 import '../../features/usaha/presentation/pages/usaha_page.dart';
@@ -36,7 +36,7 @@ class AppRouter {
           ),
           GoRoute(
             path: '/',
-            builder: (_, _) => const HomePage(),
+            builder: (_, _) => const MainShellPage(),
           ),
           GoRoute(
             path: '/anggota',

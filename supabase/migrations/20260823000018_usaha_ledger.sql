@@ -6,9 +6,10 @@
 -- 4. RPC void_chip_sale: hapus jurnal saat sale dihapus
 -- =============================================================
 
--- 1. Tambah COA biaya bahan baku
+-- 1. Tambah COA biaya bahan baku + persediaan
 insert into public.chart_of_accounts (code, name, account_type) values
-  ('5125', 'Biaya Bahan Baku Keripik', 'expense')
+  ('5125', 'Biaya Bahan Baku Keripik', 'expense'),
+  ('1130', 'Persediaan Bahan Baku', 'asset')
 on conflict (code) do nothing;
 
 -- 2. Updated record_material_transaction: + posting ledger
@@ -72,24 +73,24 @@ begin
 
   -- Posting ke ledger
   if p_type = 'purchase' and v_total is not null and v_total > 0 then
-    -- Beli bahan: debit 1120 Inventaris / credit 1111 Kas
+    -- Beli bahan: debit 1130 Persediaan / credit 1111 Kas
     insert into public.ledger_entries (
       entry_date, account_code, source_book, reference_id, reference_type,
       debit_amount, credit_amount, description, fiscal_year, created_by
     ) values
-      (p_date, '1120', 'usaha', v_txn_id, 'material_purchase',
+      (p_date, '1130', 'usaha', v_txn_id, 'material_purchase',
        v_total, 0, 'Beli bahan: ' || v_name, public.v_year_of(p_date), auth.uid()),
       (p_date, '1111', 'usaha', v_txn_id, 'material_purchase',
        0, v_total, 'Beli bahan: ' || v_name, public.v_year_of(p_date), auth.uid());
   elsif p_type = 'usage' and v_total is not null and v_total > 0 then
-    -- Pakai bahan: debit 5125 Biaya Bahan / credit 1120 Inventaris
+    -- Pakai bahan: debit 5125 Biaya Bahan / credit 1130 Persediaan
     insert into public.ledger_entries (
       entry_date, account_code, source_book, reference_id, reference_type,
       debit_amount, credit_amount, description, fiscal_year, created_by
     ) values
       (p_date, '5125', 'usaha', v_txn_id, 'material_usage',
        v_total, 0, 'Pakai bahan: ' || v_name, public.v_year_of(p_date), auth.uid()),
-      (p_date, '1120', 'usaha', v_txn_id, 'material_usage',
+      (p_date, '1130', 'usaha', v_txn_id, 'material_usage',
        0, v_total, 'Pakai bahan: ' || v_name, public.v_year_of(p_date), auth.uid());
   end if;
 

@@ -86,6 +86,8 @@ begin
     'kas_bank', v_kas_bank,
     'piutang', v_piutang,
     'stok_keripik', v_stok_keripik,
+    'ekuitas', v_total_equity,
+    'kewajiban', v_total_liability,
     'balanced', v_balanced
   );
 end;

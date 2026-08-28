@@ -14,4 +14,14 @@ class AppColors {
   static const Color negativeRed = Color(0xFFD32F2F);
   static const Color positiveGreen = Color(0xFF2E7D32);
   static const Color textGray = Color(0xFF9E9E9E);
+
+  // Palet redesign brand (dokumen redesign_ui_ux): hijau natural
+  static const Color brand50 = Color(0xFFF0FDF4);
+  static const Color brand100 = Color(0xFFDCFCE7);
+  static const Color brand500 = Color(0xFF22C55E);
+  static const Color brand600 = Color(0xFF16A34A);
+  static const Color brand700 = Color(0xFF15803D);
+  static const Color brand800 = Color(0xFF166534);
+  static const Color brand900 = Color(0xFF14532D);
+  static const Color brandDark = Color(0xFF0F391F);
 }

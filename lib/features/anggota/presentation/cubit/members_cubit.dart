@@ -19,8 +19,12 @@ class MembersCubit extends Cubit<MembersState> {
 
   String _search = '';
   String? _statusFilter;
+  int _loadSeq = 0;
+
+  String? get currentStatusFilter => _statusFilter;
 
   Future<void> load({bool silent = false}) async {
+    final seq = ++_loadSeq;
     if (!silent || state is! MembersLoadSuccess) {
       emit(MembersLoadInProgress(
         search: _search,
@@ -30,6 +34,7 @@ class MembersCubit extends Cubit<MembersState> {
     final result = await _repository.getMembers(
       MemberFilters(search: _search, status: _statusFilter),
     );
+    if (seq != _loadSeq) return;
     switch (result) {
       case Ok(:final value):
         emit(MembersLoadSuccess(
