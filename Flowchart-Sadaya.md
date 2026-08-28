@@ -130,7 +130,7 @@ flowchart TD
 
     POST --> LEDGER[(ledger_entries<br/>entry_date, fiscal_year,<br/>account_code, debit, credit,<br/>source_book, reference_type)]
 
-    NERACA_RPC[get_balance_sheet_data(year)] -->|SELECT COA LEFT JOIN ledger<br/>GROUP BY code GROUP BY, HAVING sum ≠ 0| LEDGER
+    NERACA_RPC[get_balance_sheet_data(year)] -->|SELECT COA LEFT JOIN ledger_entries<br/>GROUP BY code, name, account_type + HAVING| LEDGER
     LEDGER --> AGG[Aggregate saldo per akun<br/>debit/credit balance x account_type]
 
     AGG --> GRP[Kelompokkan Neraca]
