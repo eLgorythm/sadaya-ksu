@@ -16,7 +16,7 @@ Renders otomatis di GitHub, VS Code (plugin Markdown Preview Mermaid), atau http
 flowchart TD
     U[Pengurus / Anggota Koperasi] -->|Login email + password| AUTH[Auth Supabase<br/>GoRouter redirect]
 
-    AUTH -->|Session valid| SHELL[MainShellPage<br/>Bottom Nav: Beranda | Neraca | Input | Pengaturan]
+    AUTH -->|Session valid| SHELL[MainShellPage<br/>Bottom Nav: Beranda • Neraca • Input • Pengaturan]
     AUTH -->|Tidak login| LOGIN[/login/]
 
     SHELL --> B[Dashboard]
@@ -82,9 +82,9 @@ flowchart TD
 
     H --> LOAD[Load get_dashboard_summary RPC]
     LOAD --> HERO[Laporan Neraca Real-Time + Total Kas & Aset Lancar<br/>+ Piutang + Ekuitas + Stok + Status]
-    HERO --> STATS[Baris Statistik Anggota<br/>Total | Aktif | Nonaktif]
+    HERO --> STATS[Baris Statistik Anggota<br/>Total • Aktif • Nonaktif]
     STATS --> QA[Aksi Cepat Transaksi]
-    STATS --> FILTER[Filter Tab Modul<br/>Semua | Utama & Kas | Simpan Pinjam | Dana & SHU | Aset & Usaha]
+    STATS --> FILTER[Filter Tab Modul<br/>Semua • Utama & Kas • Simpan Pinjam • Dana & SHU • Aset & Usaha]
     FILTER --> GRID[Grid 15 Modul Koperasi]
 
     QA -->|Setor Simpanan| QA1[Pilih Anggota → /simpanan/id]
@@ -112,7 +112,7 @@ flowchart TD
         PIN[Pinjaman<br/>loans/cash_ledger]
         DAN[SHU & Dana<br/>dana.rpc]
         AST[Aset & Penyusutan<br/>aset.rpc]
-        USA[Usaha (keripik)<br/>usaha.rpc]
+        USA[Unit Keripik<br/>usaha.rpc]
         P[Pajak<br/>pajak.rpc]
     end
 
@@ -124,13 +124,13 @@ flowchart TD
     USA --> RPC
     P --> RPC
 
-    RPC --> VALID{Validasi:<br/>auth.uid() / saldo / status}
+    RPC --> VALID{Validasi:<br/>auth diizinkan, saldo cukup,<br/>status benar}
     VALID -->|Gagal| ERR[Return error<br/>tampil SnackBar]
     VALID -->|Berhasil| POST[PostLedgerEntry<br/>debit + credit di ledger_entries]
 
     POST --> LEDGER[(ledger_entries<br/>entry_date, fiscal_year,<br/>account_code, debit, credit,<br/>source_book, reference_type)]
 
-    NERACA_RPC[get_balance_sheet_data(year)] -->|SELECT COA LEFT JOIN ledger_entries<br/>GROUP BY code, name, account_type + HAVING| LEDGER
+    NERACA_RPC[get_balance_sheet_data → RPC SQL] -->|SELECT COA LEFT JOIN ledger_entries<br/>GROUP BY code, name, account_type + HAVING| LEDGER
     LEDGER --> AGG[Aggregate saldo per akun<br/>debit/credit balance x account_type]
 
     AGG --> GRP[Kelompokkan Neraca]
@@ -140,13 +140,13 @@ flowchart TD
     GRP --> G4[PENDAPATAN 4xxx]
     GRP --> G5[BEBAN 5xxx]
 
-    G1 --> BAL{Keseimbangan?<br/>ASET = LIAB + EKUITAS<br/>+ (PEND − BEBAN)}
+    G1 --> BAL{Keseimbangan?<br/>ASET = LIAB + EKUITAS<br/>+ Pendapatan − Beban}
     G2 --> BAL
     G3 --> BAL
     G4 --> BAL
     G5 --> BAL
 
-    BAL -->|Ya = 0 (abs < 0.01)| MATCH[Banner SEIMBANG]
+    BAL -->|abs selisih < 0.01| MATCH[Banner SEIMBANG]
     BAL -->|≠ 0| MISMATCH[Banner SELISIH<br/>indikator entri salah]
     MATCH --> UI[BalanceSheetPage<br/>Kartu ASET / KEWAJIBAN / EKUITAS / LABA-RUGI<br/>+ Total Aktiva vs Pasiva]
     MISMATCH --> UI
@@ -170,7 +170,7 @@ flowchart TD
     subgraph PICKER[Halaman Pilih Anggota]
         direction TB
         C0[Pencarian nama + tombol clear]
-        C1[Filter chip: Semua | Aktif | Nonaktif<br/>MembersCubit.filterChanged]
+        C1[Filter chip: Semua • Aktif • Nonaktif<br/>MembersCubit.filterChanged]
         C2[Kartu anggota: nomor, nama, telepon,<br/>tanggal masuk, badge status]
         C0 --> C1 --> C2
     end
@@ -182,7 +182,7 @@ flowchart TD
     MODE -->|Pinjaman| LP[Push /pinjaman/id<br/>extra: MemberLoanTarget]
     MODE -->|Simpanan| SP[Push /simpanan/id<br/>extra: MemberSavingsTarget]
 
-    SP --> SVIEW[Halaman Simpanan Anggota<br/>Kartu saldo: SP | SWB | SMS | SWK]
+    SP --> SVIEW[Halaman Simpanan Anggota<br/>Kartu saldo: SP • SWB • SMS • SWK]
     SVIEW --> DEP[Tombol Setor Simpanan]
     DEP --> SH1{Filter jenis:<br/>bukan system-managed dan bukan DIV?}
     SH1 -->|Ya| SH2[Form jenis chip + nominal + keterangan]
@@ -200,7 +200,7 @@ flowchart TD
     MAPPING -->|SMS| A3[2111 Simpanan Mana Suka]
     MAPPING -->|SWK| A4[2113 Simpanan Wajib Kredit]
     MAPPING -->|DIV| A5[3118 Akumulasi SHU]
-    MAPPING -->|SMS (tarik)| A6[1111 Kas ↔ 2111]
+    MAPPING -->|Tarik SMS| A6[1111 Kas ↔ 2111]
 
     A1 --> LED[Ledger entry → masuk Neraca]
     A2 --> LED
