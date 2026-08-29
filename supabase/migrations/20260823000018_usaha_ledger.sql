@@ -78,9 +78,9 @@ begin
       entry_date, account_code, source_book, reference_id, reference_type,
       debit_amount, credit_amount, description, fiscal_year, created_by
     ) values
-      (p_date, '1130', 'usaha', v_txn_id, 'material_purchase',
+      (p_date, '1130',  'chip_business', v_txn_id, 'material_purchase',
        v_total, 0, 'Beli bahan: ' || v_name, public.v_year_of(p_date), auth.uid()),
-      (p_date, '1111', 'usaha', v_txn_id, 'material_purchase',
+      (p_date, '1111',  'chip_business', v_txn_id, 'material_purchase',
        0, v_total, 'Beli bahan: ' || v_name, public.v_year_of(p_date), auth.uid());
   elsif p_type = 'usage' and v_total is not null and v_total > 0 then
     -- Pakai bahan: debit 5125 Biaya Bahan / credit 1130 Persediaan
@@ -88,9 +88,9 @@ begin
       entry_date, account_code, source_book, reference_id, reference_type,
       debit_amount, credit_amount, description, fiscal_year, created_by
     ) values
-      (p_date, '5125', 'usaha', v_txn_id, 'material_usage',
+      (p_date, '5125',  'chip_business', v_txn_id, 'material_usage',
        v_total, 0, 'Pakai bahan: ' || v_name, public.v_year_of(p_date), auth.uid()),
-      (p_date, '1130', 'usaha', v_txn_id, 'material_usage',
+      (p_date, '1130',  'chip_business', v_txn_id, 'material_usage',
        0, v_total, 'Pakai bahan: ' || v_name, public.v_year_of(p_date), auth.uid());
   end if;
 
@@ -152,11 +152,11 @@ begin
     entry_date, account_code, source_book, reference_id, reference_type,
     debit_amount, credit_amount, description, fiscal_year, created_by
   ) values
-    (p_date, '1111', 'usaha', v_sale_id, 'chip_sale',
+    (p_date, '1111',  'chip_business', v_sale_id, 'chip_sale',
      p_total_price, 0, 'Penjualan ' || replace(p_product_type, '_', ' ') ||
        ' (' || p_quantity::text || ' ' || p_unit || ')',
        public.v_year_of(p_date), auth.uid()),
-    (p_date, v_account_code, 'usaha', v_sale_id, 'chip_sale',
+    (p_date, v_account_code,  'chip_business', v_sale_id, 'chip_sale',
      0, p_total_price, 'Penjualan ' || replace(p_product_type, '_', ' ') ||
        ' (' || p_quantity::text || ' ' || p_unit || ')',
        public.v_year_of(p_date), auth.uid());

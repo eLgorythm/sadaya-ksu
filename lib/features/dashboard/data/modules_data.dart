@@ -22,6 +22,7 @@ class ModuleItem {
     required this.category,
     required this.icon,
     required this.description,
+    this.postsToLedger = true,
   });
 
   final String id;
@@ -29,6 +30,10 @@ class ModuleItem {
   final ModuleCategory category;
   final IconData icon;
   final String description;
+
+  /// Apakah modul mem-posting jurnal ke buku besar (terhubung ke Neraca).
+  /// Modul laporan (neraca) tidak mem-posting.
+  final bool postsToLedger;
 }
 
 /// Daftar 15 modul master sesuai dokumen redesign.
@@ -116,6 +121,7 @@ const List<ModuleItem> kModules = [
     category: ModuleCategory.utama,
     icon: Icons.bar_chart,
     description: 'Laporan Neraca Realtime',
+    postsToLedger: false,
   ),
   ModuleItem(
     id: 'inventaris',

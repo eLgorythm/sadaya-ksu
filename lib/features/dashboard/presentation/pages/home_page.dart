@@ -231,7 +231,7 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 Text(
-                  '15 Modul Koperasi',
+                  '${kModules.length} Modul Koperasi',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.grey[600],
@@ -471,7 +471,7 @@ class _HeroCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 3),
                     Text(
-                      balanced ? 'Balanced' : 'Tidak Seimbang',
+                      balanced ? 'Seimbang' : 'Selisih',
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
@@ -833,43 +833,66 @@ class _ModuleCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(9),
+child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: Icon(
+                        item.icon,
+                        size: 16,
+                        color: AppColors.brand700,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (item.postsToLedger)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.brand50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.brand100),
+                        ),
+                        child: const Text(
+                          'Neraca',
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.brand700,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                child: Icon(
-                  item.icon,
-                  size: 16,
-                  color: AppColors.brand700,
+                const SizedBox(height: 8),
+                Text(
+                  item.title,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1F2937),
+                    height: 1.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                item.title,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2937),
-                  height: 1.2,
+                const SizedBox(height: 2),
+Text(
+                  item.description,
+                  style: TextStyle(fontSize: 9, color: Colors.grey[400]),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                item.description,
-                style: TextStyle(fontSize: 9, color: Colors.grey[400]),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
             ],
           ),
         ),

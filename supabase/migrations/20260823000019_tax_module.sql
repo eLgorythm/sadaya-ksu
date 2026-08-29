@@ -19,20 +19,22 @@ create table if not exists public.taxes (
   created_at timestamptz not null default now()
 );
 
-create index idx_taxes_date on public.taxes(tax_date);
+create index if not exists idx_taxes_date on public.taxes(tax_date);
 
 alter table public.taxes enable row level security;
 
+drop policy if exists "Authenticated full access" on public.taxes;
 create policy "Authenticated full access" on public.taxes
   for all using (auth.uid() is not null);
 
--- 2. Tambah COA pajak
+-- 2. Tambah COA pajak (+ akun Hutang Pajak untuk baris "Buku Pajak (Hutang)")
 insert into public.chart_of_accounts (code, name, account_type) values
   ('5126', 'Pajak Penghasilan', 'expense'),
-  ('5127', 'Pajak Pertambahan Nilai', 'expense')
+  ('5127', 'Pajak Pertambahan Nilai', 'expense'),
+  ('2122', 'Hutang Pajak', 'liability')
 on conflict (code) do nothing;
 
--- 3. RPC insert pajak + posting ledger (jika paid)
+-- 3. RPC insert pajak + posting ledger (akrual jika unpaid, bayar jika paid)
 create or replace function public.insert_tax(
   p_tax_type text,
   p_description text,
@@ -62,23 +64,33 @@ begin
     p_reference_number, p_notes, auth.uid()
   ) returning id into v_tax_id;
 
-  -- Jurnal jika status paid
-  if p_status = 'paid' then
-    v_account := case
-      when p_tax_type in ('PPh 21', 'PPh 23') then '5126'
-      when p_tax_type = 'PPN' then '5127'
-      else '5126'
-    end;
+  v_account := case
+    when p_tax_type in ('PPh 21', 'PPh 23') then '5126'
+    when p_tax_type = 'PPN' then '5127'
+    else '5126'
+  end;
 
+  if p_status = 'paid' then
     insert into public.ledger_entries (
       entry_date, account_code, source_book, reference_id, reference_type,
       debit_amount, credit_amount, description, fiscal_year, created_by
     ) values
-      (p_date, v_account, 'pajak', v_tax_id, 'tax_payment',
+      (p_date, v_account,  'tax', v_tax_id, 'tax_payment',
        p_amount, 0, 'Bayar ' || p_tax_type || ': ' || coalesce(p_description, ''),
        public.v_year_of(p_date), auth.uid()),
-      (p_date, '1111', 'pajak', v_tax_id, 'tax_payment',
+      (p_date, '1111',  'tax', v_tax_id, 'tax_payment',
        0, p_amount, 'Bayar ' || p_tax_type || ': ' || coalesce(p_description, ''),
+       public.v_year_of(p_date), auth.uid());
+  else
+    insert into public.ledger_entries (
+      entry_date, account_code, source_book, reference_id, reference_type,
+      debit_amount, credit_amount, description, fiscal_year, created_by
+    ) values
+      (p_date, v_account,  'tax', v_tax_id, 'tax_payment',
+       p_amount, 0, 'Hutang ' || p_tax_type || ': ' || coalesce(p_description, ''),
+       public.v_year_of(p_date), auth.uid()),
+      (p_date, '2122',  'tax', v_tax_id, 'tax_payment',
+       0, p_amount, 'Hutang ' || p_tax_type || ': ' || coalesce(p_description, ''),
        public.v_year_of(p_date), auth.uid());
   end if;
 
@@ -133,23 +145,34 @@ begin
   delete from public.ledger_entries
    where reference_id = p_id and reference_type = 'tax_payment';
 
-  -- Post jurnal baru jika paid
-  if p_status = 'paid' then
-    v_account := case
-      when p_tax_type in ('PPh 21', 'PPh 23') then '5126'
-      when p_tax_type = 'PPN' then '5127'
-      else '5126'
-    end;
+  -- Post jurnal baru sesuai status
+  v_account := case
+    when p_tax_type in ('PPh 21', 'PPh 23') then '5126'
+    when p_tax_type = 'PPN' then '5127'
+    else '5126'
+  end;
 
+  if p_status = 'paid' then
     insert into public.ledger_entries (
       entry_date, account_code, source_book, reference_id, reference_type,
       debit_amount, credit_amount, description, fiscal_year, created_by
     ) values
-      (p_date, v_account, 'pajak', p_id, 'tax_payment',
+      (p_date, v_account,  'tax', p_id, 'tax_payment',
        p_amount, 0, 'Bayar ' || p_tax_type || ': ' || coalesce(p_description, ''),
        public.v_year_of(p_date), auth.uid()),
-      (p_date, '1111', 'pajak', p_id, 'tax_payment',
+      (p_date, '1111',  'tax', p_id, 'tax_payment',
        0, p_amount, 'Bayar ' || p_tax_type || ': ' || coalesce(p_description, ''),
+       public.v_year_of(p_date), auth.uid());
+  else
+    insert into public.ledger_entries (
+      entry_date, account_code, source_book, reference_id, reference_type,
+      debit_amount, credit_amount, description, fiscal_year, created_by
+    ) values
+      (p_date, v_account,  'tax', p_id, 'tax_payment',
+       p_amount, 0, 'Hutang ' || p_tax_type || ': ' || coalesce(p_description, ''),
+       public.v_year_of(p_date), auth.uid()),
+      (p_date, '2122',  'tax', p_id, 'tax_payment',
+       0, p_amount, 'Hutang ' || p_tax_type || ': ' || coalesce(p_description, ''),
        public.v_year_of(p_date), auth.uid());
   end if;
 end;

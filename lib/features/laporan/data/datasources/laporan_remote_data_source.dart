@@ -16,4 +16,34 @@ class LaporanRemoteDataSource {
     final accounts = data['accounts'] as List<dynamic>? ?? [];
     return accounts.cast<Map<String, dynamic>>();
   }
+
+  /// Daftar lengkap Chart of Accounts (untuk dropdown Buku Besar),
+  /// apa pun status aktivitas jurnalnya.
+  Future<List<Map<String, dynamic>>> getAllAccounts() async {
+    final rows = await _client
+        .from('chart_of_accounts')
+        .select('code,name,account_type')
+        .order('code');
+    return List<Map<String, dynamic>>.from(rows);
+  }
+
+  /// Baris jurnal buku besar untuk tahun fiskal (opsional per akun),
+  /// diurutkan dari tanggal terlama kemudian waktu dibuat.
+  Future<List<Map<String, dynamic>>> getLedgerEntries({
+    required int fiscalYear,
+    String? accountCode,
+  }) async {
+    var query = _client
+        .from('ledger_entries')
+        .select()
+        .eq('is_void', false)
+        .eq('fiscal_year', fiscalYear);
+    if (accountCode != null) {
+      query = query.eq('account_code', accountCode);
+    }
+    final rows = await query
+        .order('entry_date', ascending: true)
+        .order('created_at', ascending: true);
+    return List<Map<String, dynamic>>.from(rows);
+  }
 }

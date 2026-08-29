@@ -16,13 +16,14 @@ Renders otomatis di GitHub, VS Code (plugin Markdown Preview Mermaid), atau http
 flowchart TD
     U[Pengurus / Anggota Koperasi] -->|Login email + password| AUTH[Auth Supabase<br/>GoRouter redirect]
 
-    AUTH -->|Session valid| SHELL[MainShellPage<br/>Bottom Nav: Beranda • Neraca • Input • Pengaturan]
+    AUTH -->|Session valid| SHELL[MainShellPage<br/>Bottom Nav: Beranda • Neraca • Input • Buku Besar • Pengaturan]
     AUTH -->|Tidak login| LOGIN[/login/]
 
     SHELL --> B[Dashboard]
     SHELL --> NERACA[Neraca / Komposisi Keuangan]
     SHELL --> SETT[Pengaturan]
     SHELL --> FAB[FAB Input / Aksi Cepat]
+    SHELL --> BB[/laporan/bukubesar/]
 
     B --> MOD1[Buku Kas]
     B --> MOD2[Buku Bank]
@@ -58,6 +59,9 @@ flowchart TD
 
     POST --> LEDGER[(ledger_entries<br/>debit / kredit + COA)]
     LEDGER --> NERACA3[Laporan Komposisi Keuangan<br/>ASET = KEWAJIBAN + EKUITAS]
+    BB -->|baca langsung ledger_entries| LEDGER
+    LEDGER --> BB3[Buku Besar per akun<br/>jurnal rinci + saldo berjalan]
+    PAJAK -->|akrual| HUTANG[2122 Hutang Pajak<br/>Buku Pajak • Hutang • masuk KEWAJIBAN]
 ```
 
 ---
@@ -85,7 +89,7 @@ flowchart TD
     HERO --> STATS[Baris Statistik Anggota<br/>Total • Aktif • Nonaktif]
     STATS --> QA[Aksi Cepat Transaksi]
     STATS --> FILTER[Filter Tab Modul<br/>Semua • Utama & Kas • Simpan Pinjam • Dana & SHU • Aset & Usaha]
-    FILTER --> GRID[Grid 15 Modul Koperasi]
+    FILTER --> GRID[Grid 15 Modul Koperasi<br/>badge Neraca pada modul yg posting ke ledger]
 
     QA -->|Setor Simpanan| QA1[Pilih Anggota → /simpanan/id]
     QA -->|Cairkan Pinjaman| QA2[Pilih Anggota → /pinjaman/id]
@@ -94,10 +98,12 @@ flowchart TD
 
     GRID --> TAP{Cari modul diklik?}
     TAP -->|Neraca / Komposisi Keuangan| SW[Nyalakan index=1 → Tab Neraca]
-    TAP -->|Modul simpanan/pinjaman| PICK[Pilih Anggota]
+    TAP -->|Simpanan pokok/wajib/manasuka| PICK[Pilih Anggota]
+    TAP -->|Pinjaman Anggota| PICK
     TAP -->|Modul lain| ROUTE2[Navigasi context.push ke rute modul]
 
     FAB[FAB Input di bottom nav] --> BSheet[Bottom Sheet Aksi Cepat<br/>sama dengan Quick Actions]
+    SHELL -->|Nav: Buku Besar| OWNB[Push /laporan/bukubesar<br/>filter akun + tahun buku]
 ```
 
 ---
@@ -113,7 +119,7 @@ flowchart TD
         DAN[SHU & Dana<br/>dana.rpc]
         AST[Aset & Penyusutan<br/>aset.rpc]
         USA[Unit Keripik<br/>usaha.rpc]
-        P[Pajak<br/>pajak.rpc]
+        P[Pajak<br/>pajak.rpc: akrual 2122 Hutang<br/>saat belum dibayar, lalu kas 1111]
     end
 
     K --> RPC[RPC Transaksi: insert_* / record_*]
@@ -131,6 +137,7 @@ flowchart TD
     POST --> LEDGER[(ledger_entries<br/>entry_date, fiscal_year,<br/>account_code, debit, credit,<br/>source_book, reference_type)]
 
     NERACA_RPC[get_balance_sheet_data → RPC SQL] -->|SELECT COA LEFT JOIN ledger_entries<br/>GROUP BY code, name, account_type + HAVING| LEDGER
+    LEDGER --> BBDETAIL[Buku Besar per akun<br/>BukuBesarPage: filter akun & tahun,<br/>baris jurnal D/K + saldo berjalan]
     LEDGER --> AGG[Aggregate saldo per akun<br/>debit/credit balance x account_type]
 
     AGG --> GRP[Kelompokkan Neraca]

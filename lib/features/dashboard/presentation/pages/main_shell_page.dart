@@ -50,22 +50,26 @@ class _MainShellPageState extends State<MainShellPage> {
             setState(() => _index = 0);
           }
         },
+        onBukuBesarTap: () => context.push('/laporan/bukubesar'),
       ),
     );
   }
 }
 
-/// Bar navigasi bawah (desain redesign): Beranda, Neraca, [FAB Input], Pengaturan.
+/// Bar navigasi bawah (desain redesign): Beranda, Neraca, [FAB Input],
+/// Buku Besar, Pengaturan.
 class _BottomNav extends StatelessWidget {
   const _BottomNav({
     required this.index,
     required this.onTap,
     required this.onInputTap,
+    required this.onBukuBesarTap,
   });
 
   final int index;
   final ValueChanged<int> onTap;
   final VoidCallback onInputTap;
+  final VoidCallback onBukuBesarTap;
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +127,13 @@ class _BottomNav extends StatelessWidget {
                     ),
                   ),
                 ),
+              ),
+              _NavItem(
+                icon: Icons.menu_book_outlined,
+                activeIcon: Icons.menu_book,
+                label: 'Buku Besar',
+                active: false,
+                onTap: onBukuBesarTap,
               ),
               _NavItem(
                 icon: Icons.settings_outlined,
