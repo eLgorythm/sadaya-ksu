@@ -220,10 +220,14 @@ class _SettingsPage extends StatelessWidget {
                 ),
               ),
               title: const Text('KSU Cahaya Dhamma Phala'),
-              subtitle: const Text(
-                'Sadaya — Sistem Informasi Koperasi\nVersi 0.9.1.26',
-              ),
+              subtitle: const Text('Sadaya — Sistem Informasi Koperasi'),
             ),
+          ),
+          const SizedBox(height: 8),
+          _SettingTile(
+            icon: Icons.info_outline,
+            label: 'Tentang',
+            onTap: () => _go(context, '/tentang'),
           ),
           const SizedBox(height: 8),
           _SettingTile(
