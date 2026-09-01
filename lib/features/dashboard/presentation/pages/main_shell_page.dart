@@ -220,7 +220,9 @@ class _SettingsPage extends StatelessWidget {
                 ),
               ),
               title: const Text('KSU Cahaya Dhamma Phala'),
-              subtitle: const Text('Sadaya — Sistem Informasi Koperasi'),
+              subtitle: const Text(
+                'Sadaya — Sistem Informasi Koperasi\nVersi 0.9.1.26',
+              ),
             ),
           ),
           const SizedBox(height: 8),
