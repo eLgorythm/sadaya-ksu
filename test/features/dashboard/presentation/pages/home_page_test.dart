@@ -33,6 +33,5 @@ void main() {
     );
 
     expect(find.text('bendahara@ksucdp.or.id'), findsOneWidget);
-    expect(find.byIcon(Icons.logout), findsOneWidget);
   });
 }

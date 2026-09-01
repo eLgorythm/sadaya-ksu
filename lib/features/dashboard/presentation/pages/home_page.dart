@@ -144,37 +144,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: IconButton(
-              tooltip: 'Notifikasi',
-              onPressed: () {},
-              icon: Stack(
-                children: [
-                  Icon(Icons.notifications_none, color: Colors.grey[700]),
-                  Positioned(
-                    top: 2,
-                    right: 2,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Colors.redAccent,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Keluar',
-            onPressed: () => _confirmSignOut(context),
-            icon: Icon(Icons.logout, color: Colors.grey[700]),
-          ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: _loadSummary,
@@ -359,31 +328,6 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
-  }
-
-  void _confirmSignOut(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Keluar'),
-        content: const Text('Yakin ingin keluar dari aplikasi?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Batal'),
-          ),
-          FilledButton(
-            style:
-                FilledButton.styleFrom(backgroundColor: AppColors.negativeRed),
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.read<AuthCubit>().signOut();
-            },
-            child: const Text('Keluar'),
-          ),
-        ],
-      ),
-    );
   }
 }
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../anggota/domain/entities/member_entity.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../laporan/presentation/pages/balance_sheet_page.dart';
 import '../../../pinjaman/presentation/pages/loans_page.dart'
     show MemberLoanTarget;
@@ -225,12 +227,6 @@ class _SettingsPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _SettingTile(
-            icon: Icons.info_outline,
-            label: 'Tentang',
-            onTap: () => _go(context, '/tentang'),
-          ),
-          const SizedBox(height: 8),
-          _SettingTile(
             icon: Icons.group_outlined,
             label: 'Anggota',
             onTap: () => _go(context, '/anggota'),
@@ -280,6 +276,14 @@ class _SettingsPage extends StatelessWidget {
               }
             },
           ),
+          const SizedBox(height: 8),
+          _SettingTile(
+            icon: Icons.info_outline,
+            label: 'Tentang',
+            onTap: () => _go(context, '/tentang'),
+          ),
+          const SizedBox(height: 16),
+          _LogoutTile(),
         ],
       ),
     );
@@ -306,6 +310,54 @@ class _SettingTile extends StatelessWidget {
         title: Text(label),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
+      ),
+    );
+  }
+}
+
+class _LogoutTile extends StatelessWidget {
+  const _LogoutTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: ListTile(
+        leading: Icon(Icons.logout, color: AppColors.negativeRed),
+        title: Text(
+          'Keluar',
+          style: TextStyle(
+            color: AppColors.negativeRed,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _confirmSignOut(context),
+      ),
+    );
+  }
+
+  void _confirmSignOut(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Keluar'),
+        content: const Text('Yakin ingin keluar dari aplikasi?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style:
+                FilledButton.styleFrom(backgroundColor: AppColors.negativeRed),
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              context.read<AuthCubit>().signOut();
+            },
+            child: const Text('Keluar'),
+          ),
+        ],
       ),
     );
   }
