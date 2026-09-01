@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/constants/app_colors.dart';
 
 /// Halaman Tentang (About) aplikasi Sadaya.
 ///
-/// Menampilkan identitas koperasi, filosofi nama, moto, dan versi aplikasi
-/// yang dibaca dinamis dari `package_info_plus` (mengikuti pubspec.yaml).
+/// Membaca identitas koperasi dari tabel `app_settings` (dapat diubah
+/// pengurus tanpa release) dengan fallback ke nilai bawaan bila belum
+/// tersedia/offline. Versi aplikasi dibaca dinamis dari `package_info_plus`.
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
 
@@ -15,6 +17,21 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
+  static const _defaultName = 'KSU Cahaya Dhamma Phala';
+  static const _defaultTagline = 'Sadaya — Sistem Informasi Koperasi';
+  static const _defaultMotto = '"Bersama dalam Cahaya, Tumbuh dalam Kebajikan"';
+  static const _defaultDescription =
+      '"Sadaya" berasal dari bahasa Sunda "sadayana" yang berarti '
+      'semua/bersama. Dimaknai sebagai wujud nyata dari Dana Paramita — '
+      'kesempurnaan berbagi dalam ajaran Dhamma. Koperasi adalah tempat di '
+      'mana kebajikan dipraktikkan bersama: setiap anggota saling menopang, '
+      'hasil usaha dinikmati bersama, seperti Sangha yang tumbuh dalam '
+      'cahaya kebenaran.';
+
+  String _name = _defaultName;
+  String _tagline = _defaultTagline;
+  String _motto = _defaultMotto;
+  String _description = _defaultDescription;
   String _version = '';
   String _buildNumber = '';
 
@@ -22,6 +39,7 @@ class _AboutPageState extends State<AboutPage> {
   void initState() {
     super.initState();
     _loadVersion();
+    _loadSettings();
   }
 
   Future<void> _loadVersion() async {
@@ -31,6 +49,40 @@ class _AboutPageState extends State<AboutPage> {
       _version = info.version;
       _buildNumber = info.buildNumber;
     });
+  }
+
+  Future<void> _loadSettings() async {
+    try {
+      final rows = await Supabase.instance.client
+          .from('app_settings')
+          .select('key, value')
+          .inFilter('key', const [
+            'koperasi_name',
+            'app_tagline',
+            'app_motto',
+            'app_description',
+          ]);
+      if (!mounted) return;
+      final map = <String, String>{
+        for (final r in rows) r['key'] as String: (r['value'] as String? ?? ''),
+      };
+      setState(() {
+        _name = map['koperasi_name']?.isNotEmpty == true
+            ? map['koperasi_name']!
+            : _name;
+        _tagline = map['app_tagline']?.isNotEmpty == true
+            ? map['app_tagline']!
+            : _tagline;
+        _motto = map['app_motto']?.isNotEmpty == true
+            ? map['app_motto']!
+            : _motto;
+        _description = map['app_description']?.isNotEmpty == true
+            ? map['app_description']!
+            : _description;
+      });
+    } catch (_) {
+      // Tetap pakai nilai bawaan bila gagal/offline.
+    }
   }
 
   @override
@@ -64,7 +116,7 @@ class _AboutPageState extends State<AboutPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'KSU Cahaya Dhamma Phala',
+                    _name,
                     textAlign: TextAlign.center,
                     style: Theme.of(context)
                         .textTheme
@@ -73,7 +125,7 @@ class _AboutPageState extends State<AboutPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Sadaya — Sistem Informasi Koperasi',
+                    _tagline,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey[600]),
                   ),
@@ -99,13 +151,7 @@ class _AboutPageState extends State<AboutPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '"Sadaya" berasal dari bahasa Sunda "sadayana" yang '
-                    'berarti semua/bersama. Dimaknai sebagai wujud nyata dari '
-                    'Dana Paramita — kesempurnaan berbagi dalam ajaran Dhamma. '
-                    'Koperasi adalah tempat di mana kebajikan dipraktikkan '
-                    'bersama: setiap anggota saling menopang, hasil usaha '
-                    'dinikmati bersama, seperti Sangha yang tumbuh dalam '
-                    'cahaya kebenaran.',
+                    _description,
                     textAlign: TextAlign.justify,
                     style: TextStyle(
                       fontSize: 13,
@@ -122,7 +168,7 @@ class _AboutPageState extends State<AboutPage> {
                       border: Border.all(color: AppColors.brand100),
                     ),
                     child: Text(
-                      '"Bersama dalam Cahaya, Tumbuh dalam Kebajikan"',
+                      _motto,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
