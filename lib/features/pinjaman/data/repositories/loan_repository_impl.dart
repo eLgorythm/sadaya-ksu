@@ -55,6 +55,7 @@ class LoanRepositoryImpl implements LoanRepository {
     required int tenor,
     DateTime? disbursementDate,
     String? notes,
+    String loanType = 'regular',
   }) async {
     try {
       final row = await _dataSource.rpcCreateLoan(
@@ -63,6 +64,7 @@ class LoanRepositoryImpl implements LoanRepository {
         tenor: tenor,
         disbursementDate: disbursementDate,
         notes: notes,
+        loanType: loanType,
       );
       return Ok(LoanModel.fromMap(row));
     } on PostgrestException catch (e) {

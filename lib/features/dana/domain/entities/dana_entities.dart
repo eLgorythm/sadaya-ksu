@@ -70,8 +70,11 @@ class ShuDistribution extends Equatable {
     this.reservePct,
     this.socialPct,
     this.educationPct,
-    this.memberDividendPct,
+    this.memberSavingsPct,
+    this.memberServicePct,
     this.managementPct,
+    this.staffPct,
+    this.developmentPct,
     this.distributionDate,
     this.notes,
   });
@@ -85,8 +88,11 @@ class ShuDistribution extends Equatable {
   final double? reservePct;
   final double? socialPct;
   final double? educationPct;
-  final double? memberDividendPct;
+  final double? memberSavingsPct;
+  final double? memberServicePct;
   final double? managementPct;
+  final double? staffPct;
+  final double? developmentPct;
   final DateTime? distributionDate;
   final String? notes;
 
@@ -101,8 +107,11 @@ class ShuDistribution extends Equatable {
       (reservePct ?? 0) +
       (socialPct ?? 0) +
       (educationPct ?? 0) +
-      (memberDividendPct ?? 0) +
-      (managementPct ?? 0);
+      (memberSavingsPct ?? 0) +
+      (memberServicePct ?? 0) +
+      (managementPct ?? 0) +
+      (staffPct ?? 0) +
+      (developmentPct ?? 0);
 
   @override
   List<Object?> get props => [
@@ -115,8 +124,11 @@ class ShuDistribution extends Equatable {
         reservePct,
         socialPct,
         educationPct,
-        memberDividendPct,
+        memberSavingsPct,
+        memberServicePct,
         managementPct,
+        staffPct,
+        developmentPct,
         distributionDate,
         notes,
       ];

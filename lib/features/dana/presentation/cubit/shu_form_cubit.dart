@@ -46,8 +46,11 @@ class ShuFormCubit extends Cubit<ShuFormState> {
     double? reservePct,
     double? socialPct,
     double? educationPct,
-    double? memberDividendPct,
+    double? memberSavingsPct,
+    double? memberServicePct,
     double? managementPct,
+    double? staffPct,
+    double? developmentPct,
     String? notes,
     bool approveAfterSave = false,
   }) async {
@@ -59,8 +62,11 @@ class ShuFormCubit extends Cubit<ShuFormState> {
       reservePct: reservePct,
       socialPct: socialPct,
       educationPct: educationPct,
-      memberDividendPct: memberDividendPct,
+      memberSavingsPct: memberSavingsPct,
+      memberServicePct: memberServicePct,
       managementPct: managementPct,
+      staffPct: staffPct,
+      developmentPct: developmentPct,
       notes: notes,
     );
 

@@ -276,12 +276,53 @@ class _TransactionTile extends StatelessWidget {
         '${tx.description == null || tx.description!.isEmpty ? '' : '\n${tx.description}'}',
       ),
       isThreeLine: (tx.description?.isNotEmpty ?? false),
-      trailing: tx.isVoid
-          ? const Chip(
-              label: Text('Dibatalkan', style: TextStyle(fontSize: 10)),
-              visualDensity: VisualDensity.compact,
-            )
-          : null,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (tx.isVoid)
+            const Padding(
+              padding: EdgeInsets.only(right: 6),
+              child: Chip(
+                label: Text('Dibatalkan', style: TextStyle(fontSize: 10)),
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+          if (tx.shuShareLabel != null)
+            _ShareChip(label: tx.shuShareLabel!),
+        ],
+      ),
+    );
+  }
+}
+
+/// Chip tanda bagi hasil SHU "Dasim" / "Dapin" pada transaksi Dividen.
+class _ShareChip extends StatelessWidget {
+  const _ShareChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDasim = label == 'Dasim';
+    final background = isDasim
+        ? AppColors.brand50
+        : AppColors.accentGold.withValues(alpha: 0.16);
+    final foreground = isDasim
+        ? AppColors.brand700
+        : const Color(0xFF8D6E00);
+    return Chip(
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: foreground,
+        ),
+      ),
+      visualDensity: VisualDensity.compact,
+      backgroundColor: background,
+      side: BorderSide(color: foreground.withValues(alpha: 0.35)),
+      padding: EdgeInsets.zero,
     );
   }
 }

@@ -24,8 +24,11 @@ abstract interface class DanaRepository {
     double? reservePct,
     double? socialPct,
     double? educationPct,
-    double? memberDividendPct,
+    double? memberSavingsPct,
+    double? memberServicePct,
     double? managementPct,
+    double? staffPct,
+    double? developmentPct,
     String? notes,
   });
 
@@ -38,8 +41,11 @@ abstract interface class DanaRepository {
     double? reservePct,
     double? socialPct,
     double? educationPct,
-    double? memberDividendPct,
+    double? memberSavingsPct,
+    double? memberServicePct,
     double? managementPct,
+    double? staffPct,
+    double? developmentPct,
     String? notes,
   });
 

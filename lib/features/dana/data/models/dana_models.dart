@@ -35,8 +35,11 @@ class ShuDistributionModel extends ShuDistribution {
     required super.reservePct,
     required super.socialPct,
     required super.educationPct,
-    required super.memberDividendPct,
+    required super.memberSavingsPct,
+    required super.memberServicePct,
     required super.managementPct,
+    required super.staffPct,
+    required super.developmentPct,
     required super.distributionDate,
     required super.notes,
   });
@@ -52,8 +55,11 @@ class ShuDistributionModel extends ShuDistribution {
       reservePct: _pct(map['reserve_fund_pct']),
       socialPct: _pct(map['social_fund_pct']),
       educationPct: _pct(map['education_fund_pct']),
-      memberDividendPct: _pct(map['member_dividend_pct']),
+      memberSavingsPct: _pct(map['member_savings_pct']),
+      memberServicePct: _pct(map['member_service_pct']),
       managementPct: _pct(map['management_pct']),
+      staffPct: _pct(map['staff_pct']),
+      developmentPct: _pct(map['development_pct']),
       distributionDate: map['distribution_date'] == null
           ? null
           : DateTime.parse(map['distribution_date'] as String),

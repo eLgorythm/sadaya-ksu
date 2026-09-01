@@ -59,8 +59,11 @@ class DanaRemoteDataSource {
     double? reservePct,
     double? socialPct,
     double? educationPct,
-    double? memberDividendPct,
+    double? memberSavingsPct,
+    double? memberServicePct,
     double? managementPct,
+    double? staffPct,
+    double? developmentPct,
     String? notes,
   }) async {
     final row = await _client
@@ -73,8 +76,11 @@ class DanaRemoteDataSource {
           'reserve_fund_pct': reservePct ?? 0,
           'social_fund_pct': socialPct ?? 0,
           'education_fund_pct': educationPct ?? 0,
-          'member_dividend_pct': memberDividendPct ?? 0,
+          'member_savings_pct': memberSavingsPct ?? 0.30,
+          'member_service_pct': memberServicePct ?? 0.25,
           'management_pct': managementPct ?? 0,
+          'staff_pct': staffPct ?? 0,
+          'development_pct': developmentPct ?? 0,
           if (notes != null && notes.isNotEmpty) 'notes': notes,
         })
         .select('id')
@@ -92,8 +98,11 @@ class DanaRemoteDataSource {
     double? reservePct,
     double? socialPct,
     double? educationPct,
-    double? memberDividendPct,
+    double? memberSavingsPct,
+    double? memberServicePct,
     double? managementPct,
+    double? staffPct,
+    double? developmentPct,
     String? notes,
   }) async {
     await _client.from('shu_distributions').update({
@@ -104,8 +113,11 @@ class DanaRemoteDataSource {
       'reserve_fund_pct': reservePct ?? 0,
       'social_fund_pct': socialPct ?? 0,
       'education_fund_pct': educationPct ?? 0,
-      'member_dividend_pct': memberDividendPct ?? 0,
-      'management_pct': managementPct ?? 0,
+'member_savings_pct': memberSavingsPct ?? 0.30,
+'member_service_pct': memberServicePct ?? 0.25,
+        'management_pct': managementPct ?? 0,
+      'staff_pct': staffPct ?? 0,
+      'development_pct': developmentPct ?? 0,
       'notes': (notes != null && notes.isNotEmpty) ? notes : null,
     }).eq('id', id);
   }

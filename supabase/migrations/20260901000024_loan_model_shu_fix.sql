@@ -1,32 +1,19 @@
 -- =============================================================
--- Sadaya — Migrasi 05: RPC Pinjaman
--- 1) create_loan      : buat pinjaman + generate jadwal cicilan
---                       bulanan (flat) + jurnal pencairan
--- 2) pay_installment  : bayar cicilan + distribusi jasa ke 7 pos
---                       (20 bagian) + SWK otomatis + jurnal atomik
+-- Sadaya — Migrasi 24: Penerapan kembali perubahan Iterasi 27–28
+--   (model pinjaman: admin 3%, bunga = jasa 2%/3% flat dari pokok;
+--    distribusi 7 pos membagi 100% bunga; Dapin basis SWK)
 --
--- Aturan bisnis (RAB 2026):
---   Bunga = jasa, flat dari TOTAL pokok pinjaman:
---     Pinjaman angsur (regular) = 2% x pokok (dibayar merata per angsuran)
---     Pinjaman cepat (fast)     = 3% x pokok (dibayar sekali di akhir tenor)
---   Admin = 3% x pokok (30rb/1jt) dipotong saat pencairan untuk SEMUA jenis.
---   Distribusi jasa per pembayaran (dari bunga yang dibayar):
---     Reguler (dasar 2,00): Japinup 1,10/2, Kesra 0,50/2, SWK 0,20/2,
---       Sosial 0,05/2, Pendidikan 0,05/2, CRK 0,05/2, Pembangunan 0,05/2
---     Cepat (dasar 3,00): Japinup 2,10/3, Kesra 0,50/3, SWK 0,20/3,
---       Sosial 0,05/3, Pendidikan 0,05/3, CRK 0,05/3, Pembangunan 0,05/3
---
--- COA: 1111 Kas, 1113 Pinjaman diberikan, 2113 Simp. Wajib Kredit,
---      2114 Dana Sosial, 2115 Dana Pendidikan, 2119 Dana Kesejahteraan,
---      3114 Dana Pembangunan, 3115 Dana CRK, 4111 Japinup, 4112 Adm.
+-- Idempotent: semua fungsi memakai CREATE OR REPLACE,
+--   seed app_settings memakai UPSERT / on conflict.
+-- Berlaku walau migrasi 00005/00023 sudah pernah diterapkan.
 -- =============================================================
 
--- Helper tahun buku dari tanggal
-create or replace function public.v_year_of(d date)
-returns integer language sql immutable as $$
-  select extract(year from d)::integer
-$$;
-
+-- ---------------------------------------------------------------
+-- 1. create_loan (model terbaru)
+--    Admin = 3% x pokok semua jenis.
+--    Bunga = jasa, flat dari total pokok:
+--      angsur 2% x pokok (merata per bulan); cepat 3% x pokok.
+-- ---------------------------------------------------------------
 create or replace function public.create_loan(
   p_member_id uuid,
   p_principal numeric,
@@ -229,14 +216,14 @@ begin
   )
   returning * into v_pay;
 
--- Distribusi jasa ke 7 pos: membagi 100% BUNGA (jasa) yang dibayar (v_i).
---   Total bunga pinjaman: angsur = 2% x pokok; cepat = 3% x pokok.
---   Nilai bunga tsb lalu dibagi ke pos dengan fraksi (penyebut dasar):
---   Angsur (dasar 2,00): Japinup 1,10/2 ; Kesra 0,50/2 ; SWK 0,20/2 ;
---     Sosial/Pendidikan/CRK/Pembangunan masing 0,05/2.
---   Cepat (dasar 3,00): Japinup 2,10/3 ; Kesra 0,50/3 ; SWK 0,20/3 ;
---     lainnya masing 0,05/3.
---   Japinup menyerap sisa pembulatan agar total = v_i.
+  -- Distribusi jasa ke 7 pos: membagi 100% BUNGA (jasa) yang dibayar (v_i).
+  --   Total bunga pinjaman: angsur = 2% x pokok; cepat = 3% x pokok.
+  --   Nilai bunga tsb lalu dibagi ke pos dengan fraksi (penyebut dasar):
+  --   Angsur (dasar 2,00): Japinup 1,10/2 ; Kesra 0,50/2 ; SWK 0,20/2 ;
+  --     Sosial/Pendidikan/CRK/Pembangunan masing 0,05/2.
+  --   Cepat (dasar 3,00): Japinup 2,10/3 ; Kesra 0,50/3 ; SWK 0,20/3 ;
+  --     lainnya masing 0,05/3.
+  --   Japinup menyerap sisa pembulatan agar total = v_i.
   if v_i > 0 then
     if v_loan.loan_type = 'fast' then
       -- dasar 3,00; Japinup menyerap sisa pembulatan
@@ -358,3 +345,213 @@ revoke execute on function public.create_loan(uuid, numeric, integer, date, text
 grant execute on function public.create_loan(uuid, numeric, integer, date, text, text) to authenticated;
 revoke execute on function public.pay_installment(uuid, numeric, numeric, text) from anon;
 grant execute on function public.pay_installment(uuid, numeric, numeric, text) to authenticated;
+
+-- ---------------------------------------------------------------
+-- 2. distribute_shu (Dapin basis SWK tahun buku; Dasim basis SWB 31-12)
+-- ---------------------------------------------------------------
+create or replace function public.distribute_shu(
+  p_distribution_id uuid
+)
+returns void
+language plpgsql
+set search_path = public
+as $$
+declare
+  v_shu public.shu_distributions;
+  v_year integer;
+  v_dist_date date;
+  v_div_type_id uuid;
+  v_reserve numeric;
+  v_social numeric;
+  v_education numeric;
+  v_development numeric;
+  v_management numeric;
+  v_staff numeric;
+  v_member_savings numeric;
+  v_member_service numeric;
+begin
+  if auth.uid() is null then
+    raise exception 'AUTH_REQUIRED';
+  end if;
+
+  select * into v_shu from public.shu_distributions
+    where id = p_distribution_id;
+  if not found then
+    raise exception 'SHU_NOT_FOUND';
+  end if;
+  if v_shu.status <> 'approved' then
+    raise exception 'Hanya SHU berstatus disetujui yang bisa didistribusikan';
+  end if;
+
+  v_year := v_shu.fiscal_year;
+  v_dist_date := coalesce(v_shu.distribution_date, current_date);
+  v_div_type_id := (select id from public.savings_types where code = 'DIV');
+
+  v_reserve     := round(v_shu.net_shu * coalesce(v_shu.reserve_fund_pct, 0), 2);
+  v_social      := round(v_shu.net_shu * coalesce(v_shu.social_fund_pct, 0), 2);
+  v_education   := round(v_shu.net_shu * coalesce(v_shu.education_fund_pct, 0), 2);
+  v_development := round(v_shu.net_shu * coalesce(v_shu.development_pct, 0), 2);
+  v_management  := round(v_shu.net_shu * coalesce(v_shu.management_pct, 0), 2);
+  v_staff       := round(v_shu.net_shu * coalesce(v_shu.staff_pct, 0), 2);
+  v_member_savings  := round(v_shu.net_shu * coalesce(v_shu.member_savings_pct, 0), 2);
+  v_member_service  := round(v_shu.net_shu * coalesce(v_shu.member_service_pct, 0), 2);
+
+  insert into public.fund_transactions (
+    fund_type, transaction_type, transaction_date, amount,
+    description, source_type, reference_id, created_by
+  )
+  select t.fund_type, 'income', v_dist_date,
+         t.amount,
+         'Alokasi SHU tahun fiskal ' || v_year,
+         'shu_allocation', v_shu.id, auth.uid()
+  from (values
+    ('reserve', v_reserve),
+    ('social', v_social),
+    ('education', v_education),
+    ('development', v_development)
+  ) as t(fund_type, amount)
+  where t.amount > 0;
+
+  insert into public.ledger_entries (
+    entry_date, account_code, source_book, reference_id, reference_type,
+    debit_amount, credit_amount, description, fiscal_year, created_by
+  )
+  select
+    v_dist_date,
+    t.account_code, 'fund', v_shu.id, 'shu_distribution',
+    t.debit, t.credit,
+    'Alokasi SHU ' || v_year || ' — ' || t.label,
+    v_year, auth.uid()
+  from (values
+    ('3118', 'SHU dibagikan',
+       v_reserve + v_social + v_education + v_development + v_management + v_staff + v_member_savings + v_member_service, 0),
+    ('3116', 'Dana Cadangan',             0, v_reserve),
+    ('2114', 'Dana Sosial',               0, v_social),
+    ('2115', 'Dana Pendidikan',           0, v_education),
+    ('3114', 'Dana Pembangunan',          0, v_development),
+    ('2121', 'Pengurus & Pengawas',       0, v_management),
+    ('2121', 'Pegawai/Karyawan',          0, v_staff),
+    ('2120', 'Dasim + Dapin (Anggota)', 0, v_member_savings + v_member_service)
+  ) as t(account_code, label, debit, credit)
+  where t.debit > 0 or t.credit > 0;
+
+  -- Dasim: proporsional SALDO SWB per 31-12 tahun SHU
+  if v_member_savings > 0 and v_div_type_id is not null then
+    insert into public.savings_transactions (
+      member_id, savings_type_id, transaction_type, amount,
+      transaction_date, description, reference_id, reference_type, created_by
+    )
+    with basis as (
+      select st.member_id,
+             coalesce(sum(case when st.transaction_type = 'deposit' then st.amount else -st.amount end), 0) as bal
+        from public.savings_transactions st
+        join public.savings_types s on s.id = st.savings_type_id
+       where st.is_void = false
+         and s.code = 'SWB'
+         and st.transaction_date <= make_date(v_year, 12, 31)
+       group by st.member_id
+      having coalesce(sum(case when st.transaction_type = 'deposit' then st.amount else -st.amount end), 0) > 0
+    ),
+    totals as (select sum(bal) as total from basis),
+    raw as (
+      select b.member_id, b.bal,
+             round(v_member_savings * b.bal / t.total, 2) as amt,
+             row_number() over (order by b.bal desc) as rn
+        from basis b cross join totals t
+    ),
+    sums as (select sum(amt) as s from raw),
+    alloc as (
+      select r.member_id,
+             case when r.rn = 1 then r.amt + (v_member_savings - sums.s) else r.amt end as amt
+        from raw r cross join sums
+    )
+    select a.member_id, v_div_type_id, 'deposit', a.amt, v_dist_date,
+           'Dasim (Dana Anggota dari Simpanan) SHU ' || v_year,
+           v_shu.id, 'shu_distribution', auth.uid()
+      from alloc a
+     where a.amt > 0;
+  end if;
+
+  -- Dapin: proporsional jumlah SWK anggota tahun buku
+  if v_member_service > 0 and v_div_type_id is not null then
+    insert into public.savings_transactions (
+      member_id, savings_type_id, transaction_type, amount,
+      transaction_date, description, reference_id, reference_type, created_by
+    )
+    with basis as (
+      select st.member_id, sum(st.amount) as swk
+        from public.savings_transactions st
+        join public.savings_types s on s.id = st.savings_type_id
+       where st.is_void = false
+         and s.code = 'SWK'
+         and st.transaction_type = 'deposit'
+         and extract(year from st.transaction_date) = v_year
+       group by st.member_id
+      having sum(st.amount) > 0
+    ),
+    totals as (select sum(swk) as total from basis),
+    raw as (
+      select b.member_id, b.swk,
+             round(v_member_service * b.swk / t.total, 2) as amt,
+             row_number() over (order by b.swk desc) as rn
+        from basis b cross join totals t
+    ),
+    sums as (select sum(amt) as s from raw),
+    alloc as (
+      select r.member_id,
+             case when r.rn = 1 then r.amt + (v_member_service - sums.s) else r.amt end as amt
+        from raw r cross join sums
+    )
+    select a.member_id, v_div_type_id, 'deposit', a.amt, v_dist_date,
+           'Dapin (Dana Anggota dari Pinjaman) SHU ' || v_year,
+           v_shu.id, 'shu_distribution', auth.uid()
+      from alloc a
+     where a.amt > 0;
+  end if;
+
+  update public.shu_distributions set
+    status = 'distributed',
+    distribution_date = coalesce(distribution_date, v_dist_date)
+  where id = p_distribution_id;
+end;
+$$;
+
+revoke all on function public.distribute_shu(uuid) from anon, public;
+grant execute on function public.distribute_shu(uuid) to authenticated;
+
+-- ---------------------------------------------------------------
+-- 3. app_settings — sinkronkan nilai tarif terbaru (upsert)
+-- ---------------------------------------------------------------
+insert into public.app_settings (key, value, description) values
+  ('interest_rate_normal', '0.02', 'Bunga/jasa pinjaman angsur (2% x pokok, flat)'),
+  ('interest_rate_fast',   '0.03', 'Bunga/jasa pinjaman cepat (3% x pokok, flat)'),
+  ('admin_fee_rate',       '0.03', 'Biaya administrasi pinjaman (3% x pokok, semua jenis)'),
+  ('japinup_ratio',        '1.10', 'Japinup (% pokok, pinjaman angsur; sisa pembulatan)'),
+  ('fast_japinup_ratio',   '2.10', 'Japinup (% pokok, pinjaman cepat; sisa pembulatan)'),
+  ('social_fund_ratio',    '0.05', 'Dana Sosial (fraksi dasar 2/3)'),
+  ('education_fund_ratio', '0.05', 'Dana Pendidikan (fraksi dasar 2/3)'),
+  ('crk_ratio',            '0.05', 'Dana CRK (fraksi dasar 2/3)'),
+  ('development_fund_ratio','0.05','Dana Pembangunan (fraksi dasar 2/3)'),
+  ('swk_ratio',            '0.20', 'SWK (fraksi dasar 2/3)'),
+  ('welfare_fund_ratio',   '0.50', 'Dana Kesejahteraan (fraksi dasar 2/3)'),
+  ('total_ratio_parts',    '2',    'Basis distribusi jasa angsur (total 2% pokok)'),
+  ('fast_total_ratio_parts','3',   'Basis distribusi jasa cepat (total 3% pokok)')
+on conflict (key) do update
+  set value = excluded.value, description = excluded.description;
+
+-- Hapus kunci usang (tidak lagi dipakai; model tidak dibedakan tenor)
+delete from public.app_settings
+ where key in ('interest_rate_short');
+
+-- ---------------------------------------------------------------
+-- 4. Backfill public.users dari auth.users (memperbaiki loans.created_by)
+-- ---------------------------------------------------------------
+insert into public.users (id, email, full_name, is_active, created_at)
+select
+  u.id,
+  u.email,
+  coalesce(u.raw_user_meta_data->>'full_name', split_part(u.email, '@', 1)),
+  true,
+  u.created_at
+from auth.users u
+on conflict (id) do nothing;

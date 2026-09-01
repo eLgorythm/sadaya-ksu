@@ -38,8 +38,11 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
   final _reservePctController = TextEditingController();
   final _socialPctController = TextEditingController(text: '5');
   final _educationPctController = TextEditingController(text: '5');
-  final _memberPctController = TextEditingController();
+  final _memberSavingsPctController = TextEditingController(text: '30');
+  final _memberServicePctController = TextEditingController(text: '25');
   final _managementPctController = TextEditingController();
+  final _staffPctController = TextEditingController();
+  final _developmentPctController = TextEditingController();
   final _notesController = TextEditingController();
 
   int _year = DateTime.now().year;
@@ -65,8 +68,11 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
       _reservePctController.text = _pctText(shu.reservePct);
       _socialPctController.text = _pctText(shu.socialPct);
       _educationPctController.text = _pctText(shu.educationPct);
-      _memberPctController.text = _pctText(shu.memberDividendPct);
+      _memberSavingsPctController.text = _pctText(shu.memberSavingsPct);
+      _memberServicePctController.text = _pctText(shu.memberServicePct);
       _managementPctController.text = _pctText(shu.managementPct);
+      _staffPctController.text = _pctText(shu.staffPct);
+      _developmentPctController.text = _pctText(shu.developmentPct);
       _notesController.text = shu.notes ?? '';
     }
   }
@@ -97,8 +103,11 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
       _reservePctController,
       _socialPctController,
       _educationPctController,
-      _memberPctController,
+      _memberSavingsPctController,
+      _memberServicePctController,
       _managementPctController,
+      _staffPctController,
+      _developmentPctController,
       _notesController,
     ]) {
       c.dispose();
@@ -170,8 +179,11 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
       reservePct: _pctOf(_reservePctController),
       socialPct: _pctOf(_socialPctController),
       educationPct: _pctOf(_educationPctController),
-      memberDividendPct: _pctOf(_memberPctController),
+      memberSavingsPct: _pctOf(_memberSavingsPctController),
+      memberServicePct: _pctOf(_memberServicePctController),
       managementPct: _pctOf(_managementPctController),
+      staffPct: _pctOf(_staffPctController),
+      developmentPct: _pctOf(_developmentPctController),
       notes: _notesController.text,
       approveAfterSave: _approveDirectly,
     );
@@ -200,8 +212,11 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
             'Cadangan': netShu * _pctOf(_reservePctController),
             'Dana Sosial': netShu * _pctOf(_socialPctController),
             'Dana Pendidikan': netShu * _pctOf(_educationPctController),
-            'Dividen Anggota': netShu * _pctOf(_memberPctController),
+            'Dasim (Dana Anggota Simpanan)': netShu * _pctOf(_memberSavingsPctController),
+            'Dapin (Dana Anggota Pinjaman)': netShu * _pctOf(_memberServicePctController),
             'Pengurus & Pengawas': netShu * _pctOf(_managementPctController),
+            'Pegawai/Karyawan': netShu * _pctOf(_staffPctController),
+            'Dana Pembangunan': netShu * _pctOf(_developmentPctController),
           };
 
           return Padding(
@@ -293,13 +308,27 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                         ),
                         SizedBox(
                           width: w,
-                          child:
-                              _pctField('Dividen Anggota', _memberPctController),
+                          child: _pctField(
+                              'Dasim (Simpanan)', _memberSavingsPctController),
                         ),
                         SizedBox(
                           width: w,
                           child: _pctField(
-                              'Pengurus & Pengawas', _managementPctController),
+                              'Dapin (Pinjaman)', _memberServicePctController),
+                        ),
+                        SizedBox(
+                          width: w,
+                          child: _pctField(
+                              'Pengurus & Pengawas',
+                              _managementPctController),
+                        ),
+                        SizedBox(
+                          width: w,
+                          child: _pctField('Pegawai', _staffPctController),
+                        ),
+                        SizedBox(
+                          width: w,
+                          child: _pctField('Pembangunan', _developmentPctController),
                         ),
                       ],
                     );

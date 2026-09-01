@@ -632,6 +632,10 @@ class _LedgerRow extends StatelessWidget {
       case 'tax':
       case 'pajak':
         return 'Pajak';
+      case 'opening':
+        return 'Saldo Awal';
+      case 'closing':
+        return 'Penutup';
       default:
         return book;
     }

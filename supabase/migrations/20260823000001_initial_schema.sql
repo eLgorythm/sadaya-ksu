@@ -178,6 +178,7 @@ create table public.loans (
   admin_fee_rate numeric(5,4) not null default 0.03,
   admin_fee_amount numeric(15,2) not null,
   disbursement_date date not null,
+  loan_type text not null default 'regular' check (loan_type in ('regular', 'fast')),
   status text not null default 'active' check (status in ('active', 'paid_off', 'restructured')),
   remaining_balance numeric(15,2) not null,
   total_paid_principal numeric(15,2) not null default 0,

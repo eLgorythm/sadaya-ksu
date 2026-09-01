@@ -13,8 +13,11 @@ class CreateShuDistributionParams extends Equatable {
     this.reservePct,
     this.socialPct,
     this.educationPct,
-    this.memberDividendPct,
+    this.memberSavingsPct,
+    this.memberServicePct,
     this.managementPct,
+    this.staffPct,
+    this.developmentPct,
     this.notes,
   });
 
@@ -24,8 +27,11 @@ class CreateShuDistributionParams extends Equatable {
   final double? reservePct;
   final double? socialPct;
   final double? educationPct;
-  final double? memberDividendPct;
+  final double? memberSavingsPct;
+  final double? memberServicePct;
   final double? managementPct;
+  final double? staffPct;
+  final double? developmentPct;
   final String? notes;
 
   /// Net SHU = total dikurangi pajak.
@@ -36,8 +42,11 @@ class CreateShuDistributionParams extends Equatable {
       (reservePct ?? 0) +
       (socialPct ?? 0) +
       (educationPct ?? 0) +
-      (memberDividendPct ?? 0) +
-      (managementPct ?? 0);
+      (memberSavingsPct ?? 0) +
+      (memberServicePct ?? 0) +
+      (managementPct ?? 0) +
+      (staffPct ?? 0) +
+      (developmentPct ?? 0);
 
   /// Validasi bersama untuk create & update.
   String? validate() {
@@ -57,8 +66,11 @@ class CreateShuDistributionParams extends Equatable {
       reservePct,
       socialPct,
       educationPct,
-      memberDividendPct,
+      memberSavingsPct,
+      memberServicePct,
       managementPct,
+      staffPct,
+      developmentPct,
     ]) {
       final value = pct ?? 0;
       if (value < 0 || value > 1) {
@@ -79,8 +91,11 @@ class CreateShuDistributionParams extends Equatable {
         reservePct,
         socialPct,
         educationPct,
-        memberDividendPct,
+        memberSavingsPct,
+        memberServicePct,
         managementPct,
+        staffPct,
+        developmentPct,
         notes,
       ];
 }
@@ -105,8 +120,11 @@ class CreateShuDistribution {
       reservePct: params.reservePct,
       socialPct: params.socialPct,
       educationPct: params.educationPct,
-      memberDividendPct: params.memberDividendPct,
+      memberSavingsPct: params.memberSavingsPct,
+      memberServicePct: params.memberServicePct,
       managementPct: params.managementPct,
+      staffPct: params.staffPct,
+      developmentPct: params.developmentPct,
       notes: params.notes?.trim(),
     );
   }
@@ -133,8 +151,11 @@ class UpdateShuDistribution {
       reservePct: params.reservePct,
       socialPct: params.socialPct,
       educationPct: params.educationPct,
-      memberDividendPct: params.memberDividendPct,
+      memberSavingsPct: params.memberSavingsPct,
+      memberServicePct: params.memberServicePct,
       managementPct: params.managementPct,
+      staffPct: params.staffPct,
+      developmentPct: params.developmentPct,
       notes: params.notes?.trim(),
     );
   }

@@ -24,6 +24,7 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
   final _formKey = GlobalKey<FormState>();
 
   int _tenor = 10;
+  String _loanType = 'regular';
 
   static const List<int> _tenorOptions = [3, 5, 10, 20, 30, 40, 50];
 
@@ -38,13 +39,22 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
   double get _principal =>
       double.tryParse(_amountController.text.replaceAll('.', '')) ?? 0;
 
-  double get _rate => CreateLoanSheetLogic.rateForTenor(_tenor);
+  double get _rate => CreateLoanSheetLogic.rateForType(_loanType);
 
-  double get _adminFee => (_principal * 0.03 * 100).roundToDouble() / 100;
+  bool get _isFast => _loanType == 'fast';
+
+  double get _adminRate => CreateLoanSheetLogic.adminRateForType(_loanType);
+
+  double get _adminFee => (_principal * _adminRate * 100).roundToDouble() / 100;
 
   double get _monthlyPrincipal => _principal > 0 ? _principal / _tenor : 0;
 
-  double get _monthlyInterest => _principal * _rate;
+  /// Pinjaman angsur: bunga total = 2% x pokok, dibayar merata per bulan.
+  double get _monthlyInterest =>
+      _tenor > 0 ? _principal * _rate / _tenor : 0;
+
+  /// Pinjaman cepat: bunga = 3% x pokok (flat), dibayar sekali di akhir.
+  double get _fastTotalInterest => _principal * _rate;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +102,30 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
                   ),
                   const SizedBox(height: 14),
                   Text(
+                    'Jenis Pinjaman',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 6),
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(
+                        value: 'regular',
+                        label: Text('Biasa (Mengangsur)'),
+                        icon: Icon(Icons.schedule, size: 18),
+                      ),
+                      ButtonSegment(
+                        value: 'fast',
+                        label: Text('Cepat (Lunas di Akhir)'),
+                        icon: Icon(Icons.bolt, size: 18),
+                      ),
+                    ],
+                    selected: {_loanType},
+                    onSelectionChanged: saving
+                        ? null
+                        : (s) => setState(() => _loanType = s.first),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
                     'Tenor (bulan)',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
@@ -114,23 +148,30 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
                   InfoBox(
                     children: [
                       Text(
-                        'Bunga ${(_rate * 100).toStringAsFixed(1)}%/bulan'
-                        ' (${_tenor < 10 ? 'jangka pendek' : 'normal'})',
+                        'Bunga/jasa ${(_rate * 100).toStringAsFixed(0)}% × pokok'
+                        ' (${_isFast ? 'dibayar sekali di akhir tenor' : 'merata per angsuran'})',
                         style: const TextStyle(fontSize: 12),
                       ),
                       if (_principal > 0) ...[
                         const SizedBox(height: 4),
                         Text(
-                          'Administrasi 3%: Rp ${_adminFee.toStringAsFixed(0)} (dipotong saat pencairan)',
+                          'Biaya administrasi 3%: Rp ${_adminFee.toStringAsFixed(0)} (dipotong saat pencairan)',
                           style: const TextStyle(fontSize: 12),
                         ),
-                        Text(
-                          'Cicilan/bulan: pokok Rp ${_monthlyPrincipal.toStringAsFixed(0)} + jasa Rp ${_monthlyInterest.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                        if (_isFast)
+                          Text(
+                            'Saat jatuh tempo (bulan ke-$_tenor): pokok Rp ${_principal.toStringAsFixed(0)} + bunga Rp ${_fastTotalInterest.toStringAsFixed(0)}',
+                            style: const TextStyle(fontSize: 12),
+                          )
+                        else ...[
+                          Text(
+                            'Cicilan/bulan: pokok Rp ${_monthlyPrincipal.toStringAsFixed(0)} + bunga Rp ${_monthlyInterest.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ],
                   ),
@@ -155,6 +196,7 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
                               principal: _principal,
                               tenor: _tenor,
                               notes: _notesController.text,
+                              loanType: _loanType,
                             );
                           },
                     icon: saving
@@ -180,5 +222,14 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
 class CreateLoanSheetLogic {
   CreateLoanSheetLogic._();
 
-  static double rateForTenor(int tenor) => tenor < 10 ? 0.03 : 0.02;
+  /// Bunga/jasa dari total pokok: angsur 2%, cepat 3%.
+  static double rateForType(String loanType) {
+    if (loanType == 'fast') {
+      return 0.03;
+    }
+    return 0.02;
+  }
+
+  /// Admin potongan awal = 3% x pokok untuk SEMUA jenis pinjaman (30rb/1jt).
+  static double adminRateForType(String loanType) => 0.03;
 }

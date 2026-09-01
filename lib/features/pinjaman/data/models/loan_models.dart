@@ -14,6 +14,7 @@ class LoanModel extends LoanEntity {
     required super.totalPaidPrincipal,
     required super.totalPaidInterest,
     super.notes,
+    super.loanType,
   });
 
   factory LoanModel.fromMap(Map<String, dynamic> map) {
@@ -32,6 +33,7 @@ class LoanModel extends LoanEntity {
       totalPaidInterest:
           double.tryParse('${map['total_paid_interest']}') ?? 0,
       notes: map['notes'] as String?,
+      loanType: map['loan_type'] as String? ?? 'regular',
     );
   }
 }

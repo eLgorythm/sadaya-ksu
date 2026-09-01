@@ -471,8 +471,11 @@ class _ShuCard extends StatelessWidget {
       'Cadangan': shu.reservePct,
       'Dana Sosial': shu.socialPct,
       'Dana Pendidikan': shu.educationPct,
-      'Dividen Anggota': shu.memberDividendPct,
+      'Dasim (Dana Anggota Simpanan)': shu.memberSavingsPct,
+      'Dapin (Dana Anggota Pinjaman)': shu.memberServicePct,
       'Pengurus & Pengawas': shu.managementPct,
+      'Pegawai/Karyawan': shu.staffPct,
+      'Dana Pembangunan': shu.developmentPct,
     };
 
     return Card(

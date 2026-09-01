@@ -14,6 +14,7 @@ class LoanEntity extends Equatable {
     required this.totalPaidPrincipal,
     required this.totalPaidInterest,
     this.notes,
+    this.loanType = 'regular',
   });
 
   final String id;
@@ -29,11 +30,21 @@ class LoanEntity extends Equatable {
   final double totalPaidInterest;
   final String? notes;
 
+  /// 'regular' = mengangsur bulanan; 'fast' = bayar full di akhir tenor.
+  final String loanType;
+
   bool get isActive => status == 'active';
   bool get isPaidOff => status == 'paid_off';
+  bool get isFast => loanType == 'fast';
 
   double get monthlyPrincipal => principalAmount / tenor;
-  double get monthlyInterest => principalAmount * interestRate;
+
+  /// Bunga per bulan (pinjaman angsur): total bunga 2% x pokok, merata /tenor.
+  double get monthlyInterest => principalAmount * interestRate / tenor;
+
+  /// Total bunga pinjaman cepat (flat 3% x pokok).
+  double get fastTotalInterest => principalAmount * interestRate;
+
   double get monthlyInstallment => monthlyPrincipal + monthlyInterest;
   double get totalPaid => totalPaidPrincipal + totalPaidInterest;
 
@@ -45,7 +56,7 @@ class LoanEntity extends Equatable {
   List<Object?> get props => [
         id, loanNumber, principalAmount, tenor, interestRate,
         adminFeeAmount, disbursementDate, status, remainingBalance,
-        totalPaidPrincipal, totalPaidInterest, notes,
+        totalPaidPrincipal, totalPaidInterest, notes, loanType,
       ];
 }
 
@@ -84,7 +95,7 @@ class InstallmentScheduleEntity extends Equatable {
       ];
 }
 
-/// Rincian distribusi jasa (20 bagian) untuk satu pembayaran.
+/// Rincian distribusi jasa untuk satu pembayaran.
 class InterestDistributionBreakdown extends Equatable {
   const InterestDistributionBreakdown({
     required this.totalInterest,
@@ -106,14 +117,19 @@ class InterestDistributionBreakdown extends Equatable {
   final double crk;
   final double pembangunan;
 
-  /// Mirror logika RPC pay_installment (Japinup menyerap pembulatan).
-  static InterestDistributionBreakdown fromInterest(double interest) {
-    final swk = _round2(interest * 0.10);
-    final kesra = _round2(interest * 0.25);
-    final sosial = _round2(interest * 0.025);
-    final pendidikan = _round2(interest * 0.025);
-    final crk = _round2(interest * 0.025);
-    final pembangunan = _round2(interest * 0.025);
+  /// Mirror logika RPC pay_installment: membagi 100% BUNGA ke 7 pos.
+  /// [base] = penyebut distribusi: 2 utk angsur (bunga 2% pokok),
+  /// 3 utk cepat (bunga 3% pokok). Total selalu = interest. Japinup menyerap.
+  static InterestDistributionBreakdown fromInterest(
+    double interest, {
+    double base = 2.0,
+  }) {
+    final swk = _round2(interest * 0.20 / base);
+    final kesra = _round2(interest * 0.50 / base);
+    final sosial = _round2(interest * 0.05 / base);
+    final pendidikan = _round2(interest * 0.05 / base);
+    final crk = _round2(interest * 0.05 / base);
+    final pembangunan = _round2(interest * 0.05 / base);
     final japinup =
         _round2(interest - (swk + kesra + sosial + pendidikan + crk + pembangunan));
     return InterestDistributionBreakdown(

@@ -66,7 +66,7 @@ class _LoansView extends StatelessWidget {
     if (loan != null && context.mounted) {
       SadayaMessage.success(
         context,
-        'Pinjaman #${loan.loanNumber} dicairkan. Jadwal ${loan.tenor} cicilan dibuat.',
+        'Pinjaman #${loan.loanNumber} dicairkan. ${loan.isFast ? 'Bayar lunas di akhir tenor (bulan ke-${loan.tenor})' : 'Jadwal ${loan.tenor} cicilan dibuat'}.',
       );
       context.read<LoansCubit>().load(member.id, silent: true);
     }
@@ -80,7 +80,7 @@ class _LoansView extends StatelessWidget {
       if (paid == true && context.mounted) {
         SadayaMessage.success(
           context,
-          'Pembayaran tercatat. Jasa terdistribusi otomatis ke 7 pos.',
+          'Pembayaran tercatat. Bunga terdistribusi otomatis ke 7 pos.',
         );
         context.read<LoansCubit>().refreshDetail(memberId: member.id);
       }
@@ -201,6 +201,11 @@ class _LoanCard extends StatelessWidget {
                     'Pinjaman #${loan.loanNumber}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(width: 6),
+                  if (loan.isFast)
+                    const Icon(Icons.bolt,
+                        size: 16,
+                        color: Color(0xFF8D6E00)),
                   const Spacer(),
                   StatusBadge(
                     label: loan.isPaidOff ? 'LUNAS' : 'AKTIF',
@@ -283,7 +288,8 @@ class _LoanDetailView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Pinjaman #${loan.loanNumber}',
+                  'Pinjaman #${loan.loanNumber}'
+                  '${loan.isFast ? ' · Cepat' : ''}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -292,21 +298,32 @@ class _LoanDetailView extends StatelessWidget {
                   value: AppFormatters.rupiah(loan.principalAmount),
                 ),
                 InfoRow(label: 'Tenor', value: '${loan.tenor} bulan'),
+                if (loan.isFast) ...[
+                  InfoRow(
+                    label: 'Bunga/jasa (${(loan.interestRate * 100).toStringAsFixed(0)}% × pokok)',
+                    value: AppFormatters.rupiah(loan.fastTotalInterest),
+                  ),
+                  InfoRow(
+                    label: 'Total bayar di akhir',
+                    value: AppFormatters.rupiah(
+                        loan.principalAmount + loan.fastTotalInterest),
+                    bold: true,
+                  ),
+                ] else ...[
+                  InfoRow(
+                    label:
+                        'Bunga/jasa total (${(loan.interestRate * 100).toStringAsFixed(0)}% × pokok)',
+                    value: AppFormatters.rupiah(
+                        loan.principalAmount * loan.interestRate),
+                  ),
+                  InfoRow(
+                    label: 'Bunga/bln (merata)',
+                    value: AppFormatters.rupiah(loan.monthlyInterest),
+                  ),
+                ],
                 InfoRow(
-                  label: 'Bunga/bulan',
-                  value: '${(loan.interestRate * 100).toStringAsFixed(2)}%',
-                ),
-                InfoRow(
-                  label: 'Administrasi (3%)',
+                  label: 'Biaya administrasi (3%)',
                   value: AppFormatters.rupiah(loan.adminFeeAmount),
-                ),
-                InfoRow(
-                  label: 'Cicilan pokok/bln',
-                  value: AppFormatters.rupiah(loan.monthlyPrincipal),
-                ),
-                InfoRow(
-                  label: 'Jasa/bln',
-                  value: AppFormatters.rupiah(loan.monthlyInterest),
                 ),
                 const Divider(height: 20),
                 InfoRow(
@@ -324,7 +341,10 @@ class _LoanDetailView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Text('Jadwal Cicilan', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          loan.isFast ? 'Pelunasan (di akhir tenor)' : 'Jadwal Cicilan',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         ...detail.schedules.map(
           (s) => _ScheduleTile(
             schedule: s,
@@ -400,7 +420,7 @@ class _ScheduleTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${AppFormatters.rupiah(schedule.principalAmount)} pokok + '
-                    '${AppFormatters.rupiah(schedule.interestAmount)} jasa',
+                    '${AppFormatters.rupiah(schedule.interestAmount)} bunga',
                     style: smallGray,
                   ),
                   Text(

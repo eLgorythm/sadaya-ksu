@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sadaya/features/pinjaman/domain/entities/loan_entities.dart';
 
 void main() {
-  group('InterestDistributionBreakdown (20 bagian)', () {
+  group('InterestDistributionBreakdown (100% bunga → 7 pos)', () {
     test('exact split for round interest', () {
       // Jasa 200.000 -> Japinup 110rb, Kesra 50rb, SWK 20rb, 4x5rb
       final d = InterestDistributionBreakdown.fromInterest(200000);
@@ -39,6 +39,23 @@ void main() {
       expect(d.japinup, 0);
       expect(d.swk, 0);
     });
+
+    test('fast (dasar 3): membagi 100% bunga, total sama dengan bunga', () {
+      // Bunga 1.000.000, dasar 3: Japinup 2,10/3, Kesra 0,50/3, SWK 0,20/3,
+      // dan Sosial/Pendidikan/CRK/Pembangunan 0,05/3.
+      const interest = 1000000.0;
+      final d = InterestDistributionBreakdown.fromInterest(interest, base: 3.0);
+      expect(d.japinup, closeTo(interest * 2.10 / 3.00, 0.5));
+      expect(d.kesra, closeTo(interest * 0.50 / 3.00, 0.5));
+      expect(d.swk, closeTo(interest * 0.20 / 3.00, 0.5));
+      expect(d.sosial, closeTo(interest * 0.05 / 3.00, 0.5));
+      expect(d.pendidikan, closeTo(interest * 0.05 / 3.00, 0.5));
+      expect(d.crk, closeTo(interest * 0.05 / 3.00, 0.5));
+      expect(d.pembangunan, closeTo(interest * 0.05 / 3.00, 0.5));
+      final sum = d.japinup + d.kesra + d.swk + d.sosial +
+          d.pendidikan + d.crk + d.pembangunan;
+      expect(sum, closeTo(interest, 0.01));
+    });
   });
 
   group('LoanEntity helpers', () {
@@ -58,8 +75,9 @@ void main() {
       );
 
       expect(loan.monthlyPrincipal, 100000);
-      expect(loan.monthlyInterest, 20000);
-      expect(loan.monthlyInstallment, 120000);
+      // Bunga/jasa angsur = 2% x pokok, merata per bulan = 2% x 1jt / 10 = 2.000
+      expect(loan.monthlyInterest, 2000);
+      expect(loan.monthlyInstallment, 102000);
       expect(loan.progress, closeTo(0.1, 0.001));
       expect(loan.isActive, isTrue);
       expect(loan.isPaidOff, isFalse);

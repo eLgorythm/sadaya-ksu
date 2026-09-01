@@ -23,12 +23,16 @@ class CreateLoan implements UseCase<LoanEntity, CreateLoanParams> {
     if (params.memberId.isEmpty) {
       return const Err(Failure(message: 'Anggota belum dipilih'));
     }
+    if (params.loanType != 'regular' && params.loanType != 'fast') {
+      return const Err(Failure(message: 'Tipe pinjaman tidak valid'));
+    }
     return _repository.createLoan(
       memberId: params.memberId,
       principal: params.principal,
       tenor: params.tenor,
       disbursementDate: params.disbursementDate,
       notes: params.notes?.trim(),
+      loanType: params.loanType,
     );
   }
 }

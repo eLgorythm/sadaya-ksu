@@ -21,6 +21,7 @@ abstract interface class LoanRepository {
     required int tenor,
     DateTime? disbursementDate,
     String? notes,
+    String loanType = 'regular',
   });
 
   Future<Result<void>> payInstallment({
@@ -37,6 +38,7 @@ class CreateLoanParams extends Equatable {
     required this.tenor,
     this.disbursementDate,
     this.notes,
+    this.loanType = 'regular',
   });
 
   final String memberId;
@@ -45,10 +47,25 @@ class CreateLoanParams extends Equatable {
   final DateTime? disbursementDate;
   final String? notes;
 
-  /// Bunga sesuai aturan: tenor >= 10 bulan -> 2%, < 10 -> 3%.
-  static double rateForTenor(int tenor) => tenor < 10 ? 0.03 : 0.02;
+  /// 'regular' = mengangsur bulanan; 'fast' = bayar full di akhir tenor.
+  final String loanType;
+
+  /// Bunga/jasa = persen x total pokok: angsur 2%, cepat 3% (flat).
+  static double rateForType(String loanType) =>
+      loanType == 'fast' ? 0.03 : 0.02;
+
+  bool get isFast => loanType == 'fast';
+
+  /// Biaya administrasi potongan awal = 3% x pokok (30rb/1jt) semua jenis.
+  static double adminRateForType(String loanType) => 0.03;
 
   @override
-  List<Object?> get props =>
-      [memberId, principal, tenor, disbursementDate, notes];
+  List<Object?> get props => [
+        memberId,
+        principal,
+        tenor,
+        disbursementDate,
+        notes,
+        loanType,
+      ];
 }

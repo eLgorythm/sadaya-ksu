@@ -46,6 +46,17 @@ class SavingTransactionEntity extends Equatable {
 
   bool get isDeposit => transactionType == 'deposit';
 
+  /// Tanda bagi hasil SHU (jenis Dividen): "Dasim" atau "Dapin".
+  /// Diturunkan dari keterangan transaksi DIV yang diisi otomatis saat
+  /// distribusi SHU (Dasim = saldo SWB, Dapin = jasa pinjaman).
+  String? get shuShareLabel {
+    if (typeCode != 'DIV' || description == null) return null;
+    final d = description!.toLowerCase();
+    if (d.contains('dasim')) return 'Dasim';
+    if (d.contains('dapin')) return 'Dapin';
+    return null;
+  }
+
   @override
   List<Object?> get props =>
       [id, memberId, typeCode, typeCode, amount, date, description, isVoid];

@@ -40,11 +40,13 @@ class LoanRemoteDataSource {
     required int tenor,
     DateTime? disbursementDate,
     String? notes,
+    String? loanType = 'regular',
   }) {
     return _client.rpc('create_loan', params: {
       'p_member_id': memberId,
       'p_principal': principal,
       'p_tenor': tenor,
+      'p_loan_type': loanType,
 
       /// PENTING: jangan kirim key dengan nilai null eksplisit —
       /// Postgres memperlakukannya sebagai NULL sungguhan sehingga

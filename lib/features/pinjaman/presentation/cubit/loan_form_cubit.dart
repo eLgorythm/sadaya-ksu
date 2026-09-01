@@ -21,6 +21,7 @@ class LoanFormCubit extends Cubit<LoanFormState> {
     required int tenor,
     DateTime? disbursementDate,
     String? notes,
+    String loanType = 'regular',
   }) async {
     emit(const LoanFormSaving());
     final result = await _createLoan(CreateLoanParams(
@@ -29,6 +30,7 @@ class LoanFormCubit extends Cubit<LoanFormState> {
       tenor: tenor,
       disbursementDate: disbursementDate,
       notes: notes,
+      loanType: loanType,
     ));
     switch (result) {
       case Ok(:final value):

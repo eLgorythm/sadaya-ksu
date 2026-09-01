@@ -49,7 +49,7 @@ class PayInstallmentSheet extends StatelessWidget {
                         label: 'Pokok',
                         value: AppFormatters.rupiah(schedule.principalAmount)),
                     InfoRow(
-                        label: 'Jasa',
+                        label: 'Bunga',
                         value: AppFormatters.rupiah(schedule.interestAmount)),
                     const Divider(height: 16),
                     InfoRow(
@@ -59,7 +59,7 @@ class PayInstallmentSheet extends StatelessWidget {
                     ),
                     if (schedule.interestAmount > 0) ...[
                       const SizedBox(height: 8),
-                      Text('Distribusi jasa:',
+                      Text('Distribusi bunga:',
                           style: Theme.of(context).textTheme.bodySmall),
                       Text(
                         'Japinup ${AppFormatters.rupiah(breakdown.japinup)} • '

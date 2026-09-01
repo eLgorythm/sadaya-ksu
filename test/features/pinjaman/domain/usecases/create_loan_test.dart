@@ -12,8 +12,8 @@ LoanEntity _fakeLoan() => LoanEntity(
       loanNumber: 12,
       principalAmount: 2000000,
       tenor: 10,
-      interestRate: 0.02,
-      adminFeeAmount: 60000,
+      interestRate: 0.03,
+      adminFeeAmount: 40000,
       disbursementDate: DateTime(2026, 8, 23),
       status: 'active',
       remainingBalance: 2000000,
@@ -85,10 +85,11 @@ void main() {
     expect(result, isA<Err<LoanEntity>>());
   });
 
-  test('rateForTenor follows business rule', () {
-    expect(CreateLoanParams.rateForTenor(9), 0.03);
-    expect(CreateLoanParams.rateForTenor(3), 0.03);
-    expect(CreateLoanParams.rateForTenor(10), 0.02);
-    expect(CreateLoanParams.rateForTenor(50), 0.02);
+  test('rateForType follows business rule (regular 2%, fast 3%)', () {
+    expect(CreateLoanParams.rateForType('regular'), 0.02);
+    expect(CreateLoanParams.rateForType('fast'), 0.03);
+    // Biaya admin 3% untuk semua jenis pinjaman
+    expect(CreateLoanParams.adminRateForType('regular'), 0.03);
+    expect(CreateLoanParams.adminRateForType('fast'), 0.03);
   });
 }

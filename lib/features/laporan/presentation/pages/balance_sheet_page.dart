@@ -394,12 +394,20 @@ class _NeracaView extends StatelessWidget {
         return 'Buku Dana Pendidikan';
       case '2119':
         return 'Buku Dana Kesejahteraan';
+      case '2120':
+        return 'Dana-dana untuk Anggota (Bagian SHU)';
+      case '2121':
+        return 'Dana Pengurus/Pengawas & Pegawai';
       case '2122':
         return 'Buku Pajak (Hutang)';
       case '3112':
         return 'Simpanan Pokok';
       case '3113':
         return 'Simpanan Wajib';
+      case '3114':
+        return 'Dana Pembangunan Perkoperasian';
+      case '3116':
+        return 'Dana Cadangan';
       case '3118':
         return 'Akumulasi SHU Berjalan';
       default:

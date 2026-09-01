@@ -83,8 +83,11 @@ class DanaRepositoryImpl implements DanaRepository {
     double? reservePct,
     double? socialPct,
     double? educationPct,
-    double? memberDividendPct,
+    double? memberSavingsPct,
+    double? memberServicePct,
     double? managementPct,
+    double? staffPct,
+    double? developmentPct,
     String? notes,
   }) async {
     try {
@@ -96,8 +99,11 @@ class DanaRepositoryImpl implements DanaRepository {
         reservePct: reservePct,
         socialPct: socialPct,
         educationPct: educationPct,
-        memberDividendPct: memberDividendPct,
+        memberSavingsPct: memberSavingsPct,
+        memberServicePct: memberServicePct,
         managementPct: managementPct,
+        staffPct: staffPct,
+        developmentPct: developmentPct,
         notes: notes,
       );
       return Ok(id);
@@ -122,8 +128,11 @@ class DanaRepositoryImpl implements DanaRepository {
     double? reservePct,
     double? socialPct,
     double? educationPct,
-    double? memberDividendPct,
+    double? memberSavingsPct,
+    double? memberServicePct,
     double? managementPct,
+    double? staffPct,
+    double? developmentPct,
     String? notes,
   }) async {
     try {
@@ -136,8 +145,11 @@ class DanaRepositoryImpl implements DanaRepository {
         reservePct: reservePct,
         socialPct: socialPct,
         educationPct: educationPct,
-        memberDividendPct: memberDividendPct,
+        memberSavingsPct: memberSavingsPct,
+        memberServicePct: memberServicePct,
         managementPct: managementPct,
+        staffPct: staffPct,
+        developmentPct: developmentPct,
         notes: notes,
       );
       return const Ok(null);
