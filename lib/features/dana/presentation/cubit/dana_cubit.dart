@@ -16,6 +16,7 @@ part 'dana_state.dart';
 class DanaCubit extends Cubit<DanaState> {
   DanaCubit(
     this._getFundTransactions,
+    this._getLedgerBalances,
     this._getShuDistributions,
     this._approveShu,
     this._distributeShu,
@@ -24,6 +25,7 @@ class DanaCubit extends Cubit<DanaState> {
   ) : super(const DanaInitial());
 
   final GetFundTransactions _getFundTransactions;
+  final GetLedgerBalances _getLedgerBalances;
   final GetShuDistributions _getShuDistributions;
   final ApproveShu _approveShu;
   final DistributeShu _distributeShu;
@@ -46,6 +48,16 @@ class DanaCubit extends Cubit<DanaState> {
         return;
     }
 
+    final ledgerResult = await _getLedgerBalances(DateTime.now().year);
+    final List<LedgerBalance> ledgerBalances;
+    switch (ledgerResult) {
+      case Ok(:final value):
+        ledgerBalances = value;
+      case Err(:final failure):
+        if (!isClosed) emit(DanaFailure(failure.message));
+        return;
+    }
+
     final shuResult = await _getShuDistributions(const NoParams());
     final List<ShuDistribution> shus;
     switch (shuResult) {
@@ -56,7 +68,13 @@ class DanaCubit extends Cubit<DanaState> {
         return;
     }
 
-    if (!isClosed) emit(DanaLoaded(fundEntries: funds, shuList: shus));
+    if (!isClosed) {
+      emit(DanaLoaded(
+        fundEntries: funds,
+        ledgerBalances: ledgerBalances,
+        shuList: shus,
+      ));
+    }
   }
 
   /// Menyetujui draft SHU (draft → disetujui).

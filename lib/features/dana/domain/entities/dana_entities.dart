@@ -10,6 +10,22 @@ const Map<String, String> kFundLabels = {
   'reserve': 'Dana Cadangan',
 };
 
+/// Saldo satu akun dari buku besar (nilai utuh |saldo natural|).
+class LedgerBalance extends Equatable {
+  const LedgerBalance({
+    required this.code,
+    required this.name,
+    required this.balance,
+  });
+
+  final String code;
+  final String name;
+  final double balance;
+
+  @override
+  List<Object?> get props => [code, name, balance];
+}
+
 class FundTransaction extends Equatable {
   const FundTransaction({
     required this.id,

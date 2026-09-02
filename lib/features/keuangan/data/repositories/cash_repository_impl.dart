@@ -31,6 +31,18 @@ class CashRepositoryImpl implements CashRepository {
   }
 
   @override
+  Future<Result<CashLedgerSummary>> getLedgerSummary(int year) async {
+    try {
+      final data = await _dataSource.fetchLedgerSummary(year);
+      return Ok(CashLedgerSummaryModel.fromMap(data) as CashLedgerSummary);
+    } on PostgrestException catch (e) {
+      return Err(Failure(message: 'Gagal memuat ringkasan kas (${e.message})'));
+    } catch (_) {
+      return const Err(Failure(message: 'Gagal memuat ringkasan kas'));
+    }
+  }
+
+  @override
   Future<Result<List<CashCategoryOption>>> getCategories() async {
     try {
       final rows = await _dataSource.fetchCategories();

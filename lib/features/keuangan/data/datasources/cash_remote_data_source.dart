@@ -34,6 +34,15 @@ class CashRemoteDataSource {
     return rows.cast<Map<String, dynamic>>();
   }
 
+  /// Ringkasan buku kas dari buku besar: total + rincian per akun.
+  Future<Map<String, dynamic>> fetchLedgerSummary(int year) async {
+    final result = await _client.rpc(
+      'get_cash_ledger_summary',
+      params: {'p_year': year},
+    );
+    return result as Map<String, dynamic>;
+  }
+
   Future<void> rpcCreateEntry({
     required String book,
     required String direction,

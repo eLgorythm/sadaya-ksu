@@ -49,6 +49,27 @@ class DanaRepositoryImpl implements DanaRepository {
   }
 
   @override
+  Future<Result<List<LedgerBalance>>> getLedgerBalances(int year) async {
+    try {
+      final data = await _dataSource.fetchLedgerSummary(year);
+      final accounts = (data['accounts'] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map((m) => LedgerBalance(
+                code: m['code'] as String,
+                name: m['name'] as String,
+                balance:
+                    double.tryParse('${m['balance']}') ?? 0,
+              ))
+          .toList();
+      return Ok(accounts);
+    } on PostgrestException catch (e) {
+      return Err(Failure(message: e.message));
+    } catch (_) {
+      return const Err(Failure(message: 'Gagal memuat saldo buku dana'));
+    }
+  }
+
+  @override
   Future<Result<ShuCalculation>> calculateShu(int fiscalYear) async {
     try {
       final row = await _dataSource.fetchShuCalculation(fiscalYear);

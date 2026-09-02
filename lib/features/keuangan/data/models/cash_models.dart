@@ -49,3 +49,39 @@ class CashCategoryOptionModel extends CashCategoryOption {
     );
   }
 }
+
+class CashLedgerSummaryModel extends CashLedgerSummary {
+  const CashLedgerSummaryModel({
+    required super.accounts,
+    required super.total,
+  });
+
+  factory CashLedgerSummaryModel.fromMap(Map<String, dynamic> map) {
+    final accounts = (map['accounts'] as List<dynamic>? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(CashLedgerAccountModel.fromMap)
+        .toList();
+    return CashLedgerSummaryModel(
+      accounts: accounts,
+      total: double.tryParse('${map['total']}') ?? 0,
+    );
+  }
+}
+
+class CashLedgerAccountModel extends CashLedgerAccount {
+  const CashLedgerAccountModel({
+    required super.code,
+    required super.name,
+    required super.accountType,
+    required super.balance,
+  });
+
+  factory CashLedgerAccountModel.fromMap(Map<String, dynamic> map) {
+    return CashLedgerAccountModel(
+      code: map['code'] as String,
+      name: map['name'] as String,
+      accountType: map['account_type'] as String,
+      balance: double.tryParse('${map['balance']}') ?? 0,
+    );
+  }
+}

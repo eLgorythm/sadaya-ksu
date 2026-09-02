@@ -43,6 +43,15 @@ class DanaRemoteDataSource {
     return Map<String, dynamic>.from(result.first);
   }
 
+  /// Ringkasan saldo dari buku besar (kas + dana + Japinup).
+  Future<Map<String, dynamic>> fetchLedgerSummary(int year) async {
+    final result = await _client.rpc(
+      'get_cash_ledger_summary',
+      params: {'p_year': year},
+    );
+    return result as Map<String, dynamic>;
+  }
+
   Future<List<Map<String, dynamic>>> fetchShuDistributions() async {
     final rows = await _client
         .from('shu_distributions')

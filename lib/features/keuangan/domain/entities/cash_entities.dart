@@ -43,3 +43,39 @@ class CashCategoryOption extends Equatable {
   @override
   List<Object?> get props => [code, name, isIncome];
 }
+
+/// Satu akun dalam ringkasan buku kas (termasuk dana & Japinup).
+///
+/// [balance] adalah nilai utuh (|saldo natural|) — per model user:
+/// kas = saldo koperasi; rincian dijumlahkan tanpa saling meniadakan.
+class CashLedgerAccount extends Equatable {
+  const CashLedgerAccount({
+    required this.code,
+    required this.name,
+    required this.accountType,
+    required this.balance,
+  });
+
+  final String code;
+  final String name;
+  final String accountType;
+  final double balance;
+
+  @override
+  List<Object?> get props => [code, name, accountType, balance];
+}
+
+/// Ringkasan buku kas dari buku besar: total saldo berjalan + rincian per
+/// akun (Kas, Bank, setiap dana, Japinup).
+class CashLedgerSummary extends Equatable {
+  const CashLedgerSummary({
+    required this.accounts,
+    required this.total,
+  });
+
+  final List<CashLedgerAccount> accounts;
+  final double total;
+
+  @override
+  List<Object?> get props => [accounts, total];
+}

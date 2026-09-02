@@ -18,6 +18,17 @@ class GetFundTransactions
 }
 
 @lazySingleton
+class GetLedgerBalances implements UseCase<List<LedgerBalance>, int> {
+  GetLedgerBalances(this._repository);
+
+  final DanaRepository _repository;
+
+  @override
+  Future<Result<List<LedgerBalance>>> call(int year) =>
+      _repository.getLedgerBalances(year);
+}
+
+@lazySingleton
 class GetShuDistributions
     implements UseCase<List<ShuDistribution>, NoParams> {
   GetShuDistributions(this._repository);

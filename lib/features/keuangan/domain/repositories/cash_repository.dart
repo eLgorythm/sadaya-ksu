@@ -4,6 +4,8 @@ import '../entities/cash_entities.dart';
 abstract interface class CashRepository {
   Future<Result<List<CashBookEntry>>> getEntries(String book);
 
+  Future<Result<CashLedgerSummary>> getLedgerSummary(int year);
+
   Future<Result<List<CashCategoryOption>>> getCategories();
 
   Future<Result<String>> createCategory({

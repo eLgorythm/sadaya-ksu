@@ -81,7 +81,9 @@ class _KeuanganView extends StatelessWidget {
                           await GetIt.I<KeuanganCubit>().load(silent: true),
                       child: _BookListView(
                         entries: state.cashEntries,
-                        balance: state.cashBalance,
+                        balance: state.summary?.total ?? state.cashBalance,
+                        accounts: state.summary?.accounts ?? const [],
+                        showRincian: true,
                         emptyMessage:
                             'Belum ada transaksi kas.\nTekan "Catat Transaksi" untuk mulai.',
                         onAdd: () => _openForm(context),
@@ -93,6 +95,7 @@ class _KeuanganView extends StatelessWidget {
                       child: _BookListView(
                         entries: state.bankEntries,
                         balance: state.bankBalance,
+                        accounts: const [],
                         emptyMessage:
                             'Belum ada mutasi bank.\nTekan "Catat Transaksi" untuk mulai.',
                         onAdd: () => _openForm(context),
@@ -122,22 +125,42 @@ class _BookListView extends StatelessWidget {
   const _BookListView({
     required this.entries,
     required this.balance,
+    required this.accounts,
     required this.emptyMessage,
     required this.onAdd,
+    this.showRincian = false,
   });
 
   final List<CashBookEntry> entries;
   final double balance;
+  final List<CashLedgerAccount> accounts;
   final String emptyMessage;
   final VoidCallback onAdd;
+  final bool showRincian;
 
   @override
   Widget build(BuildContext context) {
+    final header = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _BalanceCard(balance: balance),
+        if (showRincian) ...[
+          const SizedBox(height: 12),
+          _RincianCard(accounts: accounts),
+        ],
+        const SizedBox(height: 12),
+      ],
+    );
+
     if (entries.isEmpty) {
       return ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _BalanceCard(balance: balance),
+          if (showRincian) ...[
+            const SizedBox(height: 12),
+            _RincianCard(accounts: accounts),
+          ],
           const SizedBox(height: 16),
           EmptyStateView(icon: Icons.receipt_long_outlined, message: emptyMessage),
           const SizedBox(height: 8),
@@ -150,17 +173,92 @@ class _BookListView extends StatelessWidget {
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+      padding: const EdgeInsets.all(16),
       itemCount: entries.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: _BalanceCard(balance: balance),
-          );
+          return header;
         }
         return _EntryTile(entry: entries[index - 1]);
       },
+    );
+  }
+}
+
+/// Ringkasan rincian saldo per akun (kas + bank + dana + Japinup).
+class _RincianCard extends StatelessWidget {
+  const _RincianCard({required this.accounts});
+
+  final List<CashLedgerAccount> accounts;
+
+  /// Urutan & label akun yang selalu ditampilkan di Buku Kas.
+  static const List<({String code, String label})> _rows = [
+    (code: '1111', label: 'Buku Harian Kas'),
+    (code: '1112', label: 'Buku Bank'),
+    (code: '2114', label: 'Dana Sosial'),
+    (code: '2115', label: 'Dana Pendidikan'),
+    (code: '2119', label: 'Dana Kesejahteraan'),
+    (code: '3114', label: 'Dana Pembangunan'),
+    (code: '3115', label: 'Dana CRK'),
+    (code: '3116', label: 'Dana Cadangan'),
+    (code: '4111', label: 'Japinup (Jasa Pinjaman)'),
+  ];
+
+  double _balanceOf(String code) {
+    for (final a in accounts) {
+      if (a.code == code) return a.balance;
+    }
+    return 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Rincian Saldo',
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            for (var i = 0; i < _rows.length; i++) ...[
+              if (i > 0) const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _rows[i].label,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      AppFormatters.rupiah(_balanceOf(_rows[i].code)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

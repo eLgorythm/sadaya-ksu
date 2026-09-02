@@ -4,6 +4,9 @@ import '../entities/dana_entities.dart';
 abstract interface class DanaRepository {
   Future<Result<List<FundTransaction>>> getFundTransactions();
 
+  /// Saldo per akun dari buku besar (kas + bank + dana + Japinup) utk tahun.
+  Future<Result<List<LedgerBalance>>> getLedgerBalances(int year);
+
   Future<Result<void>> createFundEntry({
     required String fundType,
     required bool isIncoming,

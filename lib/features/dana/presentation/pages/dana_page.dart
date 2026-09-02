@@ -10,7 +10,6 @@ import '../../../../core/widgets/common_widgets.dart';
 import '../../../../core/widgets/sadaya_message.dart';
 import '../../domain/entities/dana_entities.dart';
 import '../cubit/dana_cubit.dart';
-import '../widgets/fund_transaction_sheet.dart';
 import '../widgets/shu_form_sheet.dart';
 
 const _fundColors = <String, Color>{
@@ -20,6 +19,16 @@ const _fundColors = <String, Color>{
   'crk': Color(0xFFEF6C00),
   'development': Color(0xFF00838F),
   'reserve': Color(0xFF5D4037),
+};
+
+/// Kode akun buku besar untuk tiap jenis dana.
+const _kFundAccount = <String, String>{
+  'social': '2114',
+  'education': '2115',
+  'welfare': '2119',
+  'crk': '3115',
+  'development': '3114',
+  'reserve': '3116',
 };
 
 class DanaPage extends StatefulWidget {
@@ -91,17 +100,16 @@ class _DanaPageState extends State<DanaPage>
           }
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final saved = isShuTab
-              ? await ShuFormSheet.show(context)
-              : await FundTransactionSheet.show(context);
-          if (saved) _cubit.load(silent: true);
-        },
-        icon: Icon(
-            isShuTab ? Icons.calculate_outlined : Icons.add_chart_outlined),
-        label: Text(isShuTab ? 'Hitung SHU' : 'Catat Dana'),
-      ),
+      floatingActionButton: !isShuTab
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () async {
+                final saved = await ShuFormSheet.show(context);
+                if (saved) _cubit.load(silent: true);
+              },
+              icon: const Icon(Icons.calculate_outlined),
+              label: const Text('Hitung SHU'),
+            ),
     );
   }
 }
@@ -114,7 +122,6 @@ class _FundTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final balances = state.balances;
     final entries = state.fundEntries;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,8 +135,9 @@ class _FundTab extends StatelessWidget {
               for (final type in kFundLabels.keys)
                 _FundBalanceCard(
                   fundType: type,
-                  balance: balances[type] ?? 0,
+                  balance: state.ledgerBalanceOf(_kFundAccount[type]!),
                 ),
+              _JapinupCard(balance: state.japinupBalance),
             ],
           ),
         ),
@@ -191,6 +199,52 @@ class _FundBalanceCard extends StatelessWidget {
                       kFundLabels[fundType] ?? fundType,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppFormatters.rupiah(balance),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _JapinupCard extends StatelessWidget {
+  const _JapinupCard({required this.balance});
+
+  final double balance;
+
+  @override
+  Widget build(BuildContext context) {
+    const color = Color(0xFFD84315);
+    return SizedBox(
+      width: MediaQuery.of(context).size.width / 2 - 24,
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(radius: 5, backgroundColor: color),
+                  const SizedBox(width: 6),
+                  const Expanded(
+                    child: Text(
+                      'Japinup',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
