@@ -431,7 +431,7 @@ class _HeroCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'Aset Lancar',
+            'Aset',
             style: TextStyle(
               fontSize: 11,
               color: AppColors.brand100,

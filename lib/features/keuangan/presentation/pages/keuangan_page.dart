@@ -185,17 +185,28 @@ class _BookListView extends StatelessWidget {
   }
 }
 
-/// Ringkasan rincian aset lancar (Kas + Bank + Pinjaman yang diberikan).
+/// Ringkasan rincian saldo koperasi (kas + bank + piutang + dana + Japinup).
 class _RincianCard extends StatelessWidget {
   const _RincianCard({required this.accounts});
 
   final List<CashLedgerAccount> accounts;
 
-  /// Urutan & label akun aset lancar yang selalu ditampilkan di Buku Kas.
+  /// Urutan & label akun yang selalu ditampilkan di Buku Kas.
   static const List<({String code, String label})> _rows = [
-    (code: '1111', label: 'Buku Harian Kas'),
-    (code: '1112', label: 'Buku Bank'),
+    (code: '1111', label: 'Kas'),
+    (code: '1112', label: 'Bank'),
     (code: '1113', label: 'Pinjaman yang Diberikan'),
+    (code: '2114', label: 'Dana Sosial'),
+    (code: '2115', label: 'Dana Pendidikan'),
+    (code: '2119', label: 'Dana Kesejahteraan'),
+    (code: '3114', label: 'Dana Pembangunan'),
+    (code: '3115', label: 'Dana CRK'),
+    (code: '3116', label: 'Dana Cadangan'),
+    (code: '4111', label: 'Japinup (Jasa Pinjaman)'),
+    (code: '4112', label: 'Admin Pinjaman'),
+    (code: '4114', label: 'Pendapatan Usaha Kopi'),
+    (code: '4115', label: 'Pendapatan Keripik Kentang'),
+    (code: '4116', label: 'Pendapatan Keripik Salak'),
   ];
 
   double _balanceOf(String code) {
@@ -215,7 +226,7 @@ class _RincianCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Aset Lancar',
+              'Saldo Koperasi',
               style: Theme.of(context)
                   .textTheme
                   .labelLarge
