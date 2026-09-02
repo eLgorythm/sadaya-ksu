@@ -6,8 +6,9 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../domain/entities/cash_entities.dart';
+import '../../domain/usecases/bank_action.dart';
 import '../cubit/keuangan_cubit.dart';
-import '../widgets/cash_form_sheet.dart';
+import '../widgets/bank_action_sheet.dart';
 
 class KeuanganPage extends StatefulWidget {
   const KeuanganPage({super.key});
@@ -39,6 +40,44 @@ class _KeuanganPageState extends State<KeuanganPage> {
 class _KeuanganView extends StatelessWidget {
   const _KeuanganView();
 
+  /// Aksi khusus pada tab Buku Bank (index 2): dana masuk ke rekening
+  /// dan cairkan ke kas. Tab Kas & Saldo Berjalan tidak punya catat manual.
+  Future<void> _openBankAction(BuildContext context, BankAction action) async {
+    final saved = await BankActionSheet.show(context, action: action);
+    if (saved && context.mounted) {
+      GetIt.I<KeuanganCubit>().load(silent: true);
+    }
+  }
+
+  Future<void> _showBankMenu(BuildContext context) async {
+    final action = await showModalBottomSheet<BankAction>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SheetHeader(title: 'Aksi Buku Bank'),
+            ListTile(
+              leading: const Icon(Icons.add_to_photos_outlined),
+              title: const Text('Dana Masuk ke Bank'),
+              subtitle: const Text('Tambah saldo rekening dari luar (tanpa kategori)'),
+              onTap: () => Navigator.of(sheetContext).pop(BankAction.danaMasuk),
+            ),
+            ListTile(
+              leading: const Icon(Icons.currency_exchange),
+              title: const Text('Cairkan ke Kas'),
+              subtitle: const Text('Tarik tunai dari rekening ke kas'),
+              onTap: () => Navigator.of(sheetContext).pop(BankAction.cairKas),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (action != null && context.mounted) {
+      await _openBankAction(context, action);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -55,14 +94,17 @@ class _KeuanganView extends StatelessWidget {
           ),
         ),
         floatingActionButton: Builder(
-          /// Builder agar context FAB berada DI BAWAH
-          /// DefaultTabController — DefaultTabController.of(context)
-          /// hanya bisa menemukan controller dari leluhur.
-          builder: (fabContext) => FloatingActionButton.extended(
-            onPressed: () => _openForm(fabContext),
-            icon: const Icon(Icons.add_chart_outlined),
-            label: const Text('Catat Transaksi'),
-          ),
+          /// FAB khusus tab Buku Bank (index 2). Tab lain tanpa catat manual.
+          builder: (fabContext) {
+            final onBankTab =
+                DefaultTabController.of(fabContext).index == 2;
+            if (!onBankTab) return const SizedBox.shrink();
+            return FloatingActionButton.extended(
+              onPressed: () => _showBankMenu(fabContext),
+              icon: const Icon(Icons.payments_outlined),
+              label: const Text('Aksi Bank'),
+            );
+          },
         ),
         body: BlocBuilder<KeuanganCubit, KeuanganState>(
           builder: (context, state) {
@@ -97,8 +139,8 @@ class _KeuanganView extends StatelessWidget {
                         entries: state.bankEntries,
                         balance: state.bankBalance,
                         emptyMessage:
-                            'Belum ada mutasi bank.\nTekan "Catat Transaksi" untuk mulai.',
-                        onAdd: () => _openForm(context),
+                            'Belum ada mutasi bank.\nGunakan "Aksi Bank" untuk'
+                            ' mencatat dana masuk atau cairkan ke kas.',
                       ),
                     ),
                   ],
@@ -111,14 +153,6 @@ class _KeuanganView extends StatelessWidget {
       ),
     );
   }
-
-  Future<void> _openForm(BuildContext context) async {
-    final book = DefaultTabController.of(context).index == 2 ? 'bank' : 'cash';
-    final saved = await CashFormSheet.show(context, initialBook: book);
-    if (saved && context.mounted) {
-      GetIt.I<KeuanganCubit>().load(silent: true);
-    }
-  }
 }
 
 class _BookListView extends StatelessWidget {
@@ -126,13 +160,11 @@ class _BookListView extends StatelessWidget {
     required this.entries,
     required this.balance,
     required this.emptyMessage,
-    required this.onAdd,
   });
 
   final List<CashBookEntry> entries;
   final double balance;
   final String emptyMessage;
-  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -151,12 +183,6 @@ class _BookListView extends StatelessWidget {
           _BalanceCard(balance: balance),
           const SizedBox(height: 16),
           EmptyStateView(icon: Icons.receipt_long_outlined, message: emptyMessage),
-          const SizedBox(height: 8),
-          FilledButton.tonalIcon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add),
-            label: const Text('Catat Sekarang'),
-          ),
         ],
       );
     }

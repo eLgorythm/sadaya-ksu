@@ -15,10 +15,14 @@ abstract interface class CashRepository {
     required bool isIncome,
   });
 
-  Future<Result<void>> createEntry({
-    required String book,
-    required String direction,
-    required String counterAccount,
+  Future<Result<void>> bankDanaMasuk({
+    required double amount,
+    required DateTime date,
+    required String description,
+  });
+
+  /// Tarik tunai dari rekening bank ke kas.
+  Future<Result<void>> bankCairKas({
     required double amount,
     required DateTime date,
     required String description,

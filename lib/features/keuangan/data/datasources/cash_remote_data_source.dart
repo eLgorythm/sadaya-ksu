@@ -54,21 +54,27 @@ class CashRemoteDataSource {
     return result as Map<String, dynamic>;
   }
 
-  Future<void> rpcCreateEntry({
-    required String book,
-    required String direction,
-    required String counterAccount,
+  /// Dana masuk ke rekening dari luar (investor/dll), tanpa kategori.
+  /// Debit Bank 1112 / Kredit Modal Penyertaan 3117.
+  Future<void> rpcBankDanaMasuk({
     required double amount,
     required DateTime date,
     required String description,
   }) async {
-    await _client.rpc('create_cash_book_transaction', params: {
-      'p_book': book,
-      'p_direction': direction,
-      'p_counter_account': counterAccount,
+    await _client.rpc('bank_dana_masuk', params: {
+      'p_amount': amount,
+      'p_description': description,
+      'p_date': date.toIso8601String().substring(0, 10),
+    });
+  }
 
-      /// PENTING: key bernilai null eksplisit menimpa DEFAULT Postgres;
-      /// tanggal selalu diisi sehingga tidak jadi masalah di sini.
+  /// Tarik tunai dari rekening ke kas. Debit Kas 1111 / Kredit Bank 1112.
+  Future<void> rpcBankCairKas({
+    required double amount,
+    required DateTime date,
+    required String description,
+  }) async {
+    await _client.rpc('bank_cair_ke_kas', params: {
       'p_amount': amount,
       'p_description': description,
       'p_date': date.toIso8601String().substring(0, 10),

@@ -88,19 +88,13 @@ class CashRepositoryImpl implements CashRepository {
   }
 
   @override
-  Future<Result<void>> createEntry({
-    required String book,
-    required String direction,
-    required String counterAccount,
+  Future<Result<void>> bankDanaMasuk({
     required double amount,
     required DateTime date,
     required String description,
   }) async {
     try {
-      await _dataSource.rpcCreateEntry(
-        book: book,
-        direction: direction,
-        counterAccount: counterAccount,
+      await _dataSource.rpcBankDanaMasuk(
         amount: amount,
         date: date,
         description: description,
@@ -109,7 +103,27 @@ class CashRepositoryImpl implements CashRepository {
     } on PostgrestException catch (e) {
       return Err(Failure(message: e.message));
     } catch (_) {
-      return const Err(Failure(message: 'Gagal menyimpan transaksi'));
+      return const Err(Failure(message: 'Gagal mencatat dana masuk bank'));
+    }
+  }
+
+  @override
+  Future<Result<void>> bankCairKas({
+    required double amount,
+    required DateTime date,
+    required String description,
+  }) async {
+    try {
+      await _dataSource.rpcBankCairKas(
+        amount: amount,
+        date: date,
+        description: description,
+      );
+      return const Ok(null);
+    } on PostgrestException catch (e) {
+      return Err(Failure(message: e.message));
+    } catch (_) {
+      return const Err(Failure(message: 'Gagal mencairkan ke kas'));
     }
   }
 }
