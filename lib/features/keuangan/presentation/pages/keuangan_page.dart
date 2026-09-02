@@ -195,6 +195,7 @@ class _RincianCard extends StatelessWidget {
   static const List<({String code, String label})> _rows = [
     (code: '1111', label: 'Buku Harian Kas'),
     (code: '1112', label: 'Buku Bank'),
+    (code: '1113', label: 'Pinjaman yang Diberikan'),
     (code: '2114', label: 'Dana Sosial'),
     (code: '2115', label: 'Dana Pendidikan'),
     (code: '2119', label: 'Dana Kesejahteraan'),
