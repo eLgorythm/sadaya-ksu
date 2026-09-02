@@ -185,24 +185,17 @@ class _BookListView extends StatelessWidget {
   }
 }
 
-/// Ringkasan rincian saldo per akun (kas + bank + dana + Japinup).
+/// Ringkasan rincian aset lancar (Kas + Bank + Pinjaman yang diberikan).
 class _RincianCard extends StatelessWidget {
   const _RincianCard({required this.accounts});
 
   final List<CashLedgerAccount> accounts;
 
-  /// Urutan & label akun yang selalu ditampilkan di Buku Kas.
+  /// Urutan & label akun aset lancar yang selalu ditampilkan di Buku Kas.
   static const List<({String code, String label})> _rows = [
     (code: '1111', label: 'Buku Harian Kas'),
     (code: '1112', label: 'Buku Bank'),
     (code: '1113', label: 'Pinjaman yang Diberikan'),
-    (code: '2114', label: 'Dana Sosial'),
-    (code: '2115', label: 'Dana Pendidikan'),
-    (code: '2119', label: 'Dana Kesejahteraan'),
-    (code: '3114', label: 'Dana Pembangunan'),
-    (code: '3115', label: 'Dana CRK'),
-    (code: '3116', label: 'Dana Cadangan'),
-    (code: '4111', label: 'Japinup (Jasa Pinjaman)'),
   ];
 
   double _balanceOf(String code) {
@@ -222,7 +215,7 @@ class _RincianCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Rincian Saldo',
+              'Aset Lancar',
               style: Theme.of(context)
                   .textTheme
                   .labelLarge
