@@ -185,36 +185,12 @@ class _BookListView extends StatelessWidget {
   }
 }
 
-/// Ringkasan rincian saldo koperasi (kas + bank + piutang + dana + Japinup).
+/// Ringkasan rincian saldo berjalan sisi kredit (kewajiban + ekuitas +
+/// pendapatan, kecuali Modal Tetap).
 class _RincianCard extends StatelessWidget {
   const _RincianCard({required this.accounts});
 
   final List<CashLedgerAccount> accounts;
-
-  /// Urutan & label akun yang selalu ditampilkan di Buku Kas.
-  static const List<({String code, String label})> _rows = [
-    (code: '1111', label: 'Kas'),
-    (code: '1112', label: 'Bank'),
-    (code: '1113', label: 'Pinjaman yang Diberikan'),
-    (code: '2114', label: 'Dana Sosial'),
-    (code: '2115', label: 'Dana Pendidikan'),
-    (code: '2119', label: 'Dana Kesejahteraan'),
-    (code: '3114', label: 'Dana Pembangunan'),
-    (code: '3115', label: 'Dana CRK'),
-    (code: '3116', label: 'Dana Cadangan'),
-    (code: '4111', label: 'Japinup (Jasa Pinjaman)'),
-    (code: '4112', label: 'Admin Pinjaman'),
-    (code: '4114', label: 'Pendapatan Usaha Kopi'),
-    (code: '4115', label: 'Pendapatan Keripik Kentang'),
-    (code: '4116', label: 'Pendapatan Keripik Salak'),
-  ];
-
-  double _balanceOf(String code) {
-    for (final a in accounts) {
-      if (a.code == code) return a.balance;
-    }
-    return 0;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -226,14 +202,14 @@ class _RincianCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Saldo Koperasi',
+              'Saldo Berjalan (Sisi Kredit)',
               style: Theme.of(context)
                   .textTheme
                   .labelLarge
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-            for (var i = 0; i < _rows.length; i++) ...[
+            for (var i = 0; i < accounts.length; i++) ...[
               if (i > 0) const Divider(height: 1),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
@@ -242,7 +218,7 @@ class _RincianCard extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        _rows[i].label,
+                        accounts[i].name,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -251,7 +227,7 @@ class _RincianCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      AppFormatters.rupiah(_balanceOf(_rows[i].code)),
+                      AppFormatters.rupiah(accounts[i].balance),
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
