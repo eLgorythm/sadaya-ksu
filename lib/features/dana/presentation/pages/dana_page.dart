@@ -28,8 +28,18 @@ const _kFundAccount = <String, String>{
   'welfare': '2119',
   'crk': '3115',
   'development': '3114',
-  'reserve': '3116',
 };
+
+/// Urutan & subset pos dana yang ditampilkan (5 pos distribusi jasa).
+/// Dana Cadangan (reserve) sengaja tidak disertakan karena sudah
+/// tercakup oleh CRK.
+const List<String> _kFundDisplayKeys = [
+  'welfare',
+  'social',
+  'education',
+  'crk',
+  'development',
+];
 
 class DanaPage extends StatefulWidget {
   const DanaPage({super.key});
@@ -132,12 +142,13 @@ class _FundTab extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final type in kFundLabels.keys)
+              for (final type in _kFundDisplayKeys)
                 _FundBalanceCard(
                   fundType: type,
                   balance: state.ledgerBalanceOf(_kFundAccount[type]!),
                 ),
               _JapinupCard(balance: state.japinupBalance),
+              _SwkCard(balance: state.swkBalance),
             ],
           ),
         ),
@@ -243,6 +254,52 @@ class _JapinupCard extends StatelessWidget {
                   const Expanded(
                     child: Text(
                       'Japinup',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppFormatters.rupiah(balance),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SwkCard extends StatelessWidget {
+  const _SwkCard({required this.balance});
+
+  final double balance;
+
+  @override
+  Widget build(BuildContext context) {
+    const color = Color(0xFF2E7D32);
+    return SizedBox(
+      width: MediaQuery.of(context).size.width / 2 - 24,
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(radius: 5, backgroundColor: color),
+                  const SizedBox(width: 6),
+                  const Expanded(
+                    child: Text(
+                      'SWK',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),

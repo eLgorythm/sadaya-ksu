@@ -283,6 +283,8 @@ class _HomePageState extends State<HomePage> {
         context.push('/pajak');
       case 'neraca':
         widget.onOpenNeraca?.call();
+      case 'jurnal':
+        context.push('/jurnal');
       case 'shu' || 'dansos' || 'danpend' || 'dankes':
         context.push('/dana');
       case 'inventaris' || 'penyusutan':

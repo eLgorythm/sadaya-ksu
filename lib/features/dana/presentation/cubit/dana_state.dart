@@ -49,6 +49,9 @@ class DanaLoaded extends DanaState {
   /// Saldo Japinup (jasa pinjaman) dari buku besar.
   double get japinupBalance => ledgerBalanceOf('4111');
 
+  /// Saldo SWK (Simpanan Wajib Kredit) dari buku besar.
+  double get swkBalance => ledgerBalanceOf('2113');
+
   @override
   List<Object?> get props => [fundEntries, shuList, ledgerBalances];
 }

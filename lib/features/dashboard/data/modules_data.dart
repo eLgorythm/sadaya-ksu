@@ -124,6 +124,14 @@ const List<ModuleItem> kModules = [
     postsToLedger: false,
   ),
   ModuleItem(
+    id: 'jurnal',
+    title: 'Jurnal',
+    category: ModuleCategory.utama,
+    icon: Icons.article_outlined,
+    description: 'Log transaksi buku besar',
+    postsToLedger: false,
+  ),
+  ModuleItem(
     id: 'inventaris',
     title: 'Buku Inventaris',
     category: ModuleCategory.aset,

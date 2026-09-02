@@ -27,11 +27,15 @@ class LaporanRemoteDataSource {
     return List<Map<String, dynamic>>.from(rows);
   }
 
-  /// Baris jurnal buku besar untuk tahun fiskal (opsional per akun),
-  /// diurutkan dari tanggal terlama kemudian waktu dibuat.
+  /// Baris jurnal buku besar untuk tahun fiskal (opsional per akun,
+  /// jenis buku, dan rentang tanggal), diurutkan dari tanggal terlama
+  /// kemudian waktu dibuat.
   Future<List<Map<String, dynamic>>> getLedgerEntries({
     required int fiscalYear,
     String? accountCode,
+    String? sourceBook,
+    DateTime? fromDate,
+    DateTime? toDate,
   }) async {
     var query = _client
         .from('ledger_entries')
@@ -40,6 +44,15 @@ class LaporanRemoteDataSource {
         .eq('fiscal_year', fiscalYear);
     if (accountCode != null) {
       query = query.eq('account_code', accountCode);
+    }
+    if (sourceBook != null && sourceBook.isNotEmpty) {
+      query = query.eq('source_book', sourceBook);
+    }
+    if (fromDate != null) {
+      query = query.gte('entry_date', fromDate.toIso8601String().substring(0, 10));
+    }
+    if (toDate != null) {
+      query = query.lte('entry_date', toDate.toIso8601String().substring(0, 10));
     }
     final rows = await query
         .order('entry_date', ascending: true)
