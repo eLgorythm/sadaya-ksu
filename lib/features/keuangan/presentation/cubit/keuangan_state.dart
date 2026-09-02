@@ -21,6 +21,7 @@ class KeuanganLoaded extends KeuanganState {
     required this.bankEntries,
     required this.categories,
     this.summary,
+    this.cashSources,
   });
 
   final List<CashBookEntry> cashEntries;
@@ -29,6 +30,9 @@ class KeuanganLoaded extends KeuanganState {
 
   /// Ringkasan saldo dari buku besar (kas + bank + dana + Japinup).
   final CashLedgerSummary? summary;
+
+  /// Pemasukan Kas (akun 1111) per sumber untuk tab Kas.
+  final CashSources? cashSources;
 
   double get cashBalance => _balanceOf(cashEntries);
   double get bankBalance => _balanceOf(bankEntries);
@@ -42,7 +46,8 @@ class KeuanganLoaded extends KeuanganState {
   }
 
   @override
-  List<Object?> get props => [cashEntries, bankEntries, categories, summary];
+  List<Object?> get props =>
+      [cashEntries, bankEntries, categories, summary, cashSources];
 }
 
 class KeuanganFailure extends KeuanganState {

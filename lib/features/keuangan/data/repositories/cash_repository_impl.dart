@@ -43,6 +43,18 @@ class CashRepositoryImpl implements CashRepository {
   }
 
   @override
+  Future<Result<CashSources>> getCashSources(int year) async {
+    try {
+      final data = await _dataSource.fetchCashSources(year);
+      return Ok(CashSourcesModel.fromMap(data) as CashSources);
+    } on PostgrestException catch (e) {
+      return Err(Failure(message: 'Gagal memuat kas (${e.message})'));
+    } catch (_) {
+      return const Err(Failure(message: 'Gagal memuat kas'));
+    }
+  }
+
+  @override
   Future<Result<List<CashCategoryOption>>> getCategories() async {
     try {
       final rows = await _dataSource.fetchCategories();

@@ -44,6 +44,16 @@ class CashRemoteDataSource {
     return result as Map<String, dynamic>;
   }
 
+  /// Pemasukan Kas (akun 1111) per sumber (angsuran pinjaman, simpanan
+  /// manasuka, cair dari bank) untuk tab Kas.
+  Future<Map<String, dynamic>> fetchCashSources(int year) async {
+    final result = await _client.rpc(
+      'get_cash_sources',
+      params: {'p_year': year},
+    );
+    return result as Map<String, dynamic>;
+  }
+
   Future<void> rpcCreateEntry({
     required String book,
     required String direction,

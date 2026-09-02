@@ -79,3 +79,66 @@ class CashLedgerSummary extends Equatable {
   @override
   List<Object?> get props => [accounts, total];
 }
+
+/// Satu baris pemasukan Kas (akun 1111) dari sumber tertentu.
+class CashSourceEntry extends Equatable {
+  const CashSourceEntry({
+    required this.source,
+    required this.date,
+    required this.amount,
+    required this.description,
+  });
+
+  /// 'dana' | 'sms' | 'cair_bank' | 'kas_lain'.
+  final String source;
+  final DateTime date;
+  final double amount;
+  final String description;
+
+  @override
+  List<Object?> get props => [source, date, amount, description];
+}
+
+/// Ringkasan pemasukan Kas (akun 1111) per sumber untuk tab Kas.
+class CashSources extends Equatable {
+  const CashSources({
+    required this.entries,
+    required this.posKesra,
+    required this.posSosial,
+    required this.posPendidikan,
+    required this.posCrk,
+    required this.posPembangunan,
+    required this.posSwk,
+    required this.posJapinup,
+    required this.totalSms,
+    required this.totalCairBank,
+    required this.total,
+  });
+
+  final List<CashSourceEntry> entries;
+  final double posKesra;
+  final double posSosial;
+  final double posPendidikan;
+  final double posCrk;
+  final double posPembangunan;
+  final double posSwk;
+  final double posJapinup;
+  final double totalSms;
+  final double totalCairBank;
+  final double total;
+
+  @override
+  List<Object?> get props => [
+        entries,
+        posKesra,
+        posSosial,
+        posPendidikan,
+        posCrk,
+        posPembangunan,
+        posSwk,
+        posJapinup,
+        totalSms,
+        totalCairBank,
+        total,
+      ];
+}

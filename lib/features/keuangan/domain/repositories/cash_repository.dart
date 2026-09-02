@@ -6,6 +6,8 @@ abstract interface class CashRepository {
 
   Future<Result<CashLedgerSummary>> getLedgerSummary(int year);
 
+  Future<Result<CashSources>> getCashSources(int year);
+
   Future<Result<List<CashCategoryOption>>> getCategories();
 
   Future<Result<String>> createCategory({

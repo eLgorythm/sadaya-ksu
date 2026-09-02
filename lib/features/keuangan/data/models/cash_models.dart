@@ -85,3 +85,57 @@ class CashLedgerAccountModel extends CashLedgerAccount {
     );
   }
 }
+
+class CashSourceEntryModel extends CashSourceEntry {
+  const CashSourceEntryModel({
+    required super.source,
+    required super.date,
+    required super.amount,
+    required super.description,
+  });
+
+  factory CashSourceEntryModel.fromMap(Map<String, dynamic> map) {
+    return CashSourceEntryModel(
+      source: map['source'] as String? ?? 'kas_lain',
+      date: DateTime.parse(map['date'] as String),
+      amount: double.tryParse('${map['amount']}') ?? 0,
+      description: map['description'] as String? ?? '',
+    );
+  }
+}
+
+class CashSourcesModel extends CashSources {
+  const CashSourcesModel({
+    required super.entries,
+    required super.posKesra,
+    required super.posSosial,
+    required super.posPendidikan,
+    required super.posCrk,
+    required super.posPembangunan,
+    required super.posSwk,
+    required super.posJapinup,
+    required super.totalSms,
+    required super.totalCairBank,
+    required super.total,
+  });
+
+  factory CashSourcesModel.fromMap(Map<String, dynamic> map) {
+    final entries = (map['entries'] as List<dynamic>? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(CashSourceEntryModel.fromMap)
+        .toList();
+    return CashSourcesModel(
+      entries: entries,
+      posKesra: double.tryParse('${map['pos_kesra']}') ?? 0,
+      posSosial: double.tryParse('${map['pos_sosial']}') ?? 0,
+      posPendidikan: double.tryParse('${map['pos_pendidikan']}') ?? 0,
+      posCrk: double.tryParse('${map['pos_crk']}') ?? 0,
+      posPembangunan: double.tryParse('${map['pos_pembangunan']}') ?? 0,
+      posSwk: double.tryParse('${map['pos_swk']}') ?? 0,
+      posJapinup: double.tryParse('${map['pos_japinup']}') ?? 0,
+      totalSms: double.tryParse('${map['total_sms']}') ?? 0,
+      totalCairBank: double.tryParse('${map['total_cair_bank']}') ?? 0,
+      total: double.tryParse('${map['total']}') ?? 0,
+    );
+  }
+}
