@@ -37,8 +37,36 @@ class _KeuanganPageState extends State<KeuanganPage> {
   }
 }
 
-class _KeuanganView extends StatelessWidget {
+class _KeuanganView extends StatefulWidget {
   const _KeuanganView();
+
+  @override
+  State<_KeuanganView> createState() => _KeuanganViewState();
+}
+
+class _KeuanganViewState extends State<_KeuanganView>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController = TabController(
+    length: 3,
+    vsync: this,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController.addListener(_onTabChanged);
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (mounted && !_tabController.indexIsChanging) setState(() {});
+  }
 
   /// Aksi khusus pada tab Buku Bank (index 2): dana masuk ke rekening
   /// dan cairkan ke kas. Tab Kas & Saldo Berjalan tidak punya catat manual.
@@ -60,7 +88,9 @@ class _KeuanganView extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.add_to_photos_outlined),
               title: const Text('Dana Masuk ke Bank'),
-              subtitle: const Text('Tambah saldo rekening dari luar (tanpa kategori)'),
+              subtitle: const Text(
+                'Tambah saldo rekening dari luar (tanpa kategori)',
+              ),
               onTap: () => Navigator.of(sheetContext).pop(BankAction.danaMasuk),
             ),
             ListTile(
@@ -80,76 +110,69 @@ class _KeuanganView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Kas Umum & Bank'),
-          bottom: TabBar(
-            tabs: const [
-              Tab(text: 'Saldo Berjalan'),
-              Tab(text: 'Kas'),
-              Tab(text: 'Buku Bank'),
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Kas Umum & Bank'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Saldo Berjalan'),
+            Tab(text: 'Kas'),
+            Tab(text: 'Buku Bank'),
+          ],
         ),
-        floatingActionButton: Builder(
-          /// FAB khusus tab Buku Bank (index 2). Tab lain tanpa catat manual.
-          builder: (fabContext) {
-            final onBankTab =
-                DefaultTabController.of(fabContext).index == 2;
-            if (!onBankTab) return const SizedBox.shrink();
-            return FloatingActionButton.extended(
-              onPressed: () => _showBankMenu(fabContext),
+      ),
+      floatingActionButton: _tabController.index == 2
+          ? FloatingActionButton.extended(
+              onPressed: () => _showBankMenu(context),
               icon: const Icon(Icons.payments_outlined),
               label: const Text('Aksi Bank'),
-            );
-          },
-        ),
-        body: BlocBuilder<KeuanganCubit, KeuanganState>(
-          builder: (context, state) {
-            switch (state) {
-              case KeuanganLoadInProgress():
-                return const LoadingView();
-              case KeuanganFailure(:final message):
-                return ErrorStateView(
-                  message: message,
-                  onRetry: () => GetIt.I<KeuanganCubit>().load(),
-                );
-              case KeuanganLoaded():
-                return TabBarView(
-                  children: [
-                    RefreshIndicator(
-                      onRefresh: () async =>
-                          await GetIt.I<KeuanganCubit>().load(silent: true),
-                      child: _SaldoBerjalanView(
-                        balance: state.summary?.total ?? state.cashBalance,
-                        accounts: state.summary?.accounts ?? const [],
-                      ),
+            )
+          : null,
+      body: BlocBuilder<KeuanganCubit, KeuanganState>(
+        builder: (context, state) {
+          switch (state) {
+            case KeuanganLoadInProgress():
+              return const LoadingView();
+            case KeuanganFailure(:final message):
+              return ErrorStateView(
+                message: message,
+                onRetry: () => GetIt.I<KeuanganCubit>().load(),
+              );
+            case KeuanganLoaded():
+              return TabBarView(
+                controller: _tabController,
+                children: [
+                  RefreshIndicator(
+                    onRefresh: () async =>
+                        await GetIt.I<KeuanganCubit>().load(silent: true),
+                    child: _SaldoBerjalanView(
+                      balance: state.summary?.total ?? state.cashBalance,
+                      accounts: state.summary?.accounts ?? const [],
                     ),
-                    RefreshIndicator(
-                      onRefresh: () async =>
-                          await GetIt.I<KeuanganCubit>().load(silent: true),
-                      child: _KasSourceView(sources: state.cashSources),
+                  ),
+                  RefreshIndicator(
+                    onRefresh: () async =>
+                        await GetIt.I<KeuanganCubit>().load(silent: true),
+                    child: _KasSourceView(sources: state.cashSources),
+                  ),
+                  RefreshIndicator(
+                    onRefresh: () async =>
+                        await GetIt.I<KeuanganCubit>().load(silent: true),
+                    child: _BookListView(
+                      entries: state.bankEntries,
+                      balance: state.bankBalance,
+                      emptyMessage:
+                          'Belum ada mutasi bank.\nGunakan "Aksi Bank" untuk'
+                          ' mencatat dana masuk atau cairkan ke kas.',
                     ),
-                    RefreshIndicator(
-                      onRefresh: () async =>
-                          await GetIt.I<KeuanganCubit>().load(silent: true),
-                      child: _BookListView(
-                        entries: state.bankEntries,
-                        balance: state.bankBalance,
-                        emptyMessage:
-                            'Belum ada mutasi bank.\nGunakan "Aksi Bank" untuk'
-                            ' mencatat dana masuk atau cairkan ke kas.',
-                      ),
-                    ),
-                  ],
-                );
-              case KeuanganInitial():
-                return const SizedBox.shrink();
-            }
-          },
-        ),
+                  ),
+                ],
+              );
+            case KeuanganInitial():
+              return const SizedBox.shrink();
+          }
+        },
       ),
     );
   }
@@ -182,7 +205,10 @@ class _BookListView extends StatelessWidget {
         children: [
           _BalanceCard(balance: balance),
           const SizedBox(height: 16),
-          EmptyStateView(icon: Icons.receipt_long_outlined, message: emptyMessage),
+          EmptyStateView(
+            icon: Icons.receipt_long_outlined,
+            message: emptyMessage,
+          ),
         ],
       );
     }
@@ -201,10 +227,7 @@ class _BookListView extends StatelessWidget {
 
 /// Saldo Berjalan (tab 1): total + rincian sisi kredit.
 class _SaldoBerjalanView extends StatelessWidget {
-  const _SaldoBerjalanView({
-    required this.balance,
-    required this.accounts,
-  });
+  const _SaldoBerjalanView({required this.balance, required this.accounts});
 
   final double balance;
   final List<CashLedgerAccount> accounts;
@@ -331,9 +354,7 @@ class _RincianCard extends StatelessWidget {
           children: [
             Text(
               'Saldo Berjalan (Sisi Kredit)',
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
+              style: Theme.of(context).textTheme.labelLarge
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
@@ -347,10 +368,7 @@ class _RincianCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         accounts[i].name,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -371,6 +389,7 @@ class _RincianCard extends StatelessWidget {
     );
   }
 }
+
 class _BalanceCard extends StatelessWidget {
   const _BalanceCard({required this.balance, this.label = 'Saldo Berjalan'});
 
@@ -389,14 +408,19 @@ class _BalanceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.85))),
+          Text(
+            label,
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
+          ),
           const SizedBox(height: 4),
-          Text(AppFormatters.rupiah(balance),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold)),
+          Text(
+            AppFormatters.rupiah(balance),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -429,15 +453,15 @@ class _SourceCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelLarge
+                  style: Theme.of(context).textTheme.labelLarge
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   AppFormatters.rupiah(total),
-                  style:
-                      const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -459,10 +483,7 @@ class _SourceCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         entries[i].description,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -474,7 +495,9 @@ class _SourceCard extends StatelessWidget {
                         Text(
                           AppFormatters.rupiah(entries[i].amount),
                           style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w600),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         Text(
                           AppFormatters.date(entries[i].date),
@@ -504,8 +527,7 @@ class _EntryTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(top: 8),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
         leading: CircleAvatar(
           radius: 17,
           backgroundColor: isIncoming
@@ -524,8 +546,11 @@ class _EntryTile extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(entry.description,
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(
+              entry.description,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             Text(
               AppFormatters.date(entry.date),
               style: const TextStyle(fontSize: 12),
