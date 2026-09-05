@@ -40,16 +40,17 @@ class _BankActionSheetState extends State<BankActionSheet> {
   DateTime _date = DateTime.now();
 
   String get _title => switch (widget.action) {
-        BankAction.danaMasuk => 'Dana Masuk ke Bank',
-        BankAction.cairKas => 'Cairkan ke Kas',
-      };
+    BankAction.danaMasuk => 'Dana Masuk ke Bank',
+    BankAction.cairKas => 'Cairkan ke Kas',
+  };
 
   String get _helper => switch (widget.action) {
-        BankAction.danaMasuk => 'Catat pemasukan saldo bank dari luar '
-            '(mis. investor) tanpa kategori.',
-        BankAction.cairKas =>
-          'Tarik tunai dari rekening bank ke kas (debit Kas / credit Bank).',
-      };
+    BankAction.danaMasuk =>
+      'Catat pemasukan saldo bank dari luar '
+          '(mis. investor) tanpa kategori.',
+    BankAction.cairKas =>
+      'Tarik tunai dari rekening bank ke kas (debit Kas / credit Bank).',
+  };
 
   @override
   void dispose() {
@@ -73,12 +74,15 @@ class _BankActionSheetState extends State<BankActionSheet> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    _cubit.save(BankActionParams(
-      action: widget.action,
-      amount: double.tryParse(_amountController.text.replaceAll('.', '')) ?? 0,
-      date: _date,
-      description: _noteController.text,
-    ));
+    _cubit.save(
+      BankActionParams(
+        action: widget.action,
+        amount:
+            double.tryParse(_amountController.text.replaceAll('.', '')) ?? 0,
+        date: _date,
+        description: _noteController.text,
+      ),
+    );
   }
 
   @override
@@ -161,8 +165,8 @@ class _BankActionSheetState extends State<BankActionSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child:
-                                CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.save_outlined),
                     label: Text(saving ? 'Menyimpan...' : 'Simpan'),
                   ),

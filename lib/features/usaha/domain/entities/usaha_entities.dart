@@ -52,16 +52,16 @@ class MaterialTransaction extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        materialId,
-        materialName,
-        type,
-        quantity,
-        unitPrice,
-        totalPrice,
-        date,
-        notes,
-      ];
+    id,
+    materialId,
+    materialName,
+    type,
+    quantity,
+    unitPrice,
+    totalPrice,
+    date,
+    notes,
+  ];
 }
 
 class ProductionRecord extends Equatable {
@@ -93,15 +93,15 @@ class ProductionRecord extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        productType,
-        date,
-        quantityProduced,
-        unit,
-        quantityPack,
-        productionCost,
-        notes,
-      ];
+    id,
+    productType,
+    date,
+    quantityProduced,
+    unit,
+    quantityPack,
+    productionCost,
+    notes,
+  ];
 }
 
 class SaleRecord extends Equatable {
@@ -133,14 +133,14 @@ class SaleRecord extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        productType,
-        date,
-        quantity,
-        unit,
-        unitPrice,
-        totalPrice,
-        buyer,
-        notes,
-      ];
+    id,
+    productType,
+    date,
+    quantity,
+    unit,
+    unitPrice,
+    totalPrice,
+    buyer,
+    notes,
+  ];
 }

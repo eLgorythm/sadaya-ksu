@@ -13,11 +13,8 @@ part 'aset_state.dart';
 
 @lazySingleton
 class AsetCubit extends Cubit<AsetState> {
-  AsetCubit(
-    this._getAssets,
-    this._getDepreciations,
-    this._recalculate,
-  ) : super(const AsetInitial());
+  AsetCubit(this._getAssets, this._getDepreciations, this._recalculate)
+    : super(const AsetInitial());
 
   final GetAssets _getAssets;
   final GetDepreciations _getDepreciations;
@@ -52,11 +49,13 @@ class AsetCubit extends Cubit<AsetState> {
     }
 
     if (!isClosed) {
-      emit(AsetLoaded(
-        assets: assets,
-        depreciationRows: rows,
-        selectedYear: _selectedYear,
-      ));
+      emit(
+        AsetLoaded(
+          assets: assets,
+          depreciationRows: rows,
+          selectedYear: _selectedYear,
+        ),
+      );
     }
   }
 

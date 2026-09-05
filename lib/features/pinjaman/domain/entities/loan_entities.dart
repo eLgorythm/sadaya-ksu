@@ -49,15 +49,26 @@ class LoanEntity extends Equatable {
   double get totalPaid => totalPaidPrincipal + totalPaidInterest;
 
   /// Progress pelunasan 0.0 - 1.0
-  double get progress =>
-      principalAmount <= 0 ? 0 : (totalPaidPrincipal / principalAmount).clamp(0, 1);
+  double get progress => principalAmount <= 0
+      ? 0
+      : (totalPaidPrincipal / principalAmount).clamp(0, 1);
 
   @override
   List<Object?> get props => [
-        id, loanNumber, principalAmount, tenor, interestRate,
-        adminFeeAmount, disbursementDate, status, remainingBalance,
-        totalPaidPrincipal, totalPaidInterest, notes, loanType,
-      ];
+    id,
+    loanNumber,
+    principalAmount,
+    tenor,
+    interestRate,
+    adminFeeAmount,
+    disbursementDate,
+    status,
+    remainingBalance,
+    totalPaidPrincipal,
+    totalPaidInterest,
+    notes,
+    loanType,
+  ];
 }
 
 class InstallmentScheduleEntity extends Equatable {
@@ -90,9 +101,15 @@ class InstallmentScheduleEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, installmentNumber, dueDate, principalAmount,
-        interestAmount, totalAmount, status, paidDate,
-      ];
+    id,
+    installmentNumber,
+    dueDate,
+    principalAmount,
+    interestAmount,
+    totalAmount,
+    status,
+    paidDate,
+  ];
 }
 
 /// Rincian distribusi jasa untuk satu pembayaran.
@@ -130,8 +147,9 @@ class InterestDistributionBreakdown extends Equatable {
     final pendidikan = _round2(interest * 0.05 / base);
     final crk = _round2(interest * 0.05 / base);
     final pembangunan = _round2(interest * 0.05 / base);
-    final japinup =
-        _round2(interest - (swk + kesra + sosial + pendidikan + crk + pembangunan));
+    final japinup = _round2(
+      interest - (swk + kesra + sosial + pendidikan + crk + pembangunan),
+    );
     return InterestDistributionBreakdown(
       totalInterest: interest,
       japinup: japinup,
@@ -148,7 +166,13 @@ class InterestDistributionBreakdown extends Equatable {
 
   @override
   List<Object?> get props => [
-        totalInterest, japinup, kesra, swk,
-        sosial, pendidikan, crk, pembangunan,
-      ];
+    totalInterest,
+    japinup,
+    kesra,
+    swk,
+    sosial,
+    pendidikan,
+    crk,
+    pembangunan,
+  ];
 }

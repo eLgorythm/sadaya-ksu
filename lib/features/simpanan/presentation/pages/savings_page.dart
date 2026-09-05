@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../domain/entities/saving_entities.dart';
@@ -59,120 +60,134 @@ class _SavingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('#${member.memberNumber} ${member.name}'),
-      ),
-      body: BlocBuilder<SavingsCubit, SavingsState>(
-        builder: (context, state) {
-          switch (state) {
-            case SavingsLoadInProgress():
-              return const LoadingView();
-            case SavingsFailure(:final message):
-              return ErrorStateView(
-                message: message,
-                onRetry: () => GetIt.I<SavingsCubit>().load(member.id),
-              );
-            case SavingsLoadSuccess():
-              return RefreshIndicator(
-                onRefresh: () async =>
-                    await GetIt.I<SavingsCubit>().load(member.id, silent: true),
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _BalanceCard(
-                            label: 'Simpanan Pokok',
-                            code: 'SP',
-                            balance: state.summary.balanceOf('SP'),
+      appBar: AppBar(title: Text('#${member.memberNumber} ${member.name}')),
+      body: MaxWidthBox(
+        maxWidth: 720,
+        child: BlocBuilder<SavingsCubit, SavingsState>(
+          builder: (context, state) {
+            switch (state) {
+              case SavingsLoadInProgress():
+                return const LoadingView();
+              case SavingsFailure(:final message):
+                return ErrorStateView(
+                  message: message,
+                  onRetry: () => GetIt.I<SavingsCubit>().load(member.id),
+                );
+              case SavingsLoadSuccess():
+                return RefreshIndicator(
+                  onRefresh: () async => await GetIt.I<SavingsCubit>().load(
+                    member.id,
+                    silent: true,
+                  ),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _BalanceCard(
+                              label: 'Simpanan Pokok',
+                              code: 'SP',
+                              balance: state.summary.balanceOf('SP'),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _BalanceCard(
-                            label: 'Wajib Bulanan',
-                            code: 'SWB',
-                            balance: state.summary.balanceOf('SWB'),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _BalanceCard(
+                              label: 'Wajib Bulanan',
+                              code: 'SWB',
+                              balance: state.summary.balanceOf('SWB'),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _BalanceCard(
-                            label: 'Mana Suka',
-                            code: 'SMS',
-                            balance: state.summary.balanceOf('SMS'),
-                            highlight: true,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _BalanceCard(
-                            label: 'Wajib Kredit',
-                            code: 'SWK',
-                            balance: state.summary.balanceOf('SWK'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    FilledButton.tonalIcon(
-                      onPressed: () => SavingTransactionSheet.show(
-                        context,
-                        memberId: member.id,
-                        transactionType: 'deposit',
-                        types: state.types,
-                      ).then((saved) {
-                        if (saved) GetIt.I<SavingsCubit>().load(member.id, silent: true);
-                      }),
-                      icon: const Icon(Icons.add_card_outlined),
-                      label: const Text('Setor Simpanan'),
-                    ),
-                    const SizedBox(height: 8),
-                    OutlinedButton.icon(
-                      onPressed: state.summary.balanceOf('SMS') > 0
-                          ? () => SavingTransactionSheet.show(
-                                context,
-                                memberId: member.id,
-                                transactionType: 'withdrawal',
-                                types: state.types,
-                              ).then((saved) {
-                                if (saved) {
-                                  GetIt.I<SavingsCubit>().load(member.id, silent: true);
-                                }
-                              })
-                          : null,
-                      icon: const Icon(Icons.remove_circle_outline),
-                      label: const Text('Tarik Simpanan (Mana Suka)'),
-                    ),
-                    const SizedBox(height: 20),
-                    Text('Riwayat Transaksi',
-                        style: Theme.of(context).textTheme.titleMedium),
-                    if (state.summary.transactions.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 32),
-                        child: Center(
-                          child: Text(
-                            'Belum ada transaksi simpanan.',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      )
-                    else
-                      ...state.summary.transactions.map(
-                        (tx) => _TransactionTile(tx: tx),
+                        ],
                       ),
-                  ],
-                ),
-              );
-            case SavingsInitial():
-              return const SizedBox.shrink();
-          }
-        },
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _BalanceCard(
+                              label: 'Mana Suka',
+                              code: 'SMS',
+                              balance: state.summary.balanceOf('SMS'),
+                              highlight: true,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _BalanceCard(
+                              label: 'Wajib Kredit',
+                              code: 'SWK',
+                              balance: state.summary.balanceOf('SWK'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton.tonalIcon(
+                        onPressed: () =>
+                            SavingTransactionSheet.show(
+                              context,
+                              memberId: member.id,
+                              transactionType: 'deposit',
+                              types: state.types,
+                            ).then((saved) {
+                              if (saved)
+                                GetIt.I<SavingsCubit>().load(
+                                  member.id,
+                                  silent: true,
+                                );
+                            }),
+                        icon: const Icon(Icons.add_card_outlined),
+                        label: const Text('Setor Simpanan'),
+                      ),
+                      const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        onPressed: state.summary.balanceOf('SMS') > 0
+                            ? () =>
+                                  SavingTransactionSheet.show(
+                                    context,
+                                    memberId: member.id,
+                                    transactionType: 'withdrawal',
+                                    types: state.types,
+                                  ).then((saved) {
+                                    if (saved) {
+                                      GetIt.I<SavingsCubit>().load(
+                                        member.id,
+                                        silent: true,
+                                      );
+                                    }
+                                  })
+                            : null,
+                        icon: const Icon(Icons.remove_circle_outline),
+                        label: const Text('Tarik Simpanan (Mana Suka)'),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Riwayat Transaksi',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      if (state.summary.transactions.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 32),
+                          child: Center(
+                            child: Text(
+                              'Belum ada transaksi simpanan.',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        )
+                      else
+                        ...state.summary.transactions.map(
+                          (tx) => _TransactionTile(tx: tx),
+                        ),
+                    ],
+                  ),
+                );
+              case SavingsInitial():
+                return const SizedBox.shrink();
+            }
+          },
+        ),
       ),
     );
   }
@@ -211,20 +226,29 @@ class _BalanceCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(code,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 12)),
+              Text(
+                code,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
               const Spacer(),
               if (highlight)
-                const Icon(Icons.account_balance_wallet,
-                    size: 14, color: AppColors.primaryGreen),
+                const Icon(
+                  Icons.account_balance_wallet,
+                  size: 14,
+                  color: AppColors.primaryGreen,
+                ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: 4),
           Text(
             AppFormatters.rupiah(balance),
@@ -260,8 +284,7 @@ class _TransactionTile extends StatelessWidget {
         child: Icon(
           deposit ? Icons.south_west : Icons.north_east,
           size: 18,
-          color:
-              deposit ? AppColors.primaryGreen : AppColors.negativeRed,
+          color: deposit ? AppColors.primaryGreen : AppColors.negativeRed,
         ),
       ),
       title: Text(
@@ -287,8 +310,7 @@ class _TransactionTile extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
               ),
             ),
-          if (tx.shuShareLabel != null)
-            _ShareChip(label: tx.shuShareLabel!),
+          if (tx.shuShareLabel != null) _ShareChip(label: tx.shuShareLabel!),
         ],
       ),
     );
@@ -307,9 +329,7 @@ class _ShareChip extends StatelessWidget {
     final background = isDasim
         ? AppColors.brand50
         : AppColors.accentGold.withValues(alpha: 0.16);
-    final foreground = isDasim
-        ? AppColors.brand700
-        : const Color(0xFF8D6E00);
+    final foreground = isDasim ? AppColors.brand700 : const Color(0xFF8D6E00);
     return Chip(
       label: Text(
         label,

@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../../pinjaman/presentation/pages/loans_page.dart'
@@ -67,9 +68,11 @@ class _MembersViewState extends State<_MembersView> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(deactivate ? 'Nonaktifkan Anggota?' : 'Aktifkan Anggota?'),
-        content: Text(deactivate
-            ? 'Anggota ${member.name} akan ditandai nonaktif. Riwayat transaksinya tetap tersimpan.'
-            : 'Anggota ${member.name} akan kembali aktif dan bisa bertransaksi.'),
+        content: Text(
+          deactivate
+              ? 'Anggota ${member.name} akan ditandai nonaktif. Riwayat transaksinya tetap tersimpan.'
+              : 'Anggota ${member.name} akan kembali aktif dan bisa bertransaksi.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
@@ -77,8 +80,7 @@ class _MembersViewState extends State<_MembersView> {
           ),
           FilledButton(
             style: deactivate
-                ? FilledButton.styleFrom(
-                    backgroundColor: AppColors.negativeRed)
+                ? FilledButton.styleFrom(backgroundColor: AppColors.negativeRed)
                 : null,
             onPressed: () {
               Navigator.of(dialogContext).pop();
@@ -105,136 +107,145 @@ class _MembersViewState extends State<_MembersView> {
         icon: const Icon(Icons.person_add_alt_1),
         label: const Text('Anggota Baru'),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Cari nama anggota...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: ValueListenableBuilder<TextEditingValue>(
-                  valueListenable: _searchController,
-                  builder: (context, value, _) {
-                    if (value.text.isEmpty) return const SizedBox.shrink();
-                    return IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        FocusScope.of(context).unfocus();
-                        _searchController.clear();
-                        GetIt.I<MembersCubit>().searchChanged('');
-                      },
-                    );
-                  },
+      body: MaxWidthBox(
+        maxWidth: 720,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Cari nama anggota...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _searchController,
+                    builder: (context, value, _) {
+                      if (value.text.isEmpty) return const SizedBox.shrink();
+                      return IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          _searchController.clear();
+                          GetIt.I<MembersCubit>().searchChanged('');
+                        },
+                      );
+                    },
+                  ),
                 ),
+                onChanged: (value) {
+                  _lastSearch = value;
+                  GetIt.I<MembersCubit>().searchChanged(value);
+                },
               ),
-              onChanged: (value) {
-                _lastSearch = value;
-                GetIt.I<MembersCubit>().searchChanged(value);
-              },
             ),
-          ),
-          SizedBox(
-            height: 56,
-            child: BlocBuilder<MembersCubit, MembersState>(
-              builder: (context, state) {
-                return ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  children: [
-                    _FilterChip(
-                      label: 'Semua',
-                      selected: state.statusFilter == null,
-                      onTap: () =>
-                          GetIt.I<MembersCubit>().filterChanged(null),
+            SizedBox(
+              height: 56,
+              child: BlocBuilder<MembersCubit, MembersState>(
+                builder: (context, state) {
+                  return ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
                     ),
-                    const SizedBox(width: 8),
-                    _FilterChip(
-                      label: 'Aktif',
-                      selected: state.statusFilter == 'active',
-                      onTap: () =>
-                          GetIt.I<MembersCubit>().filterChanged('active'),
-                    ),
-                    const SizedBox(width: 8),
-                    _FilterChip(
-                      label: 'Nonaktif',
-                      selected: state.statusFilter == 'inactive',
-                      onTap: () =>
-                          GetIt.I<MembersCubit>().filterChanged('inactive'),
-                    ),
-                  ],
-                );
-              },
+                    children: [
+                      _FilterChip(
+                        label: 'Semua',
+                        selected: state.statusFilter == null,
+                        onTap: () =>
+                            GetIt.I<MembersCubit>().filterChanged(null),
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterChip(
+                        label: 'Aktif',
+                        selected: state.statusFilter == 'active',
+                        onTap: () =>
+                            GetIt.I<MembersCubit>().filterChanged('active'),
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterChip(
+                        label: 'Nonaktif',
+                        selected: state.statusFilter == 'inactive',
+                        onTap: () =>
+                            GetIt.I<MembersCubit>().filterChanged('inactive'),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-          Expanded(
-            child: BlocBuilder<MembersCubit, MembersState>(
-              builder: (context, state) {
-                switch (state) {
-                  case MembersLoadInProgress():
-                    return const LoadingView();
-                  case MembersFailure(:final message):
-                    return ErrorStateView(
-                      message: message,
-                      onRetry: () => GetIt.I<MembersCubit>().load(),
-                    );
-                  case MembersLoadSuccess(:final members):
-                    if (members.isEmpty) {
-                    return RefreshIndicator(
-                      onRefresh: () async =>
-                          await GetIt.I<MembersCubit>().load(silent: true),
-                      child: const EmptyStateView(
-                          icon: Icons.group_outlined,
-                          message:
-                              'Belum ada anggota.\nTekan tombol "Anggota Baru" untuk menambah.',
+            Expanded(
+              child: BlocBuilder<MembersCubit, MembersState>(
+                builder: (context, state) {
+                  switch (state) {
+                    case MembersLoadInProgress():
+                      return const LoadingView();
+                    case MembersFailure(:final message):
+                      return ErrorStateView(
+                        message: message,
+                        onRetry: () => GetIt.I<MembersCubit>().load(),
+                      );
+                    case MembersLoadSuccess(:final members):
+                      if (members.isEmpty) {
+                        return RefreshIndicator(
+                          onRefresh: () async =>
+                              await GetIt.I<MembersCubit>().load(silent: true),
+                          child: const EmptyStateView(
+                            icon: Icons.group_outlined,
+                            message: 'Belum ada anggota.\nTekan tombol "Anggota Baru" untuk menambah.',
+                          ),
+                        );
+                      }
+                      return RefreshIndicator(
+                        onRefresh: () async =>
+                            await GetIt.I<MembersCubit>().load(silent: true),
+                        child: ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
+                          itemCount: members.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 8),
+                          itemBuilder: (context, index) {
+                            final member = members[index];
+                            return _MemberCard(
+                              member: member,
+                              onEdit: () =>
+                                  MemberFormSheet.show(
+                                    context,
+                                    member: member,
+                                  ).then((saved) {
+                                    if (saved)
+                                      GetIt.I<MembersCubit>().load(
+                                        silent: true,
+                                      );
+                                  }),
+                              onToggleStatus: () =>
+                                  _confirmStatusChange(context, member),
+                              onViewSavings: () => context.push(
+                                '/simpanan/${member.id}',
+                                extra: MemberSavingsTarget(
+                                  id: member.id,
+                                  name: member.name,
+                                  memberNumber: member.memberNumber,
+                                ),
+                              ),
+                              onViewLoans: () => context.push(
+                                '/pinjaman/${member.id}',
+                                extra: MemberLoanTarget(
+                                  id: member.id,
+                                  name: member.name,
+                                  memberNumber: member.memberNumber,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       );
-                    }
-                    return RefreshIndicator(
-                      onRefresh: () async =>
-                          await GetIt.I<MembersCubit>().load(silent: true),
-                      child: ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
-                        itemCount: members.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final member = members[index];
-                          return _MemberCard(
-                            member: member,
-                            onEdit: () => MemberFormSheet.show(context,
-                                    member: member)
-                                .then((saved) {
-          if (saved) GetIt.I<MembersCubit>().load(silent: true);
-                            }),
-                            onToggleStatus: () =>
-                                _confirmStatusChange(context, member),
-                            onViewSavings: () => context.push(
-                              '/simpanan/${member.id}',
-                              extra: MemberSavingsTarget(
-                                id: member.id,
-                                name: member.name,
-                                memberNumber: member.memberNumber,
-                              ),
-                            ),
-                            onViewLoans: () => context.push(
-                              '/pinjaman/${member.id}',
-                              extra: MemberLoanTarget(
-                                id: member.id,
-                                name: member.name,
-                                memberNumber: member.memberNumber,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                }
-              },
+                  }
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -288,8 +299,7 @@ class _MemberCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         leading: CircleAvatar(
           backgroundColor: member.isActive
               ? AppColors.primaryGreen.withValues(alpha: 0.15)
@@ -316,8 +326,10 @@ class _MemberCard extends StatelessWidget {
           children: [
             if (member.phone?.isNotEmpty ?? false)
               Text(member.phone!, maxLines: 1),
-            Text('Masuk: ${AppFormatters.date(member.joinDate)}',
-                style: const TextStyle(fontSize: 12)),
+            Text(
+              'Masuk: ${AppFormatters.date(member.joinDate)}',
+              style: const TextStyle(fontSize: 12),
+            ),
             if (member.notes?.isNotEmpty ?? false)
               Padding(
                 padding: const EdgeInsets.only(top: 2),
@@ -326,13 +338,16 @@ class _MemberCard extends StatelessWidget {
                     Icon(Icons.notes, size: 12, color: Colors.grey.shade500),
                     const SizedBox(width: 4),
                     Expanded(
-                      child: Text(member.notes!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade700,
-                              fontStyle: FontStyle.italic)),
+                      child: Text(
+                        member.notes!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade700,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -397,8 +412,7 @@ class _MemberCard extends StatelessWidget {
                           ? Icons.block_outlined
                           : Icons.check_circle_outline,
                     ),
-                    title:
-                        Text(member.isActive ? 'Nonaktifkan' : 'Aktifkan'),
+                    title: Text(member.isActive ? 'Nonaktifkan' : 'Aktifkan'),
                   ),
                 ),
               ],

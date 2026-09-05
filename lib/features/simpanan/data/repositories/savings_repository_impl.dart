@@ -20,35 +20,35 @@ class SavingsRepositoryImpl implements SavingsRepository {
       final rows = await _dataSource.fetchTypes();
       return Ok(rows.map(SavingsTypeModel.fromMap).toList());
     } on PostgrestException catch (e) {
-      return Err(Failure(message: 'Gagal memuat jenis simpanan (${e.message})'));
+      return Err(
+        Failure(message: 'Gagal memuat jenis simpanan (${e.message})'),
+      );
     } catch (_) {
       return const Err(
-          Failure(message: 'Gagal memuat jenis simpanan. Periksa koneksi'));
+        Failure(message: 'Gagal memuat jenis simpanan. Periksa koneksi'),
+      );
     }
   }
 
   @override
-  Future<Result<MemberSavingsSummary>> getMemberSummary(
-    String memberId,
-  ) async {
+  Future<Result<MemberSavingsSummary>> getMemberSummary(String memberId) async {
     try {
       final rows = await _dataSource.fetchMemberTransactions(memberId);
-      final transactions =
-          rows.map(SavingTransactionModel.fromMap).toList();
+      final transactions = rows.map(SavingTransactionModel.fromMap).toList();
       final balances = <String, double>{};
       for (final tx in transactions.where((t) => !t.isVoid)) {
         final delta = tx.isDeposit ? tx.amount : -tx.amount;
         balances[tx.typeCode] = (balances[tx.typeCode] ?? 0) + delta;
       }
-      return Ok(MemberSavingsSummary(
-        balances: balances,
-        transactions: transactions,
-      ));
+      return Ok(
+        MemberSavingsSummary(balances: balances, transactions: transactions),
+      );
     } on PostgrestException catch (e) {
       return Err(Failure(message: 'Gagal memuat data simpanan (${e.message})'));
     } catch (_) {
       return const Err(
-          Failure(message: 'Gagal memuat data simpanan. Periksa koneksi'));
+        Failure(message: 'Gagal memuat data simpanan. Periksa koneksi'),
+      );
     }
   }
 
@@ -68,18 +68,21 @@ class SavingsRepositoryImpl implements SavingsRepository {
         amount: amount,
         description: description,
       );
-      return Ok(SavingTransactionModel.fromRpcRow(
-        row,
-        typeCode: type.code,
-        typeName: type.name,
-      ));
+      return Ok(
+        SavingTransactionModel.fromRpcRow(
+          row,
+          typeCode: type.code,
+          typeName: type.name,
+        ),
+      );
     } on PostgrestException catch (e) {
       // Pesan exception dari RPC sudah berbahasa Indonesia.
       final message = e.message.replaceFirst(RegExp(r'^\W+'), '').trim();
       return Err(Failure(message: message.isEmpty ? e.message : message));
     } catch (_) {
       return const Err(
-          Failure(message: 'Gagal menyimpan transaksi. Periksa koneksi'));
+        Failure(message: 'Gagal menyimpan transaksi. Periksa koneksi'),
+      );
     }
   }
 }

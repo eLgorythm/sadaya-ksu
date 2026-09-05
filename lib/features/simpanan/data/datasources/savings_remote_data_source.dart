@@ -8,8 +8,7 @@ class SavingsRemoteDataSource {
   final SupabaseClient _client;
 
   Future<List<Map<String, dynamic>>> fetchTypes() async {
-    final rows =
-        await _client.from('savings_types').select().order('code');
+    final rows = await _client.from('savings_types').select().order('code');
     return rows.cast<Map<String, dynamic>>();
   }
 
@@ -31,12 +30,18 @@ class SavingsRemoteDataSource {
     required double amount,
     String? description,
   }) {
-    return _client.rpc('create_savings_transaction', params: {
-      'p_member_id': memberId,
-      'p_savings_type_code': typeCode,
-      'p_transaction_type': transactionType,
-      'p_amount': amount,
-      'p_description': description,
-    }).select().single();
+    return _client
+        .rpc(
+          'create_savings_transaction',
+          params: {
+            'p_member_id': memberId,
+            'p_savings_type_code': typeCode,
+            'p_transaction_type': transactionType,
+            'p_amount': amount,
+            'p_description': description,
+          },
+        )
+        .select()
+        .single();
   }
 }

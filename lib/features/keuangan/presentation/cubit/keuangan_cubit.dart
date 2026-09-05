@@ -34,29 +34,30 @@ class KeuanganCubit extends Cubit<KeuanganState> {
     required String name,
     required bool isIncome,
   }) async {
-    final result = await _createCategory(CreateCashCategoryParams(
-      name: name,
-      isIncome: isIncome,
-    ));
+    final result = await _createCategory(
+      CreateCashCategoryParams(name: name, isIncome: isIncome),
+    );
 
     switch (result) {
       case Ok(:final value):
         final current = state;
         if (current is KeuanganLoaded) {
-          emit(KeuanganLoaded(
-            cashEntries: current.cashEntries,
-            bankEntries: current.bankEntries,
-            categories: [
-              ...current.categories,
-              CashCategoryOption(
-                code: value,
-                name: name.trim(),
-                isIncome: isIncome,
-              ),
-            ],
-            summary: current.summary,
-            cashSources: current.cashSources,
-          ));
+          emit(
+            KeuanganLoaded(
+              cashEntries: current.cashEntries,
+              bankEntries: current.bankEntries,
+              categories: [
+                ...current.categories,
+                CashCategoryOption(
+                  code: value,
+                  name: name.trim(),
+                  isIncome: isIncome,
+                ),
+              ],
+              summary: current.summary,
+              cashSources: current.cashSources,
+            ),
+          );
         }
       case Err():
         break;
@@ -96,12 +97,14 @@ class KeuanganCubit extends Cubit<KeuanganState> {
       return;
     }
 
-    emit(KeuanganLoaded(
-      cashEntries: (cash as Ok).value,
-      bankEntries: (bank as Ok).value,
-      categories: (categories as Ok).value,
-      summary: (summary as Ok).value,
-      cashSources: (sources as Ok).value,
-    ));
+    emit(
+      KeuanganLoaded(
+        cashEntries: (cash as Ok).value,
+        bankEntries: (bank as Ok).value,
+        categories: (categories as Ok).value,
+        summary: (summary as Ok).value,
+        cashSources: (sources as Ok).value,
+      ),
+    );
   }
 }

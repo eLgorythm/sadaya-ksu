@@ -72,12 +72,12 @@ class _MaterialFormSheetState extends State<MaterialFormSheet> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SheetHeader(title: 'Bahan Baku Baru'),
-                  Text('Hanya mendaftarkan jenis bahan. Pembelian stok '
-                      'dicatat lewat tombol Beli di kartu bahan.',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey[600])),
+                  Text(
+                    'Hanya mendaftarkan jenis bahan. Pembelian stok '
+                    'dicatat lewat tombol Beli di kartu bahan.',
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: Colors.grey[600]),
+                  ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _nameController,
@@ -101,7 +101,9 @@ class _MaterialFormSheetState extends State<MaterialFormSheet> {
                       for (final u in _units)
                         DropdownMenuItem(value: u, child: Text(u)),
                     ],
-                    onChanged: saving ? null : (v) => setState(() => _unit = v!),
+                    onChanged: saving
+                        ? null
+                        : (v) => setState(() => _unit = v!),
                   ),
                   const SizedBox(height: 20),
                   FilledButton.icon(
@@ -110,10 +112,10 @@ class _MaterialFormSheetState extends State<MaterialFormSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.save_outlined),
-                    label:
-                        Text(saving ? 'Menyimpan...' : 'Simpan'),
+                    label: Text(saving ? 'Menyimpan...' : 'Simpan'),
                   ),
                 ],
               ),
@@ -205,7 +207,9 @@ class _MaterialTxSheetState extends State<MaterialTxSheet> {
       isPurchase: widget.isPurchase,
       quantity: _parse(_qtyController.text),
       unitPrice: widget.isPurchase && _priceController.text.isNotEmpty
-          ? _parse(_priceController.text.replaceAll('.', '').replaceAll(',', '.'))
+          ? _parse(
+              _priceController.text.replaceAll('.', '').replaceAll(',', '.'),
+            )
           : null,
       date: _date,
       notes: _notesController.text,
@@ -221,10 +225,11 @@ class _MaterialTxSheetState extends State<MaterialTxSheet> {
           switch (state) {
             case UsahaFormSuccess():
               SadayaMessage.success(
-                  context,
-                  widget.isPurchase
-                      ? 'Pembelian dicatat, stok bertambah'
-                      : 'Pemakaian dicatat, stok berkurang');
+                context,
+                widget.isPurchase
+                    ? 'Pembelian dicatat, stok bertambah'
+                    : 'Pemakaian dicatat, stok berkurang',
+              );
               Navigator.of(context).pop(true);
             case UsahaFormFailure(:final message):
               SadayaMessage.error(context, message);
@@ -242,9 +247,10 @@ class _MaterialTxSheetState extends State<MaterialTxSheet> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SheetHeader(
-                      title: widget.isPurchase
-                          ? 'Catat Pembelian Bahan'
-                          : 'Catat Pemakaian Bahan'),
+                    title: widget.isPurchase
+                        ? 'Catat Pembelian Bahan'
+                        : 'Catat Pemakaian Bahan',
+                  ),
                   DropdownButtonFormField<String>(
                     initialValue: _materialId,
                     decoration: const InputDecoration(
@@ -255,11 +261,14 @@ class _MaterialTxSheetState extends State<MaterialTxSheet> {
                       for (final m in widget.materials)
                         DropdownMenuItem(
                           value: m.id,
-                          child: Text('${m.name} (stok ${AppFormatters.number(m.currentStock)} ${m.unit})'),
+                          child: Text(
+                            '${m.name} (stok ${AppFormatters.number(m.currentStock)} ${m.unit})',
+                          ),
                         ),
                     ],
-                    onChanged:
-                        saving ? null : (v) => setState(() => _materialId = v),
+                    onChanged: saving
+                        ? null
+                        : (v) => setState(() => _materialId = v),
                   ),
                   const SizedBox(height: 12),
                   InkWell(
@@ -284,7 +293,8 @@ class _MaterialTxSheetState extends State<MaterialTxSheet> {
                           controller: _qtyController,
                           autofocus: true,
                           keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
+                            decimal: true,
+                          ),
                           decoration: const InputDecoration(
                             labelText: 'Jumlah *',
                             prefixIcon: Icon(Icons.scale_outlined),
@@ -293,8 +303,9 @@ class _MaterialTxSheetState extends State<MaterialTxSheet> {
                             final v = _parse(value ?? '');
                             if (v <= 0) return 'Jumlah harus lebih dari 0';
                             if (!widget.isPurchase && _materialId != null) {
-                              final m = widget.materials
-                                  .firstWhere((m) => m.id == _materialId);
+                              final m = widget.materials.firstWhere(
+                                (m) => m.id == _materialId,
+                              );
                               if (v > m.currentStock) {
                                 return 'Melebihi stok (${m.currentStock})';
                               }
@@ -358,15 +369,20 @@ class _MaterialTxSheetState extends State<MaterialTxSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
-                        : Icon(widget.isPurchase
-                            ? Icons.shopping_cart_outlined
-                            : Icons.outbound_outlined),
-                    label: Text(saving
-                        ? 'Menyimpan...'
-                        : widget.isPurchase
-                            ? 'Catat Pembelian'
-                            : 'Catat Pemakaian'),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Icon(
+                            widget.isPurchase
+                                ? Icons.shopping_cart_outlined
+                                : Icons.outbound_outlined,
+                          ),
+                    label: Text(
+                      saving
+                          ? 'Menyimpan...'
+                          : widget.isPurchase
+                          ? 'Catat Pembelian'
+                          : 'Catat Pemakaian',
+                    ),
                   ),
                 ],
               ),

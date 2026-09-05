@@ -30,8 +30,7 @@ class AsetRepositoryImpl implements AsetRepository {
       final rows = await _dataSource.fetchDepreciations(fiscalYear);
       return Ok(rows.map(DepreciationRowModel.fromMap).toList());
     } catch (_) {
-      return const Err(
-          Failure(message: 'Gagal memuat buku penyusutan'));
+      return const Err(Failure(message: 'Gagal memuat buku penyusutan'));
     }
   }
 

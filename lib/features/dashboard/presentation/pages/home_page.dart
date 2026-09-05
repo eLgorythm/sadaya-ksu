@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../anggota/domain/entities/member_entity.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
@@ -58,8 +59,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadSummary() async {
     try {
-      final result = await GetIt.I<SupabaseClient>()
-          .rpc('get_dashboard_summary');
+      final result = await GetIt.I<SupabaseClient>().rpc(
+        'get_dashboard_summary',
+      );
       if (result != null && mounted) {
         final data = result as Map<String, dynamic>;
         setState(() {
@@ -70,8 +72,7 @@ class _HomePageState extends State<HomePage> {
           _balanced = data['balanced'] as bool? ?? false;
           _totalAnggota = (data['total_anggota'] as num?)?.toInt() ?? 0;
           _anggotaAktif = (data['anggota_aktif'] as num?)?.toInt() ?? 0;
-          _anggotaNonaktif =
-              (data['anggota_nonaktif'] as num?)?.toInt() ?? 0;
+          _anggotaNonaktif = (data['anggota_nonaktif'] as num?)?.toInt() ?? 0;
           _loadingSummary = false;
         });
       }
@@ -90,9 +91,7 @@ class _HomePageState extends State<HomePage> {
 
     final filtered = _selectedCategory == ModuleCategory.all
         ? kModules
-        : kModules
-            .where((m) => m.category == _selectedCategory)
-            .toList();
+        : kModules.where((m) => m.category == _selectedCategory).toList();
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -128,16 +127,13 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Text(
                     'Sadaya',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
                     email,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[500],
-                          fontSize: 11,
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: Colors.grey[500], fontSize: 11),
                   ),
                 ],
               ),
@@ -145,135 +141,155 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadSummary,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          children: [
-            Text(
-              'KSU Cahaya Dhamma Phala',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.brand700,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-            ),
-            const SizedBox(height: 12),
-
-            // Hero financial card
-            if (_loadingSummary)
-              const SizedBox(
-                height: 120,
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else ...[
-              _HeroCard(
-                kasBank: _kasBank,
-                piutang: _piutang,
-                ekuitas: _ekuitas,
-                stokKeripik: _stokKeripik,
-                balanced: _balanced,
-              ),
-              const SizedBox(height: 10),
-              _MemberStatsRow(
-                total: _totalAnggota,
-                aktif: _anggotaAktif,
-                nonaktif: _anggotaNonaktif,
-              ),
-            ],
-            const SizedBox(height: 16),
-
-            // Quick actions
-            Text(
-              'Aksi Cepat Transaksi',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[600],
-                    letterSpacing: 0.5,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            const _QuickActionsRow(),
-            const SizedBox(height: 16),
-
-            // Module grid header
-            Row(
-              children: [
-                Text(
-                  '${kModules.length} Modul Koperasi',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[600],
-                        letterSpacing: 0.5,
-                      ),
+      body: MaxWidthBox(
+        maxWidth: 1200,
+        child: RefreshIndicator(
+          onRefresh: _loadSummary,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            children: [
+              Text(
+                'KSU Cahaya Dhamma Phala',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.brand700,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
                 ),
-                const Spacer(),
-                Text(
-                  'Terhubung ke Neraca',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.brand600,
-                  ),
+              ),
+              const SizedBox(height: 12),
+
+              // Hero financial card
+              if (_loadingSummary)
+                const SizedBox(
+                  height: 120,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else ...[
+                _HeroCard(
+                  kasBank: _kasBank,
+                  piutang: _piutang,
+                  ekuitas: _ekuitas,
+                  stokKeripik: _stokKeripik,
+                  balanced: _balanced,
+                ),
+                const SizedBox(height: 10),
+                _MemberStatsRow(
+                  total: _totalAnggota,
+                  aktif: _anggotaAktif,
+                  nonaktif: _anggotaNonaktif,
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
+              const SizedBox(height: 16),
 
-            // Filter tabs
-            SizedBox(
-              height: 34,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: ModuleCategory.values.map((cat) {
-                  final selected = cat == _selectedCategory;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: ChoiceChip(
-                      label: Text(
-                        '${cat.label} (${_countFor(cat)})',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: selected ? Colors.white : Colors.grey[700],
+              // Quick actions
+              Text(
+                'Aksi Cepat Transaksi',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[600],
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const _QuickActionsRow(),
+              const SizedBox(height: 16),
+
+              // Module grid header
+              Row(
+                children: [
+                  Text(
+                    '${kModules.length} Modul Koperasi',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[600],
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'Terhubung ke Neraca',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brand600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Filter tabs
+              SizedBox(
+                height: 34,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: ModuleCategory.values.map((cat) {
+                    final selected = cat == _selectedCategory;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ChoiceChip(
+                        label: Text(
+                          '${cat.label} (${_countFor(cat)})',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: selected ? Colors.white : Colors.grey[700],
+                          ),
+                        ),
+                        selected: selected,
+                        selectedColor: AppColors.brand800,
+                        backgroundColor: Colors.white,
+                        side: BorderSide(color: Colors.grey.shade200),
+                        onSelected: (_) =>
+                            setState(() => _selectedCategory = cat),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Module grid
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final cols = (constraints.maxWidth / 170).ceil().clamp(2, 6);
+                  final rows = <Widget>[];
+                  for (var i = 0; i < filtered.length; i += cols) {
+                    final rowItems = filtered.skip(i).take(cols).toList();
+                    rows.add(
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (var j = 0; j < rowItems.length; j++) ...[
+                              if (j > 0) const SizedBox(width: 10),
+                              Expanded(
+                                child: _ModuleCard(
+                                  item: rowItems[j],
+                                  onTap: () =>
+                                      _handleModuleTap(context, rowItems[j]),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                      selected: selected,
-                      selectedColor: AppColors.brand800,
-                      backgroundColor: Colors.white,
-                      side: BorderSide(color: Colors.grey.shade200),
-                      onSelected: (_) =>
-                          setState(() => _selectedCategory = cat),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }
+                  return Column(children: rows);
+                },
               ),
-            ),
-            const SizedBox(height: 10),
-
-            // Module grid
-            GridView.count(
-              crossAxisCount: 3,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 1.05,
-              children: filtered
-                  .map((m) => _ModuleCard(
-                        item: m,
-                        onTap: () => _handleModuleTap(context, m),
-                      ))
-                  .toList(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  int _countFor(ModuleCategory cat) =>
-      cat == ModuleCategory.all ? kModules.length : kModules.where((m) => m.category == cat).length;
+  int _countFor(ModuleCategory cat) => cat == ModuleCategory.all
+      ? kModules.length
+      : kModules.where((m) => m.category == cat).length;
 
   void _handleModuleTap(BuildContext context, ModuleItem m) {
     switch (m.id) {
@@ -356,11 +372,7 @@ class _HeroCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.brand900,
-            AppColors.brand800,
-            Color(0xFF0F172A),
-          ],
+          colors: [AppColors.brand900, AppColors.brand800, Color(0xFF0F172A)],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -378,8 +390,7 @@ class _HeroCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppColors.brand700.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(6),
@@ -399,8 +410,7 @@ class _HeroCard extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: Colors.green.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -434,10 +444,7 @@ class _HeroCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             'Aset',
-            style: TextStyle(
-              fontSize: 11,
-              color: AppColors.brand100,
-            ),
+            style: TextStyle(fontSize: 11, color: AppColors.brand100),
           ),
           Text(
             AppFormatters.rupiah(kasBank),
@@ -501,13 +508,7 @@ class _HeroMetric extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 9,
-            color: AppColors.brand100,
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 9, color: AppColors.brand100)),
         const SizedBox(height: 2),
         Text(
           value,
@@ -555,11 +556,7 @@ class _MemberStatsRow extends StatelessWidget {
               color: AppColors.brand700,
             ),
           ),
-          Container(
-            width: 1,
-            height: 28,
-            color: Colors.grey.shade200,
-          ),
+          Container(width: 1, height: 28, color: Colors.grey.shade200),
           Expanded(
             child: _StatItem(
               label: 'Aktif',
@@ -568,11 +565,7 @@ class _MemberStatsRow extends StatelessWidget {
               color: const Color(0xFF16A34A),
             ),
           ),
-          Container(
-            width: 1,
-            height: 28,
-            color: Colors.grey.shade200,
-          ),
+          Container(width: 1, height: 28, color: Colors.grey.shade200),
           Expanded(
             child: _StatItem(
               label: 'Nonaktif',
@@ -779,66 +772,64 @@ class _ModuleCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
-child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    child: Icon(item.icon, size: 16, color: AppColors.brand700),
+                  ),
+                  const Spacer(),
+                  if (item.postsToLedger)
                     Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(9),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 2,
                       ),
-                      child: Icon(
-                        item.icon,
-                        size: 16,
-                        color: AppColors.brand700,
+                      decoration: BoxDecoration(
+                        color: AppColors.brand50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.brand100),
+                      ),
+                      child: const Text(
+                        'Neraca',
+                        style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.brand700,
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    if (item.postsToLedger)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.brand50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.brand100),
-                        ),
-                        child: const Text(
-                          'Neraca',
-                          style: TextStyle(
-                            fontSize: 8,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.brand700,
-                          ),
-                        ),
-                      ),
-                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                item.title,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1F2937),
+                  height: 1.2,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1F2937),
-                    height: 1.2,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-Text(
-                  item.description,
-                  style: TextStyle(fontSize: 9, color: Colors.grey[400]),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                item.description,
+                style: TextStyle(fontSize: 9, color: Colors.grey[400]),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ),
@@ -862,9 +853,8 @@ class _QuickActionsSheet extends StatelessWidget {
           children: [
             Text(
               'Pilih Modul Transaksi',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),

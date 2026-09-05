@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../core/widgets/common_widgets.dart';
@@ -20,19 +21,27 @@ class AsetPage extends StatelessWidget {
     final cubit = GetIt.I<AsetCubit>();
     return Scaffold(
       appBar: AppBar(title: const Text('Aset Koperasi')),
-      body: BlocBuilder<AsetCubit, AsetState>(
-        bloc: cubit..load(),
-        builder: (context, state) {
-          switch (state) {
-            case AsetLoadInProgress() || AsetInitial():
-              return const LoadingView();
-            case AsetFailure(:final message):
-              return ErrorStateView(message: message, onRetry: () => cubit.load());
-            case AsetLoaded():
-              return _AsetView(
-                  state: state, onReload: (year) => cubit.load(year: year));
-          }
-        },
+      body: MaxWidthBox(
+        maxWidth: 720,
+        child: BlocBuilder<AsetCubit, AsetState>(
+          bloc: cubit..load(),
+          builder: (context, state) {
+            switch (state) {
+              case AsetLoadInProgress() || AsetInitial():
+                return const LoadingView();
+              case AsetFailure(:final message):
+                return ErrorStateView(
+                  message: message,
+                  onRetry: () => cubit.load(),
+                );
+              case AsetLoaded():
+                return _AsetView(
+                  state: state,
+                  onReload: (year) => cubit.load(year: year),
+                );
+            }
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
@@ -57,9 +66,11 @@ class _AsetView extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text('Hitung Penyusutan $year?'),
-        content: Text('Buku penyusutan tahun $year akan dibuat ulang '
-            'dari seluruh aset aktif (garis lurus, proporsional bulan '
-            'perolehan).'),
+        content: Text(
+          'Buku penyusutan tahun $year akan dibuat ulang '
+          'dari seluruh aset aktif (garis lurus, proporsional bulan '
+          'perolehan).',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -79,7 +90,9 @@ class _AsetView extends StatelessWidget {
     switch (result) {
       case Ok(:final value):
         SadayaMessage.success(
-            context, '$value baris penyusutan tahun $year dihitung');
+          context,
+          '$value baris penyusutan tahun $year dihitung',
+        );
       case Err(:final failure):
         SadayaMessage.error(context, failure.message);
     }
@@ -110,11 +123,11 @@ class _AsetView extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text('Nilai Buku per $year',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        child: Text(
+                          'Nilai Buku per $year',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       PopupMenuButton<int>(
                         initialValue: year,
@@ -129,11 +142,13 @@ class _AsetView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   InfoRow(
-                      label: 'Nilai Perolehan (aktif)',
-                      value: AppFormatters.rupiah(state.totalCost)),
+                    label: 'Nilai Perolehan (aktif)',
+                    value: AppFormatters.rupiah(state.totalCost),
+                  ),
                   InfoRow(
-                      label: 'Akumulasi Penyusutan',
-                      value: '- ${AppFormatters.rupiah(state.totalAccumulated)}'),
+                    label: 'Akumulasi Penyusutan',
+                    value: '- ${AppFormatters.rupiah(state.totalAccumulated)}',
+                  ),
                   InfoRow(
                     label: 'Nilai Buku',
                     value: AppFormatters.rupiah(state.totalBookValue),
@@ -148,37 +163,52 @@ class _AsetView extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () => _recalculate(context, year),
             icon: const Icon(Icons.calculate_outlined, size: 18),
-            label: Text(rows.isEmpty
-                ? 'Hitung Penyusutan $year'
-                : 'Hitung Ulang Penyusutan $year'),
+            label: Text(
+              rows.isEmpty
+                  ? 'Hitung Penyusutan $year'
+                  : 'Hitung Ulang Penyusutan $year',
+            ),
           ),
           const SizedBox(height: 8),
           // ---- Buku penyusutan tahun terpilih ----
           if (rows.isNotEmpty) ...[
-            Text('Buku Penyusutan $year',
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Buku Penyusutan $year',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 4),
             for (final row in rows)
               Card(
                 margin: const EdgeInsets.only(top: 8),
                 child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 2,
+                  ),
                   leading: CircleAvatar(
                     radius: 17,
                     backgroundColor: green.withValues(alpha: 0.15),
-                    child: const Icon(Icons.trending_down,
-                        size: 18, color: green),
+                    child: const Icon(
+                      Icons.trending_down,
+                      size: 18,
+                      color: green,
+                    ),
                   ),
-                  title: Text(row.assetName,
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                  subtitle: Text('Akumulasi ${AppFormatters.rupiah(row.accumulated)}'
-                      ' • NBV ${AppFormatters.rupiah(row.bookValue)}'),
+                  title: Text(
+                    row.assetName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    'Akumulasi ${AppFormatters.rupiah(row.accumulated)}'
+                    ' • NBV ${AppFormatters.rupiah(row.bookValue)}',
+                  ),
                   trailing: Text(
                     '- ${AppFormatters.rupiah(row.amount)}',
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.negativeRed),
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.negativeRed,
+                    ),
                   ),
                 ),
               ),
@@ -186,8 +216,10 @@ class _AsetView extends StatelessWidget {
           // ---- Daftar aset ----
           Padding(
             padding: const EdgeInsets.only(top: 16, bottom: 4),
-            child: Text('Buku Inventaris (${assets.length})',
-                style: Theme.of(context).textTheme.titleMedium),
+            child: Text(
+              'Buku Inventaris (${assets.length})',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
           if (assets.isEmpty)
             EmptyStateView(
@@ -216,8 +248,9 @@ class _AssetCard extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Hapus Aset?'),
         content: Text(
-            '"${asset.name}" akan dihapus dari buku inventaris beserta '
-            'seluruh riwayat penyusutannya. Tindakan ini tidak dapat dibatalkan.'),
+          '"${asset.name}" akan dihapus dari buku inventaris beserta '
+          'seluruh riwayat penyusutannya. Tindakan ini tidak dapat dibatalkan.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -225,7 +258,8 @@ class _AssetCard extends StatelessWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: AppColors.negativeRed),
+              backgroundColor: AppColors.negativeRed,
+            ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: const Text('Hapus'),
           ),
@@ -262,9 +296,11 @@ class _AssetCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(asset.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold)),
+                  child: Text(
+                    asset.name,
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
                 ),
                 if (statusLabel != null) ...[
                   StatusBadge(label: statusLabel, status: 'inactive'),
@@ -276,24 +312,31 @@ class _AssetCard extends StatelessWidget {
                     visualDensity: VisualDensity.compact,
                     icon: const Icon(Icons.edit_outlined, size: 20),
                     onPressed: () async {
-                      final saved =
-                          await AssetFormSheet.show(context, asset: asset);
+                      final saved = await AssetFormSheet.show(
+                        context,
+                        asset: asset,
+                      );
                       if (saved) onChanged();
                     },
                   ),
                 IconButton(
                   tooltip: 'Hapus',
                   visualDensity: VisualDensity.compact,
-                  icon: Icon(Icons.delete_outline,
-                      size: 20, color: AppColors.negativeRed),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: AppColors.negativeRed,
+                  ),
                   onPressed: () => _confirmDelete(context),
                 ),
               ],
             ),
             if ((asset.description ?? '').isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text(asset.description!,
-                  style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                asset.description!,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
             const Divider(height: 20),
             InfoRow(
@@ -304,7 +347,8 @@ class _AssetCard extends StatelessWidget {
             if (asset.isActive) ...[
               InfoRow(
                 label: 'Umur Pakai',
-                value: '${asset.usefulLifeYears} tahun'
+                value:
+                    '${asset.usefulLifeYears} tahun'
                     ' • residu ${AppFormatters.rupiah(asset.salvageValue)}',
               ),
               InfoRow(

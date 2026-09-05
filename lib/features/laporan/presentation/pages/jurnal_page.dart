@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../data/datasources/laporan_remote_data_source.dart';
 
@@ -122,16 +123,13 @@ class _JurnalPageState extends State<JurnalPage> {
           children: [
             Text(
               'Jurnal',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
               'Log transaksi kronologis (real-time)',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
-                    fontSize: 11,
-                  ),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: Colors.grey[500], fontSize: 11),
             ),
           ],
         ),
@@ -147,64 +145,66 @@ class _JurnalPageState extends State<JurnalPage> {
           child: Container(height: 1, color: Colors.grey.shade200),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: _loading
-            ? ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(
-                    height: 300,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                ],
-              )
-            : _error != null
-                ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      const SizedBox(height: 120),
-                      Icon(Icons.error_outline,
-                          size: 48, color: Colors.red[300]),
-                      const SizedBox(height: 12),
-                      Center(child: Text(_error!)),
-                      const SizedBox(height: 12),
-                      Center(
-                        child: FilledButton(
-                          onPressed: _loadData,
-                          child: const Text('Coba Lagi'),
-                        ),
-                      ),
-                    ],
-                  )
-                : SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    child: _JournalView(
-                      year: _year,
-                      accountCode: _selectedCode,
-                      sourceBook: _selectedBook,
-                      fromDate: _fromDate,
-                      toDate: _toDate,
-                      accounts: _allAccounts,
-                      entries: _entries,
-                      onYearChanged: (y) {
-                        setState(() => _year = y);
-                        _loadData();
-                      },
-                      onAccountChanged: (code) {
-                        setState(() => _selectedCode = code);
-                        _loadData();
-                      },
-                      onBookChanged: (book) {
-                        setState(() => _selectedBook = book);
-                        _loadData();
-                      },
-                      onPickFrom: _pickFromDate,
-                      onPickTo: _pickToDate,
-                      onClearDate: _clearDateRange,
+      body: MaxWidthBox(
+        maxWidth: 1200,
+        child: RefreshIndicator(
+          onRefresh: _loadData,
+          child: _loading
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [
+                    SizedBox(
+                      height: 300,
+                      child: Center(child: CircularProgressIndicator()),
                     ),
+                  ],
+                )
+              : _error != null
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    const SizedBox(height: 120),
+                    Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                    const SizedBox(height: 12),
+                    Center(child: Text(_error!)),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: FilledButton(
+                        onPressed: _loadData,
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ),
+                  ],
+                )
+              : SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  child: _JournalView(
+                    year: _year,
+                    accountCode: _selectedCode,
+                    sourceBook: _selectedBook,
+                    fromDate: _fromDate,
+                    toDate: _toDate,
+                    accounts: _allAccounts,
+                    entries: _entries,
+                    onYearChanged: (y) {
+                      setState(() => _year = y);
+                      _loadData();
+                    },
+                    onAccountChanged: (code) {
+                      setState(() => _selectedCode = code);
+                      _loadData();
+                    },
+                    onBookChanged: (book) {
+                      setState(() => _selectedBook = book);
+                      _loadData();
+                    },
+                    onPickFrom: _pickFromDate,
+                    onPickTo: _pickToDate,
+                    onClearDate: _clearDateRange,
                   ),
+                ),
+        ),
       ),
     );
   }
@@ -243,9 +243,7 @@ class _JournalView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accountMap = {
-      for (final a in accounts) a['code'] as String: a,
-    };
+    final accountMap = {for (final a in accounts) a['code'] as String: a};
 
     // Kelompokkan baris per tanggal jurnal (kronologis).
     final groups = <String, List<Map<String, dynamic>>>{};
@@ -274,8 +272,10 @@ class _JournalView extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Periode ',
-                    style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                Text(
+                  'Periode ',
+                  style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                ),
                 _YearStepper(year: year, onChanged: onYearChanged),
               ],
             ),
@@ -312,7 +312,10 @@ class _JournalView extends StatelessWidget {
                     : 'Dari ${AppFormatters.date(fromDate!)}',
                 onTap: onPickFrom,
               ),
-              Text('-', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+              Text(
+                '-',
+                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+              ),
               _DateChip(
                 label: toDate == null
                     ? 's/d tgl'
@@ -359,11 +362,7 @@ class _JournalView extends StatelessWidget {
         else
           ...dates.map((date) {
             final rows = groups[date] ?? [];
-            return _DateSection(
-              date: date,
-              accountMap: accountMap,
-              rows: rows,
-            );
+            return _DateSection(date: date, accountMap: accountMap, rows: rows);
           }),
         if (dates.isNotEmpty) const SizedBox(height: 8),
       ],
@@ -417,7 +416,9 @@ class _DateSection extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: rows.map((r) => _JournalRow(entry: r, accountMap: accountMap)).toList(),
+            children: rows
+                .map((r) => _JournalRow(entry: r, accountMap: accountMap))
+                .toList(),
           ),
         ),
       ],
@@ -497,7 +498,9 @@ class _JournalRow extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 1),
+                        horizontal: 5,
+                        vertical: 1,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(4),
@@ -516,7 +519,9 @@ class _JournalRow extends StatelessWidget {
                         padding: const EdgeInsets.only(left: 6),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 1),
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.brand50,
                             borderRadius: BorderRadius.circular(4),
@@ -708,8 +713,11 @@ class _DateChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.calendar_today_outlined,
-                size: 13, color: Colors.grey[600]),
+            Icon(
+              Icons.calendar_today_outlined,
+              size: 13,
+              color: Colors.grey[600],
+            ),
             const SizedBox(width: 6),
             Text(
               label,
@@ -738,8 +746,7 @@ class _AccountDropdown extends StatelessWidget {
     final items = <String, String>{
       '': 'Semua Akun',
       for (final a in accounts)
-        a['code'] as String:
-            '${a['code']} — ${a['name']}',
+        a['code'] as String: '${a['code']} — ${a['name']}',
     };
 
     return DropdownButtonFormField<String>(
@@ -748,8 +755,7 @@ class _AccountDropdown extends StatelessWidget {
       isExpanded: false,
       decoration: InputDecoration(
         isDense: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: Colors.grey.shade200),
@@ -765,14 +771,16 @@ class _AccountDropdown extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       dropdownColor: Colors.white,
       items: items.entries
-          .map((e) => DropdownMenuItem<String>(
-                value: e.key,
-                child: Text(
-                  e.value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ))
+          .map(
+            (e) => DropdownMenuItem<String>(
+              value: e.key,
+              child: Text(
+                e.value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          )
           .toList(),
       onChanged: (v) => onChanged(v == null || v.isEmpty ? null : v),
     );
@@ -807,8 +815,7 @@ class _BookDropdown extends StatelessWidget {
       isExpanded: false,
       decoration: InputDecoration(
         isDense: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: Colors.grey.shade200),
@@ -824,10 +831,9 @@ class _BookDropdown extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       dropdownColor: Colors.white,
       items: _books.entries
-          .map((e) => DropdownMenuItem<String>(
-                value: e.key,
-                child: Text(e.value),
-              ))
+          .map(
+            (e) => DropdownMenuItem<String>(value: e.key, child: Text(e.value)),
+          )
           .toList(),
       onChanged: (v) => onChanged(v == null || v.isEmpty ? null : v),
     );
@@ -849,10 +855,7 @@ class _YearStepper extends StatelessWidget {
           onPressed: () => onChanged(year - 1),
           icon: const Icon(Icons.chevron_left, size: 20),
         ),
-        Text(
-          '$year',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        Text('$year', style: const TextStyle(fontWeight: FontWeight.bold)),
         IconButton(
           visualDensity: VisualDensity.compact,
           onPressed: () => onChanged(year + 1),

@@ -46,8 +46,13 @@ class KeuanganLoaded extends KeuanganState {
   }
 
   @override
-  List<Object?> get props =>
-      [cashEntries, bankEntries, categories, summary, cashSources];
+  List<Object?> get props => [
+    cashEntries,
+    bankEntries,
+    categories,
+    summary,
+    cashSources,
+  ];
 }
 
 class KeuanganFailure extends KeuanganState {

@@ -136,7 +136,10 @@ class _PajakFormSheetState extends State<PajakFormSheet> {
                   DropdownMenuItem(value: 'PPh 21', child: Text('PPh 21')),
                   DropdownMenuItem(value: 'PPh 23', child: Text('PPh 23')),
                   DropdownMenuItem(value: 'PPN', child: Text('PPN')),
-                  DropdownMenuItem(value: 'Pajak Lainnya', child: Text('Pajak Lainnya')),
+                  DropdownMenuItem(
+                    value: 'Pajak Lainnya',
+                    child: Text('Pajak Lainnya'),
+                  ),
                 ],
                 onChanged: (v) => setState(() => _taxType = v!),
               ),
@@ -192,7 +195,10 @@ class _PajakFormSheetState extends State<PajakFormSheet> {
                   border: OutlineInputBorder(),
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'unpaid', child: Text('Belum Dibayar')),
+                  DropdownMenuItem(
+                    value: 'unpaid',
+                    child: Text('Belum Dibayar'),
+                  ),
                   DropdownMenuItem(value: 'paid', child: Text('Sudah Dibayar')),
                 ],
                 onChanged: (v) => setState(() => _status = v!),

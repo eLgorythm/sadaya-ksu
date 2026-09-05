@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../../../core/widgets/sadaya_message.dart';
@@ -101,33 +102,37 @@ class _LoansView extends StatelessWidget {
           );
         },
       ),
-      body: BlocBuilder<LoansCubit, LoansState>(
-        builder: (context, state) {
-          switch (state) {
-            case LoansLoadInProgress():
-              return const LoadingView();
-            case LoansFailure(:final message):
-              return ErrorStateView(
-                message: message,
-                onRetry: () => context.read<LoansCubit>().load(member.id),
-              );
-            case LoansListLoaded(:final loans):
-              return _LoanListView(
-                memberId: member.id,
-                loans: loans,
-                onCreate: () => _openCreateSheet(context),
-              );
-            case LoansDetailLoaded(:final detail):
-              return _LoanDetailView(
-                key: ValueKey('${detail.loan.id}_${detail.loan.totalPaid}'),
-                detail: detail,
-                onBack: () => context.read<LoansCubit>().backToList(member.id),
-                onPay: (schedule) => _confirmPayment(context, schedule),
-              );
-            case LoansInitial():
-              return const SizedBox.shrink();
-          }
-        },
+      body: MaxWidthBox(
+        maxWidth: 720,
+        child: BlocBuilder<LoansCubit, LoansState>(
+          builder: (context, state) {
+            switch (state) {
+              case LoansLoadInProgress():
+                return const LoadingView();
+              case LoansFailure(:final message):
+                return ErrorStateView(
+                  message: message,
+                  onRetry: () => context.read<LoansCubit>().load(member.id),
+                );
+              case LoansListLoaded(:final loans):
+                return _LoanListView(
+                  memberId: member.id,
+                  loans: loans,
+                  onCreate: () => _openCreateSheet(context),
+                );
+              case LoansDetailLoaded(:final detail):
+                return _LoanDetailView(
+                  key: ValueKey('${detail.loan.id}_${detail.loan.totalPaid}'),
+                  detail: detail,
+                  onBack: () =>
+                      context.read<LoansCubit>().backToList(member.id),
+                  onPay: (schedule) => _confirmPayment(context, schedule),
+                );
+              case LoansInitial():
+                return const SizedBox.shrink();
+            }
+          },
+        ),
       ),
     );
   }
@@ -148,7 +153,8 @@ class _LoanListView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (loans.isEmpty) {
       return RefreshIndicator(
-        onRefresh: () async => await context.read<LoansCubit>().load(memberId, silent: true),
+        onRefresh: () async =>
+            await context.read<LoansCubit>().load(memberId, silent: true),
         child: const EmptyStateView(
           icon: Icons.account_balance_outlined,
           message:
@@ -203,9 +209,7 @@ class _LoanCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   if (loan.isFast)
-                    const Icon(Icons.bolt,
-                        size: 16,
-                        color: Color(0xFF8D6E00)),
+                    const Icon(Icons.bolt, size: 16, color: Color(0xFF8D6E00)),
                   const Spacer(),
                   StatusBadge(
                     label: loan.isPaidOff ? 'LUNAS' : 'AKTIF',
@@ -300,13 +304,15 @@ class _LoanDetailView extends StatelessWidget {
                 InfoRow(label: 'Tenor', value: '${loan.tenor} bulan'),
                 if (loan.isFast) ...[
                   InfoRow(
-                    label: 'Bunga/jasa (${(loan.interestRate * 100).toStringAsFixed(0)}% × pokok)',
+                    label:
+                        'Bunga/jasa (${(loan.interestRate * 100).toStringAsFixed(0)}% × pokok)',
                     value: AppFormatters.rupiah(loan.fastTotalInterest),
                   ),
                   InfoRow(
                     label: 'Total bayar di akhir',
                     value: AppFormatters.rupiah(
-                        loan.principalAmount + loan.fastTotalInterest),
+                      loan.principalAmount + loan.fastTotalInterest,
+                    ),
                     bold: true,
                   ),
                 ] else ...[
@@ -314,7 +320,8 @@ class _LoanDetailView extends StatelessWidget {
                     label:
                         'Bunga/jasa total (${(loan.interestRate * 100).toStringAsFixed(0)}% × pokok)',
                     value: AppFormatters.rupiah(
-                        loan.principalAmount * loan.interestRate),
+                      loan.principalAmount * loan.interestRate,
+                    ),
                   ),
                   InfoRow(
                     label: 'Bunga/bln (merata)',

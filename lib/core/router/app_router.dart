@@ -23,99 +23,71 @@ class AppRouter {
   const AppRouter._();
 
   static GoRouter build(SupabaseClient client) => GoRouter(
-        initialLocation: '/',
-        refreshListenable: GoRouterRefreshStream(client.auth.onAuthStateChange),
-        redirect: (context, state) {
-          final loggedIn = client.auth.currentSession != null;
-          final isLoginRoute = state.matchedLocation == '/login';
-          if (!loggedIn && !isLoginRoute) return '/login';
-          if (loggedIn && isLoginRoute) return '/';
-          return null;
+    initialLocation: '/',
+    refreshListenable: GoRouterRefreshStream(client.auth.onAuthStateChange),
+    redirect: (context, state) {
+      final loggedIn = client.auth.currentSession != null;
+      final isLoginRoute = state.matchedLocation == '/login';
+      if (!loggedIn && !isLoginRoute) return '/login';
+      if (loggedIn && isLoginRoute) return '/';
+      return null;
+    },
+    routes: [
+      GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
+      GoRoute(path: '/', builder: (_, _) => const MainShellPage()),
+      GoRoute(path: '/anggota', builder: (_, _) => const MembersPage()),
+      GoRoute(path: '/keuangan', builder: (_, _) => const KeuanganPage()),
+      GoRoute(path: '/dana', builder: (_, _) => const DanaPage()),
+      GoRoute(path: '/tentang', builder: (_, _) => const AboutPage()),
+      GoRoute(path: '/aset', builder: (_, _) => const AsetPage()),
+      GoRoute(path: '/usaha', builder: (_, _) => const UsahaPage()),
+      GoRoute(path: '/pajak', builder: (_, _) => const PajakPage()),
+      GoRoute(
+        path: '/laporan/neraca',
+        builder: (_, _) => const BalanceSheetPage(),
+      ),
+      GoRoute(
+        path: '/laporan/bukubesar',
+        builder: (_, _) => const BukuBesarPage(),
+      ),
+      GoRoute(path: '/jurnal', builder: (_, _) => const JurnalPage()),
+      GoRoute(
+        path: '/pilih-anggota',
+        builder: (context, state) {
+          final title =
+              (state.extra as Map<String, dynamic>?)?['title'] as String? ??
+              'Pilih Anggota';
+          return MemberPickerPage(title: title);
         },
-        routes: [
-          GoRoute(
-            path: '/login',
-            builder: (_, _) => const LoginPage(),
-          ),
-          GoRoute(
-            path: '/',
-            builder: (_, _) => const MainShellPage(),
-          ),
-          GoRoute(
-            path: '/anggota',
-            builder: (_, _) => const MembersPage(),
-          ),
-          GoRoute(
-            path: '/keuangan',
-            builder: (_, _) => const KeuanganPage(),
-          ),
-          GoRoute(
-            path: '/dana',
-            builder: (_, _) => const DanaPage(),
-          ),
-          GoRoute(
-            path: '/tentang',
-            builder: (_, _) => const AboutPage(),
-          ),
-          GoRoute(
-            path: '/aset',
-            builder: (_, _) => const AsetPage(),
-          ),
-          GoRoute(
-            path: '/usaha',
-            builder: (_, _) => const UsahaPage(),
-          ),
-          GoRoute(
-            path: '/pajak',
-            builder: (_, _) => const PajakPage(),
-          ),
-          GoRoute(
-            path: '/laporan/neraca',
-            builder: (_, _) => const BalanceSheetPage(),
-          ),
-          GoRoute(
-            path: '/laporan/bukubesar',
-            builder: (_, _) => const BukuBesarPage(),
-          ),
-          GoRoute(
-            path: '/jurnal',
-            builder: (_, _) => const JurnalPage(),
-          ),
-          GoRoute(
-            path: '/pilih-anggota',
-            builder: (context, state) {
-              final title = (state.extra as Map<String, dynamic>?)?['title']
-                      as String? ??
-                  'Pilih Anggota';
-              return MemberPickerPage(title: title);
-            },
-          ),
-          GoRoute(
-            path: '/simpanan/:memberId',
-            builder: (context, state) {
-              final member = state.extra as MemberSavingsTarget?;
-              if (member == null) {
-                return const Scaffold(
-                  body: Center(
-                      child: Text('Buka halaman ini dari detail anggota.')),
-                );
-              }
-              return SavingsPage(member: member);
-            },
-          ),
-          GoRoute(
-            path: '/pinjaman/:memberId',
-            builder: (context, state) {
-              final member = state.extra as MemberLoanTarget?;
-              if (member == null) {
-                return const Scaffold(
-                  body: Center(
-                      child: Text('Buka halaman ini dari detail anggota.')),
-                );
-              }
-              return LoansPage(member: member);
-            },
-          ),
-        ],
-      );
+      ),
+      GoRoute(
+        path: '/simpanan/:memberId',
+        builder: (context, state) {
+          final member = state.extra as MemberSavingsTarget?;
+          if (member == null) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Buka halaman ini dari detail anggota.'),
+              ),
+            );
+          }
+          return SavingsPage(member: member);
+        },
+      ),
+      GoRoute(
+        path: '/pinjaman/:memberId',
+        builder: (context, state) {
+          final member = state.extra as MemberLoanTarget?;
+          if (member == null) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Buka halaman ini dari detail anggota.'),
+              ),
+            );
+          }
+          return LoansPage(member: member);
+        },
+      ),
+    ],
+  );
 }

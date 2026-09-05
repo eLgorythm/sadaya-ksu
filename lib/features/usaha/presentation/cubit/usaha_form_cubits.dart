@@ -47,15 +47,11 @@ class MaterialFormCubit extends Cubit<UsahaFormState> {
 
   void reset() => emit(const UsahaFormInitial());
 
-  Future<void> save({
-    required String name,
-    required String unit,
-  }) async {
+  Future<void> save({required String name, required String unit}) async {
     emit(const UsahaFormSaving());
-    final result = await _createMaterial(CreateMaterialParams(
-      name: name,
-      unit: unit,
-    ));
+    final result = await _createMaterial(
+      CreateMaterialParams(name: name, unit: unit),
+    );
     switch (result) {
       case Ok():
         emit(const UsahaFormSuccess());
@@ -83,14 +79,16 @@ class MaterialTxFormCubit extends Cubit<UsahaFormState> {
     String? notes,
   }) async {
     emit(const UsahaFormSaving());
-    final result = await _record(RecordMaterialTxParams(
-      materialId: materialId,
-      isPurchase: isPurchase,
-      quantity: quantity,
-      unitPrice: unitPrice,
-      date: date,
-      notes: notes,
-    ));
+    final result = await _record(
+      RecordMaterialTxParams(
+        materialId: materialId,
+        isPurchase: isPurchase,
+        quantity: quantity,
+        unitPrice: unitPrice,
+        date: date,
+        notes: notes,
+      ),
+    );
     switch (result) {
       case Ok():
         emit(const UsahaFormSuccess());
@@ -103,8 +101,7 @@ class MaterialTxFormCubit extends Cubit<UsahaFormState> {
 /// Catat hasil produksi.
 @Injectable()
 class ProductionFormCubit extends Cubit<UsahaFormState> {
-  ProductionFormCubit(this._createProduction)
-      : super(const UsahaFormInitial());
+  ProductionFormCubit(this._createProduction) : super(const UsahaFormInitial());
 
   final CreateProduction _createProduction;
 
@@ -120,15 +117,17 @@ class ProductionFormCubit extends Cubit<UsahaFormState> {
     String? notes,
   }) async {
     emit(const UsahaFormSaving());
-    final result = await _createProduction(CreateProductionParams(
-      productType: productType,
-      date: date,
-      quantity: quantity,
-      unit: unit,
-      quantityPack: quantityPack,
-      cost: cost,
-      notes: notes,
-    ));
+    final result = await _createProduction(
+      CreateProductionParams(
+        productType: productType,
+        date: date,
+        quantity: quantity,
+        unit: unit,
+        quantityPack: quantityPack,
+        cost: cost,
+        notes: notes,
+      ),
+    );
     switch (result) {
       case Ok():
         emit(const UsahaFormSuccess());
@@ -157,15 +156,17 @@ class SaleFormCubit extends Cubit<UsahaFormState> {
     String? notes,
   }) async {
     emit(const UsahaFormSaving());
-    final result = await _createSale(CreateSaleParams(
-      productType: productType,
-      date: date,
-      quantity: quantity,
-      unit: unit,
-      unitPrice: unitPrice,
-      buyer: buyer,
-      notes: notes,
-    ));
+    final result = await _createSale(
+      CreateSaleParams(
+        productType: productType,
+        date: date,
+        quantity: quantity,
+        unit: unit,
+        unitPrice: unitPrice,
+        buyer: buyer,
+        notes: notes,
+      ),
+    );
     switch (result) {
       case Ok():
         emit(const UsahaFormSuccess());

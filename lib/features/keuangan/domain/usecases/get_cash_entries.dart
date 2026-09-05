@@ -18,8 +18,7 @@ class GetCashEntries implements UseCase<List<CashBookEntry>, String> {
 }
 
 @lazySingleton
-class GetCashCategories
-    implements UseCase<List<CashCategoryOption>, NoParams> {
+class GetCashCategories implements UseCase<List<CashCategoryOption>, NoParams> {
   GetCashCategories(this._repository);
 
   final CashRepository _repository;

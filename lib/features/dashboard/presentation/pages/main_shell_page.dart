@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_context.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../anggota/domain/entities/member_entity.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../laporan/presentation/pages/balance_sheet_page.dart';
@@ -14,8 +16,9 @@ import '../pages/home_page.dart';
 
 /// Cangkang utama aplikasi setelah login.
 ///
-/// Bottom navigation: Beranda | Neraca | [Input] | Pengaturan. Tombol tengah
-/// (Input) membuka bottom sheet aksi cepat transaksi.
+/// Navigasi adaptif:
+/// - Desktop (>= 1024, Windows): [NavigationRail] kiri.
+/// - Mobile: bottom navigation standar dengan tombol tengah [Input].
 class MainShellPage extends StatefulWidget {
   const MainShellPage({super.key});
 
@@ -30,18 +33,42 @@ class _MainShellPageState extends State<MainShellPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = context.isDesktop;
     final pages = [
       HomePage(onOpenNeraca: _switchToNeraca),
       const BalanceSheetPage(),
       const _SettingsPage(),
     ];
 
+    if (isDesktop) {
+      return Scaffold(
+        backgroundColor: Colors.grey[100],
+        body: Row(
+          children: [
+            _RailNav(
+              index: _index,
+              onSelect: (i) => setState(() => _index = i == 4 ? 2 : i),
+              onInputTap: () {
+                if (_index == 0) {
+                  HomePage.openQuickActions(context);
+                } else {
+                  setState(() => _index = 0);
+                }
+              },
+              onBukuBesarTap: () => context.push('/laporan/bukubesar'),
+            ),
+            const VerticalDivider(width: 1, thickness: 1),
+            Expanded(
+              child: IndexedStack(index: _index, children: pages),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: IndexedStack(
-        index: _index,
-        children: pages,
-      ),
+      body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: _BottomNav(
         index: _index,
         onTap: (i) => setState(() => _index = i),
@@ -54,6 +81,73 @@ class _MainShellPageState extends State<MainShellPage> {
         },
         onBukuBesarTap: () => context.push('/laporan/bukubesar'),
       ),
+    );
+  }
+}
+
+/// Navigation rail untuk desktop/Windows (>= 1024).
+///
+/// Beranda dan Neraca adalah destinasinya; Input dan Buku Besar bertindak
+/// sebagai aksi (tidak pernah tampil terpilih).
+class _RailNav extends StatelessWidget {
+  const _RailNav({
+    required this.index,
+    required this.onSelect,
+    required this.onInputTap,
+    required this.onBukuBesarTap,
+  });
+
+  final int index;
+  final ValueChanged<int> onSelect;
+  final VoidCallback onInputTap;
+  final VoidCallback onBukuBesarTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final labelType = context.screenWidth >= 1400
+        ? NavigationRailLabelType.all
+        : NavigationRailLabelType.none;
+    return NavigationRail(
+      extended: context.screenWidth >= 1400,
+      backgroundColor: Colors.white,
+      selectedIndex: index,
+      labelType: labelType,
+      onDestinationSelected: (i) {
+        if (i == 2) {
+          onInputTap();
+        } else if (i == 3) {
+          onBukuBesarTap();
+        } else {
+          onSelect(i);
+        }
+      },
+      destinations: [
+        const NavigationRailDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: Text('Beranda'),
+        ),
+        const NavigationRailDestination(
+          icon: Icon(Icons.bar_chart_outlined),
+          selectedIcon: Icon(Icons.bar_chart),
+          label: Text('Neraca'),
+        ),
+        const NavigationRailDestination(
+          icon: Icon(Icons.add_circle_outline, color: AppColors.brand600),
+          selectedIcon: Icon(Icons.add_circle, color: AppColors.brand600),
+          label: Text('Input'),
+        ),
+        const NavigationRailDestination(
+          icon: Icon(Icons.menu_book_outlined),
+          selectedIcon: Icon(Icons.menu_book),
+          label: Text('Buku Besar'),
+        ),
+        const NavigationRailDestination(
+          icon: Icon(Icons.settings_outlined),
+          selectedIcon: Icon(Icons.settings),
+          label: Text('Pengaturan'),
+        ),
+      ],
     );
   }
 }
@@ -199,92 +293,93 @@ class _NavItem extends StatelessWidget {
 class _SettingsPage extends StatelessWidget {
   const _SettingsPage();
 
-  void _go(BuildContext context, String route) => context.push(route);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Card(
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: AppColors.brand800,
-                child: const Text(
-                  'CDP',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+      body: MaxWidthBox(
+        maxWidth: 720,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Card(
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.brand800,
+                  child: const Text(
+                    'CDP',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
+                title: const Text('KSU Cahaya Dhamma Phala'),
+                subtitle: const Text('Sadaya — Sistem Informasi Koperasi'),
               ),
-              title: const Text('KSU Cahaya Dhamma Phala'),
-              subtitle: const Text('Sadaya — Sistem Informasi Koperasi'),
             ),
-          ),
-          const SizedBox(height: 8),
-          _SettingTile(
-            icon: Icons.group_outlined,
-            label: 'Anggota',
-            onTap: () => _go(context, '/anggota'),
-          ),
-          _SettingTile(
-            icon: Icons.person_add_alt_1_outlined,
-            label: 'Pilih Anggota',
-            onTap: () => _go(context, '/pilih-anggota'),
-          ),
-          _SettingTile(
-            icon: Icons.calculate_outlined,
-            label: 'Buka Pinjaman Anggota',
-            onTap: () async {
-              final member = await context.push<MemberEntity>(
-                '/pilih-anggota',
-                extra: {'title': 'Pilih Anggota — Pinjaman'},
-              );
-              if (member != null && context.mounted) {
-                context.push(
-                  '/pinjaman/${member.id}',
-                  extra: MemberLoanTarget(
-                    id: member.id,
-                    name: member.name,
-                    memberNumber: member.memberNumber,
-                  ),
+            const SizedBox(height: 8),
+            _SettingTile(
+              icon: Icons.group_outlined,
+              label: 'Anggota',
+              onTap: () => context.push('/anggota'),
+            ),
+            _SettingTile(
+              icon: Icons.person_add_alt_1_outlined,
+              label: 'Pilih Anggota',
+              onTap: () => context.push('/pilih-anggota'),
+            ),
+            _SettingTile(
+              icon: Icons.calculate_outlined,
+              label: 'Buka Pinjaman Anggota',
+              onTap: () async {
+                final member = await context.push<MemberEntity>(
+                  '/pilih-anggota',
+                  extra: {'title': 'Pilih Anggota — Pinjaman'},
                 );
-              }
-            },
-          ),
-          _SettingTile(
-            icon: Icons.savings_outlined,
-            label: 'Buka Simpanan Anggota',
-            onTap: () async {
-              final member = await context.push<MemberEntity>(
-                '/pilih-anggota',
-                extra: {'title': 'Pilih Anggota — Simpanan'},
-              );
-              if (member != null && context.mounted) {
-                context.push(
-                  '/simpanan/${member.id}',
-                  extra: MemberSavingsTarget(
-                    id: member.id,
-                    name: member.name,
-                    memberNumber: member.memberNumber,
-                  ),
+                if (member != null && context.mounted) {
+                  context.push(
+                    '/pinjaman/${member.id}',
+                    extra: MemberLoanTarget(
+                      id: member.id,
+                      name: member.name,
+                      memberNumber: member.memberNumber,
+                    ),
+                  );
+                }
+              },
+            ),
+            _SettingTile(
+              icon: Icons.savings_outlined,
+              label: 'Buka Simpanan Anggota',
+              onTap: () async {
+                final member = await context.push<MemberEntity>(
+                  '/pilih-anggota',
+                  extra: {'title': 'Pilih Anggota — Simpanan'},
                 );
-              }
-            },
-          ),
-          const SizedBox(height: 8),
-          _SettingTile(
-            icon: Icons.info_outline,
-            label: 'Tentang',
-            onTap: () => _go(context, '/tentang'),
-          ),
-          const SizedBox(height: 16),
-          _LogoutTile(),
-        ],
+                if (member != null && context.mounted) {
+                  context.push(
+                    '/simpanan/${member.id}',
+                    extra: MemberSavingsTarget(
+                      id: member.id,
+                      name: member.name,
+                      memberNumber: member.memberNumber,
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+            _SettingTile(
+              icon: Icons.info_outline,
+              label: 'Tentang',
+              onTap: () => context.push('/tentang'),
+            ),
+            const SizedBox(height: 16),
+            _LogoutTile(),
+          ],
+        ),
       ),
     );
   }
@@ -349,8 +444,9 @@ class _LogoutTile extends StatelessWidget {
             child: const Text('Batal'),
           ),
           FilledButton(
-            style:
-                FilledButton.styleFrom(backgroundColor: AppColors.negativeRed),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.negativeRed,
+            ),
             onPressed: () {
               Navigator.of(dialogContext).pop();
               context.read<AuthCubit>().signOut();

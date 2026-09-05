@@ -17,8 +17,10 @@ class ShuFormSheet extends StatefulWidget {
 
   final ShuDistribution? existing;
 
-  static Future<bool> show(BuildContext context,
-      {ShuDistribution? existing}) async {
+  static Future<bool> show(
+    BuildContext context, {
+    ShuDistribution? existing,
+  }) async {
     return await showSadayaBottomSheet<bool>(
           context: context,
           builder: (_) => ShuFormSheet(existing: existing),
@@ -139,9 +141,10 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
       SadayaMessage.info(context, 'Tidak ada laba bersih untuk tahun $_year');
     } else {
       SadayaMessage.success(
-          context,
-          'Terisi dari buku besar: ${AppFormatters.rupiah(calc.totalRevenue)} '
-          '− ${AppFormatters.rupiah(calc.totalExpense)}');
+        context,
+        'Terisi dari buku besar: ${AppFormatters.rupiah(calc.totalRevenue)} '
+        '− ${AppFormatters.rupiah(calc.totalExpense)}',
+      );
     }
     setState(() {});
   }
@@ -149,12 +152,8 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
   Widget _pctField(String label, TextEditingController controller) {
     return TextFormField(
       controller: controller,
-      keyboardType:
-          const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: label,
-        suffixText: '%',
-      ),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(labelText: label, suffixText: '%'),
       validator: (value) {
         final v = value?.trim().replaceAll(',', '.') ?? '';
         if (v.isEmpty) return null;
@@ -212,8 +211,10 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
             'Cadangan': netShu * _pctOf(_reservePctController),
             'Dana Sosial': netShu * _pctOf(_socialPctController),
             'Dana Pendidikan': netShu * _pctOf(_educationPctController),
-            'Dasim (Dana Anggota Simpanan)': netShu * _pctOf(_memberSavingsPctController),
-            'Dapin (Dana Anggota Pinjaman)': netShu * _pctOf(_memberServicePctController),
+            'Dasim (Dana Anggota Simpanan)':
+                netShu * _pctOf(_memberSavingsPctController),
+            'Dapin (Dana Anggota Pinjaman)':
+                netShu * _pctOf(_memberServicePctController),
             'Pengurus & Pengawas': netShu * _pctOf(_managementPctController),
             'Pegawai/Karyawan': netShu * _pctOf(_staffPctController),
             'Dana Pembangunan': netShu * _pctOf(_developmentPctController),
@@ -227,9 +228,10 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SheetHeader(
-                      title: _isEdit
-                          ? 'Edit SHU ${widget.existing!.fiscalYear}'
-                          : 'Hitung SHU Tahunan'),
+                    title: _isEdit
+                        ? 'Edit SHU ${widget.existing!.fiscalYear}'
+                        : 'Hitung SHU Tahunan',
+                  ),
                   DropdownButtonFormField<int>(
                     initialValue: _year,
                     decoration: const InputDecoration(
@@ -240,8 +242,9 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                       for (var y = DateTime.now().year; y >= 2020; y--)
                         DropdownMenuItem(value: y, child: Text('$y')),
                     ],
-                    onChanged:
-                        saving ? null : (value) => setState(() => _year = value!),
+                    onChanged: saving
+                        ? null
+                        : (value) => setState(() => _year = value!),
                   ),
                   const SizedBox(height: 8),
                   OutlinedButton.icon(
@@ -252,11 +255,14 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                         ? const SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.auto_fix_high_outlined, size: 18),
-                    label: Text(_loadingLedger
-                        ? 'Mengambil data...'
-                        : 'Ambil dari Buku Besar'),
+                    label: Text(
+                      _loadingLedger
+                          ? 'Mengambil data...'
+                          : 'Ambil dari Buku Besar',
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -284,55 +290,69 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 16),
-                  Text('Alokasi (%)',
-                      style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    'Alokasi (%)',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                   const SizedBox(height: 8),
-                  LayoutBuilder(builder: (context, constraints) {
-                    final w = (constraints.maxWidth - 12) / 2;
-                    return Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [
-                        SizedBox(
-                          width: w,
-                          child: _pctField('Cadangan', _reservePctController),
-                        ),
-                        SizedBox(
-                          width: w,
-                          child: _pctField('Sosial', _socialPctController),
-                        ),
-                        SizedBox(
-                          width: w,
-                          child:
-                              _pctField('Pendidikan', _educationPctController),
-                        ),
-                        SizedBox(
-                          width: w,
-                          child: _pctField(
-                              'Dasim (Simpanan)', _memberSavingsPctController),
-                        ),
-                        SizedBox(
-                          width: w,
-                          child: _pctField(
-                              'Dapin (Pinjaman)', _memberServicePctController),
-                        ),
-                        SizedBox(
-                          width: w,
-                          child: _pctField(
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final w = (constraints.maxWidth - 12) / 2;
+                      return Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          SizedBox(
+                            width: w,
+                            child: _pctField('Cadangan', _reservePctController),
+                          ),
+                          SizedBox(
+                            width: w,
+                            child: _pctField('Sosial', _socialPctController),
+                          ),
+                          SizedBox(
+                            width: w,
+                            child: _pctField(
+                              'Pendidikan',
+                              _educationPctController,
+                            ),
+                          ),
+                          SizedBox(
+                            width: w,
+                            child: _pctField(
+                              'Dasim (Simpanan)',
+                              _memberSavingsPctController,
+                            ),
+                          ),
+                          SizedBox(
+                            width: w,
+                            child: _pctField(
+                              'Dapin (Pinjaman)',
+                              _memberServicePctController,
+                            ),
+                          ),
+                          SizedBox(
+                            width: w,
+                            child: _pctField(
                               'Pengurus & Pengawas',
-                              _managementPctController),
-                        ),
-                        SizedBox(
-                          width: w,
-                          child: _pctField('Pegawai', _staffPctController),
-                        ),
-                        SizedBox(
-                          width: w,
-                          child: _pctField('Pembangunan', _developmentPctController),
-                        ),
-                      ],
-                    );
-                  }),
+                              _managementPctController,
+                            ),
+                          ),
+                          SizedBox(
+                            width: w,
+                            child: _pctField('Pegawai', _staffPctController),
+                          ),
+                          SizedBox(
+                            width: w,
+                            child: _pctField(
+                              'Pembangunan',
+                              _developmentPctController,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                   const SizedBox(height: 16),
                   Card(
                     margin: EdgeInsets.zero,
@@ -341,8 +361,10 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Pratinjau Alokasi',
-                              style: Theme.of(context).textTheme.titleSmall),
+                          Text(
+                            'Pratinjau Alokasi',
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
                           const SizedBox(height: 6),
                           Text('Net SHU: ${AppFormatters.rupiah(netShu)}'),
                           const Divider(),
@@ -353,8 +375,11 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
-                                      child: Text(a.key,
-                                          overflow: TextOverflow.ellipsis)),
+                                    child: Text(
+                                      a.key,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                   Text(AppFormatters.rupiah(a.value)),
                                 ],
                               ),
@@ -368,12 +393,15 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                       value: _approveDirectly,
                       onChanged: saving
                           ? null
-                          : (value) =>
-                              setState(() => _approveDirectly = value ?? false),
+                          : (value) => setState(
+                              () => _approveDirectly = value ?? false,
+                            ),
                       title: const Text('Langsung setujui'),
-                      subtitle: Text(_approveDirectly
-                          ? 'Setelah simpan, tinggal tekan Distribusikan'
-                          : 'Tersimpan sebagai draft (perlu disetujui dulu)'),
+                      subtitle: Text(
+                        _approveDirectly
+                            ? 'Setelah simpan, tinggal tekan Distribusikan'
+                            : 'Tersimpan sebagai draft (perlu disetujui dulu)',
+                      ),
                       contentPadding: EdgeInsets.zero,
                       controlAffinity: ListTileControlAffinity.leading,
                     ),
@@ -393,15 +421,18 @@ class _ShuFormSheetState extends State<ShuFormSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.calculate_outlined),
-                    label: Text(saving
-                        ? 'Menyimpan...'
-                        : _isEdit
-                            ? 'Simpan Perubahan'
-                            : _approveDirectly
-                                ? 'Simpan & Setujui'
-                                : 'Simpan Draft'),
+                    label: Text(
+                      saving
+                          ? 'Menyimpan...'
+                          : _isEdit
+                          ? 'Simpan Perubahan'
+                          : _approveDirectly
+                          ? 'Simpan & Setujui'
+                          : 'Simpan Draft',
+                    ),
                   ),
                 ],
               ),

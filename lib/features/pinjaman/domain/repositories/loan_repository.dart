@@ -61,11 +61,11 @@ class CreateLoanParams extends Equatable {
 
   @override
   List<Object?> get props => [
-        memberId,
-        principal,
-        tenor,
-        disbursementDate,
-        notes,
-        loanType,
-      ];
+    memberId,
+    principal,
+    tenor,
+    disbursementDate,
+    notes,
+    loanType,
+  ];
 }

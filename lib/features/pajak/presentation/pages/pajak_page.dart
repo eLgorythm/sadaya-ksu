@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../domain/usecases/tax_usecases.dart';
@@ -30,20 +31,23 @@ class _PajakPageState extends State<PajakPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Modul Pajak')),
-      body: BlocBuilder<PajakCubit, PajakState>(
-        bloc: _cubit,
-        builder: (context, state) {
-          if (state.loading && state.taxes.isEmpty) {
-            return const LoadingView();
-          }
-          if (state.error != null && state.taxes.isEmpty) {
-            return ErrorStateView(
-              message: state.error!,
-              onRetry: () => _cubit.load(),
-            );
-          }
-          return _PajakView(state: state);
-        },
+      body: MaxWidthBox(
+        maxWidth: 720,
+        child: BlocBuilder<PajakCubit, PajakState>(
+          bloc: _cubit,
+          builder: (context, state) {
+            if (state.loading && state.taxes.isEmpty) {
+              return const LoadingView();
+            }
+            if (state.error != null && state.taxes.isEmpty) {
+              return ErrorStateView(
+                message: state.error!,
+                onRetry: () => _cubit.load(),
+              );
+            }
+            return _PajakView(state: state);
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
@@ -89,9 +93,9 @@ class _PajakView extends StatelessWidget {
         Expanded(
           child: state.taxes.isEmpty
               ? const EmptyStateView(
-              icon: Icons.receipt_long_outlined,
-              message: 'Belum ada data pajak',
-            )
+                  icon: Icons.receipt_long_outlined,
+                  message: 'Belum ada data pajak',
+                )
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: state.taxes.length,
@@ -146,17 +150,14 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: Colors.grey[600]),
               ),
               const SizedBox(height: 4),
               Text(
                 AppFormatters.rupiah(amount),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(color: color, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -205,19 +206,25 @@ class _TaxCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 2),
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: tax.isPaid ? Colors.green[50] : Colors.orange[50],
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                      color: tax.isPaid ? Colors.green[200]! : Colors.orange[200]!,
+                      color: tax.isPaid
+                          ? Colors.green[200]!
+                          : Colors.orange[200]!,
                     ),
                   ),
                   child: Text(
                     tax.isPaid ? 'Dibayar' : 'Belum',
                     style: TextStyle(
                       fontSize: 10,
-                      color: tax.isPaid ? Colors.green[700] : Colors.orange[700],
+                      color: tax.isPaid
+                          ? Colors.green[700]
+                          : Colors.orange[700],
                     ),
                   ),
                 ),
@@ -266,7 +273,8 @@ class _TaxCard extends StatelessWidget {
                 builder: (context) => AlertDialog(
                   title: const Text('Tandai Dibayar?'),
                   content: const Text(
-                      'Status pajak akan diubah menjadi "Dibayar" dan jurnal akan diposting ke buku besar.'),
+                    'Status pajak akan diubah menjadi "Dibayar" dan jurnal akan diposting ke buku besar.',
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
@@ -294,10 +302,7 @@ class _TaxCard extends StatelessWidget {
                 );
               }
             } else if (value == 'edit') {
-              final saved = await PajakFormSheet.show(
-                context,
-                tax: tax,
-              );
+              final saved = await PajakFormSheet.show(context, tax: tax);
               if (saved) cubit.load(silent: true);
             } else if (value == 'delete') {
               final confirmed = await showDialog<bool>(
@@ -305,7 +310,8 @@ class _TaxCard extends StatelessWidget {
                 builder: (context) => AlertDialog(
                   title: const Text('Hapus Pajak?'),
                   content: const Text(
-                      'Data pajak dan jurnal terkait akan dihapus permanen.'),
+                    'Data pajak dan jurnal terkait akan dihapus permanen.',
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
@@ -314,7 +320,8 @@ class _TaxCard extends StatelessWidget {
                     FilledButton(
                       onPressed: () => Navigator.pop(context, true),
                       style: FilledButton.styleFrom(
-                          backgroundColor: Colors.red),
+                        backgroundColor: Colors.red,
+                      ),
                       child: const Text('Hapus'),
                     ),
                   ],

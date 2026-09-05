@@ -30,8 +30,7 @@ class LoanModel extends LoanEntity {
       remainingBalance: double.tryParse('${map['remaining_balance']}') ?? 0,
       totalPaidPrincipal:
           double.tryParse('${map['total_paid_principal']}') ?? 0,
-      totalPaidInterest:
-          double.tryParse('${map['total_paid_interest']}') ?? 0,
+      totalPaidInterest: double.tryParse('${map['total_paid_interest']}') ?? 0,
       notes: map['notes'] as String?,
       loanType: map['loan_type'] as String? ?? 'regular',
     );
@@ -59,8 +58,7 @@ class InstallmentScheduleModel extends InstallmentScheduleEntity {
       for (final p in payments) {
         if (p is Map<String, dynamic> && p['payment_date'] != null) {
           final d = DateTime.tryParse(p['payment_date'].toString());
-          if (d != null &&
-              (paidDate == null || d.isAfter(paidDate))) {
+          if (d != null && (paidDate == null || d.isAfter(paidDate))) {
             paidDate = d;
           }
         }

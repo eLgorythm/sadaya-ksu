@@ -6,10 +6,7 @@ import '../../../../core/utils/result.dart';
 import '../repositories/cash_repository.dart';
 
 class CreateCashCategoryParams extends Equatable {
-  const CreateCashCategoryParams({
-    required this.name,
-    required this.isIncome,
-  });
+  const CreateCashCategoryParams({required this.name, required this.isIncome});
 
   final String name;
   final bool isIncome;

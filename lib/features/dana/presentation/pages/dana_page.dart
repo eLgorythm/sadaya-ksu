@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/utils/result.dart';
@@ -51,8 +52,10 @@ class DanaPage extends StatefulWidget {
 class _DanaPageState extends State<DanaPage>
     with SingleTickerProviderStateMixin {
   late final DanaCubit _cubit = GetIt.I<DanaCubit>();
-  late final TabController _tabController =
-      TabController(length: 2, vsync: this);
+  late final TabController _tabController = TabController(
+    length: 2,
+    vsync: this,
+  );
 
   @override
   void initState() {
@@ -88,27 +91,36 @@ class _DanaPageState extends State<DanaPage>
           ],
         ),
       ),
-      body: BlocBuilder<DanaCubit, DanaState>(
-        bloc: _cubit,
-        builder: (context, state) {
-          switch (state) {
-            case DanaLoadInProgress() || DanaInitial():
-              return const LoadingView();
-            case DanaFailure(:final message):
-              return ErrorStateView(
-                message: message,
-                onRetry: () => _cubit.load(),
-              );
-            case DanaLoaded():
-              return TabBarView(
-                controller: _tabController,
-                children: [
-                  _FundTab(state: state, onReload: () => _cubit.load(silent: true)),
-                  _ShuTab(state: state, onReload: () => _cubit.load(silent: true)),
-                ],
-              );
-          }
-        },
+      body: MaxWidthBox(
+        maxWidth: 1200,
+        child: BlocBuilder<DanaCubit, DanaState>(
+          bloc: _cubit,
+          builder: (context, state) {
+            switch (state) {
+              case DanaLoadInProgress() || DanaInitial():
+                return const LoadingView();
+              case DanaFailure(:final message):
+                return ErrorStateView(
+                  message: message,
+                  onRetry: () => _cubit.load(),
+                );
+              case DanaLoaded():
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _FundTab(
+                      state: state,
+                      onReload: () => _cubit.load(silent: true),
+                    ),
+                    _ShuTab(
+                      state: state,
+                      onReload: () => _cubit.load(silent: true),
+                    ),
+                  ],
+                );
+            }
+          },
+        ),
       ),
       floatingActionButton: !isShuTab
           ? null
@@ -138,9 +150,7 @@ class _FundTab extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          child: ResponsiveGrid(
             children: [
               for (final type in _kFundDisplayKeys)
                 _FundBalanceCard(
@@ -154,8 +164,10 @@ class _FundTab extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text('Transaksi',
-              style: Theme.of(context).textTheme.titleMedium),
+          child: Text(
+            'Transaksi',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ),
         Expanded(
           child: entries.isEmpty
@@ -192,38 +204,33 @@ class _FundBalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _fundColors[fundType] ?? AppColors.primaryGreen;
-    return SizedBox(
-      width: MediaQuery.of(context).size.width / 2 - 24,
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(radius: 5, backgroundColor: color),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      kFundLabels[fundType] ?? fundType,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(radius: 5, backgroundColor: color),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    kFundLabels[fundType] ?? fundType,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelLarge,
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                AppFormatters.rupiah(balance),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppFormatters.rupiah(balance),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold, color: color),
+            ),
+          ],
         ),
       ),
     );
@@ -238,38 +245,33 @@ class _JapinupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const color = Color(0xFFD84315);
-    return SizedBox(
-      width: MediaQuery.of(context).size.width / 2 - 24,
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(radius: 5, backgroundColor: color),
-                  const SizedBox(width: 6),
-                  const Expanded(
-                    child: Text(
-                      'Japinup',
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(radius: 5, backgroundColor: color),
+                const SizedBox(width: 6),
+                const Expanded(
+                  child: Text(
+                    'Japinup',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                AppFormatters.rupiah(balance),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppFormatters.rupiah(balance),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold, color: color),
+            ),
+          ],
         ),
       ),
     );
@@ -284,38 +286,33 @@ class _SwkCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const color = Color(0xFF2E7D32);
-    return SizedBox(
-      width: MediaQuery.of(context).size.width / 2 - 24,
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(radius: 5, backgroundColor: color),
-                  const SizedBox(width: 6),
-                  const Expanded(
-                    child: Text(
-                      'SWK',
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(radius: 5, backgroundColor: color),
+                const SizedBox(width: 6),
+                const Expanded(
+                  child: Text(
+                    'SWK',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                AppFormatters.rupiah(balance),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppFormatters.rupiah(balance),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold, color: color),
+            ),
+          ],
         ),
       ),
     );
@@ -333,8 +330,7 @@ class _FundTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(top: 8),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
         leading: CircleAvatar(
           radius: 17,
           backgroundColor: isIncoming
@@ -346,9 +342,14 @@ class _FundTile extends StatelessWidget {
             color: isIncoming ? AppColors.primaryGreen : AppColors.negativeRed,
           ),
         ),
-        title: Text(entry.description,
-            maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Text('${entry.fundLabel} • ${AppFormatters.date(entry.date)}'),
+        title: Text(
+          entry.description,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(
+          '${entry.fundLabel} • ${AppFormatters.date(entry.date)}',
+        ),
         trailing: Text(
           '${isIncoming ? '+' : '-'} ${AppFormatters.rupiah(entry.amount)}',
           style: TextStyle(
@@ -372,8 +373,10 @@ class _ShuTab extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Setujui SHU?'),
-        content: Text('SHU tahun ${shu.fiscalYear} akan berstatus '
-            'disetujui dan siap didistribusikan.'),
+        content: Text(
+          'SHU tahun ${shu.fiscalYear} akan berstatus '
+          'disetujui dan siap didistribusikan.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -405,8 +408,9 @@ class _ShuTab extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Distribusikan SHU?'),
         content: const Text(
-            'Alokasi dana sosial/pendidikan/cadangan akan otomatis '
-            'tercatat di Buku Dana. Tindakan ini tidak bisa dibatalkan.'),
+          'Alokasi dana sosial/pendidikan/cadangan akan otomatis '
+          'tercatat di Buku Dana. Tindakan ini tidak bisa dibatalkan.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -425,8 +429,7 @@ class _ShuTab extends StatelessWidget {
     if (!context.mounted) return;
     switch (result) {
       case Ok():
-        SadayaMessage.success(
-            context, 'SHU ${shu.fiscalYear} didistribusikan');
+        SadayaMessage.success(context, 'SHU ${shu.fiscalYear} didistribusikan');
         onReload();
       case Err(:final failure):
         SadayaMessage.error(context, failure.message);
@@ -439,15 +442,19 @@ class _ShuTab extends StatelessWidget {
   }
 
   Future<void> _cancelDistribution(
-      BuildContext context, ShuDistribution shu) async {
+    BuildContext context,
+    ShuDistribution shu,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Batalkan Distribusi?'),
-        content: Text('Alokasi SHU ${shu.fiscalYear} di Buku Dana akan '
-            'dicabut dan status kembali menjadi draft. '
-            'Setelah itu Anda bisa mengubah angka lalu mendistribusikan '
-            'ulang, atau menghapusnya.'),
+        content: Text(
+          'Alokasi SHU ${shu.fiscalYear} di Buku Dana akan '
+          'dicabut dan status kembali menjadi draft. '
+          'Setelah itu Anda bisa mengubah angka lalu mendistribusikan '
+          'ulang, atau menghapusnya.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -469,8 +476,10 @@ class _ShuTab extends StatelessWidget {
     if (!context.mounted) return;
     switch (result) {
       case Ok():
-        SadayaMessage.success(context,
-            'Distribusi SHU ${shu.fiscalYear} dibatalkan, kembali jadi draft');
+        SadayaMessage.success(
+          context,
+          'Distribusi SHU ${shu.fiscalYear} dibatalkan, kembali jadi draft',
+        );
         onReload();
       case Err(:final failure):
         SadayaMessage.error(context, failure.message);
@@ -482,8 +491,10 @@ class _ShuTab extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Hapus SHU?'),
-        content: Text('Perhitungan SHU tahun ${shu.fiscalYear} akan '
-            'dihapus permanen.'),
+        content: Text(
+          'Perhitungan SHU tahun ${shu.fiscalYear} akan '
+          'dihapus permanen.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -505,8 +516,7 @@ class _ShuTab extends StatelessWidget {
     if (!context.mounted) return;
     switch (result) {
       case Ok():
-        SadayaMessage.success(
-            context, 'SHU ${shu.fiscalYear} dihapus');
+        SadayaMessage.success(context, 'SHU ${shu.fiscalYear} dihapus');
         onReload();
       case Err(:final failure):
         SadayaMessage.error(context, failure.message);
@@ -539,8 +549,7 @@ class _ShuTab extends StatelessWidget {
               onDistribute: () => _distribute(context, shu),
               onDelete: () => _delete(context, shu),
               onEdit: () => _edit(context, shu),
-              onCancelDistribution: () =>
-                  _cancelDistribution(context, shu),
+              onCancelDistribution: () => _cancelDistribution(context, shu),
             ),
         ],
       ),
@@ -599,11 +608,11 @@ class _ShuCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text('SHU ${shu.fiscalYear}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    'SHU ${shu.fiscalYear}',
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
                 ),
                 StatusBadge(
                   label: statusLabel,
@@ -616,9 +625,15 @@ class _ShuCard extends StatelessWidget {
               ],
             ),
             const Divider(height: 20),
-            InfoRow(label: 'Total SHU', value: AppFormatters.rupiah(shu.totalShu)),
+            InfoRow(
+              label: 'Total SHU',
+              value: AppFormatters.rupiah(shu.totalShu),
+            ),
             if (shu.taxAmount > 0)
-              InfoRow(label: 'Pajak', value: '- ${AppFormatters.rupiah(shu.taxAmount)}'),
+              InfoRow(
+                label: 'Pajak',
+                value: '- ${AppFormatters.rupiah(shu.taxAmount)}',
+              ),
             InfoRow(
               label: 'Net SHU',
               value: AppFormatters.rupiah(shu.netShu),
@@ -628,7 +643,8 @@ class _ShuCard extends StatelessWidget {
             for (final a in allocations.entries)
               if ((a.value ?? 0) > 0)
                 InfoRow(
-                  label: '${a.key} (${((a.value ?? 0) * 100).toStringAsFixed(a.value! * 100 == (a.value! * 100).roundToDouble() ? 0 : 2)}%)',
+                  label:
+                      '${a.key} (${((a.value ?? 0) * 100).toStringAsFixed(a.value! * 100 == (a.value! * 100).roundToDouble() ? 0 : 2)}%)',
                   value: AppFormatters.rupiah(shu.allocationOf(a.value)),
                 ),
             if ((shu.notes ?? '').isNotEmpty) ...[
@@ -636,9 +652,9 @@ class _ShuCard extends StatelessWidget {
               Text(
                 shu.notes!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      color: AppTheme.statusColor('inactive'),
-                    ),
+                  fontStyle: FontStyle.italic,
+                  color: AppTheme.statusColor('inactive'),
+                ),
               ),
             ],
             if (shu.isDistributed && shu.distributionDate != null) ...[

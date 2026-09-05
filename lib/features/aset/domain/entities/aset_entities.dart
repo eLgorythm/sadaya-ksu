@@ -32,15 +32,15 @@ class AssetItem extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        description,
-        acquisitionDate,
-        cost,
-        salvageValue,
-        usefulLifeYears,
-        status,
-      ];
+    id,
+    name,
+    description,
+    acquisitionDate,
+    cost,
+    salvageValue,
+    usefulLifeYears,
+    status,
+  ];
 }
 
 /// Satu baris buku penyusutan untuk tahun fiskal tertentu.
@@ -65,12 +65,12 @@ class DepreciationRow extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        assetId,
-        assetName,
-        fiscalYear,
-        amount,
-        accumulated,
-        bookValue,
-      ];
+    id,
+    assetId,
+    assetName,
+    fiscalYear,
+    amount,
+    accumulated,
+    bookValue,
+  ];
 }

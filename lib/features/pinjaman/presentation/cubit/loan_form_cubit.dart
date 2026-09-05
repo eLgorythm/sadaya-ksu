@@ -24,14 +24,16 @@ class LoanFormCubit extends Cubit<LoanFormState> {
     String loanType = 'regular',
   }) async {
     emit(const LoanFormSaving());
-    final result = await _createLoan(CreateLoanParams(
-      memberId: memberId,
-      principal: principal,
-      tenor: tenor,
-      disbursementDate: disbursementDate,
-      notes: notes,
-      loanType: loanType,
-    ));
+    final result = await _createLoan(
+      CreateLoanParams(
+        memberId: memberId,
+        principal: principal,
+        tenor: tenor,
+        disbursementDate: disbursementDate,
+        notes: notes,
+        loanType: loanType,
+      ),
+    );
     switch (result) {
       case Ok(:final value):
         emit(LoanFormSuccess(loan: value));

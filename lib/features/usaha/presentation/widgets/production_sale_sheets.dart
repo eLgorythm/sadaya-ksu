@@ -46,7 +46,7 @@ class _ProductionSheetState extends State<ProductionSheet> {
       _qtyController,
       _packController,
       _costController,
-      _notesController
+      _notesController,
     ]) {
       c.dispose();
     }
@@ -123,11 +123,11 @@ class _ProductionSheetState extends State<ProductionSheet> {
                     ),
                     items: [
                       for (final e in kProductLabels.entries)
-                        DropdownMenuItem(
-                            value: e.key, child: Text(e.value)),
+                        DropdownMenuItem(value: e.key, child: Text(e.value)),
                     ],
-                    onChanged:
-                        saving ? null : (v) => setState(() => _product = v),
+                    onChanged: saving
+                        ? null
+                        : (v) => setState(() => _product = v),
                   ),
                   const SizedBox(height: 12),
                   InkWell(
@@ -150,7 +150,8 @@ class _ProductionSheetState extends State<ProductionSheet> {
                           controller: _qtyController,
                           autofocus: true,
                           keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
+                            decimal: true,
+                          ),
                           decoration: const InputDecoration(
                             labelText: 'Jumlah Hasil *',
                             prefixIcon: Icon(Icons.scale_outlined),
@@ -184,8 +185,9 @@ class _ProductionSheetState extends State<ProductionSheet> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _packController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: const InputDecoration(
                       labelText: 'Hasil Pack (opsional)',
                       prefixIcon: Icon(Icons.inventory_2_outlined),
@@ -233,7 +235,8 @@ class _ProductionSheetState extends State<ProductionSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.factory_outlined),
                     label: Text(saving ? 'Menyimpan...' : 'Simpan'),
                   ),
@@ -362,11 +365,11 @@ class _SaleSheetState extends State<SaleSheet> {
                     ),
                     items: [
                       for (final e in kProductLabels.entries)
-                        DropdownMenuItem(
-                            value: e.key, child: Text(e.value)),
+                        DropdownMenuItem(value: e.key, child: Text(e.value)),
                     ],
-                    onChanged:
-                        saving ? null : (v) => setState(() => _product = v),
+                    onChanged: saving
+                        ? null
+                        : (v) => setState(() => _product = v),
                   ),
                   const SizedBox(height: 12),
                   InkWell(
@@ -389,7 +392,8 @@ class _SaleSheetState extends State<SaleSheet> {
                           controller: _qtyController,
                           autofocus: true,
                           keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
+                            decimal: true,
+                          ),
                           onChanged: (_) => setState(() {}),
                           decoration: const InputDecoration(
                             labelText: 'Jumlah Terjual *',
@@ -413,9 +417,13 @@ class _SaleSheetState extends State<SaleSheet> {
                           items: const [
                             DropdownMenuItem(value: 'kg', child: Text('kg')),
                             DropdownMenuItem(
-                                value: 'gram', child: Text('gram')),
+                              value: 'gram',
+                              child: Text('gram'),
+                            ),
                             DropdownMenuItem(
-                                value: 'pack', child: Text('pack')),
+                              value: 'pack',
+                              child: Text('pack'),
+                            ),
                           ],
                           onChanged: saving
                               ? null
@@ -444,9 +452,12 @@ class _SaleSheetState extends State<SaleSheet> {
                         child: Row(
                           children: [
                             const Expanded(child: Text('Total Penjualan')),
-                            Text(AppFormatters.rupiah(_total),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
+                            Text(
+                              AppFormatters.rupiah(_total),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -478,7 +489,8 @@ class _SaleSheetState extends State<SaleSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.sell_outlined),
                     label: Text(saving ? 'Menyimpan...' : 'Simpan'),
                   ),

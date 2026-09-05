@@ -25,7 +25,13 @@ class TaxItem extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, taxType, description, amount, taxDate, status,
-        referenceNumber, notes,
-      ];
+    id,
+    taxType,
+    description,
+    amount,
+    taxDate,
+    status,
+    referenceNumber,
+    notes,
+  ];
 }

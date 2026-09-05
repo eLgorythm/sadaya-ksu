@@ -27,8 +27,9 @@ class CashBookEntryModel extends CashBookEntry {
       direction: direction,
       amount: double.tryParse('${map['amount']}') ?? 0,
       description: map['description'] as String? ?? '',
-      categoryName:
-          category is Map<String, dynamic> ? category['name'] as String? : null,
+      categoryName: category is Map<String, dynamic>
+          ? category['name'] as String?
+          : null,
     );
   }
 }
@@ -51,10 +52,7 @@ class CashCategoryOptionModel extends CashCategoryOption {
 }
 
 class CashLedgerSummaryModel extends CashLedgerSummary {
-  const CashLedgerSummaryModel({
-    required super.accounts,
-    required super.total,
-  });
+  const CashLedgerSummaryModel({required super.accounts, required super.total});
 
   factory CashLedgerSummaryModel.fromMap(Map<String, dynamic> map) {
     final accounts = (map['accounts'] as List<dynamic>? ?? [])

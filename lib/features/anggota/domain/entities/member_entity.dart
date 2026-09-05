@@ -24,6 +24,14 @@ class MemberEntity extends Equatable {
   bool get isActive => status == 'active';
 
   @override
-  List<Object?> get props =>
-      [id, memberNumber, name, address, phone, joinDate, notes, status];
+  List<Object?> get props => [
+    id,
+    memberNumber,
+    name,
+    address,
+    phone,
+    joinDate,
+    notes,
+    status,
+  ];
 }

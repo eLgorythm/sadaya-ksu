@@ -6,8 +6,18 @@ class AppFormatters {
   static final NumberFormat _numberFormat = NumberFormat.decimalPattern('id');
 
   static const List<String> _monthShort = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'Mei',
+    'Jun',
+    'Jul',
+    'Agu',
+    'Sep',
+    'Okt',
+    'Nov',
+    'Des',
   ];
 
   static String rupiah(num value) => 'Rp ${_numberFormat.format(value)}';

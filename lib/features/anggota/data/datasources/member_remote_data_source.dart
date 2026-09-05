@@ -11,8 +11,9 @@ class MemberRemoteDataSource {
     required String search,
     required String? status,
   }) async {
-    PostgrestFilterBuilder<List<dynamic>> query =
-        _client.from('members').select();
+    PostgrestFilterBuilder<List<dynamic>> query = _client
+        .from('members')
+        .select();
     if (status != null) {
       query = query.eq('status', status);
     }
@@ -41,7 +42,12 @@ class MemberRemoteDataSource {
     String id,
     Map<String, dynamic> values,
   ) {
-    return _client.from('members').update(values).eq('id', id).select().single();
+    return _client
+        .from('members')
+        .update(values)
+        .eq('id', id)
+        .select()
+        .single();
   }
 
   Future<void> updateStatus(String id, String status) {

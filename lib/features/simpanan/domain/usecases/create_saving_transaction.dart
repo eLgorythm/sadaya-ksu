@@ -23,8 +23,13 @@ class CreateSavingTransactionParams extends Equatable {
   final String? description;
 
   @override
-  List<Object?> get props =>
-      [memberId, type, transactionType, amount, description];
+  List<Object?> get props => [
+    memberId,
+    type,
+    transactionType,
+    amount,
+    description,
+  ];
 }
 
 @lazySingleton
@@ -45,16 +50,16 @@ class CreateSavingTransaction
     if (params.amount <= 0) {
       return const Err(Failure(message: 'Nominal harus lebih dari 0'));
     }
-    if (params.transactionType == 'withdrawal' &&
-        !params.type.isWithdrawable) {
-      return Err(
-        Failure(message: '${params.type.name} tidak dapat ditarik'),
-      );
+    if (params.transactionType == 'withdrawal' && !params.type.isWithdrawable) {
+      return Err(Failure(message: '${params.type.name} tidak dapat ditarik'));
     }
     if (params.type.isSystemManaged) {
-      return const Err(Failure(
+      return const Err(
+        Failure(
           message:
-              'Simpanan Wajib Kredit dikelola otomatis dari cicilan pinjaman'));
+              'Simpanan Wajib Kredit dikelola otomatis dari cicilan pinjaman',
+        ),
+      );
     }
     return _repository.createTransaction(
       memberId: params.memberId,

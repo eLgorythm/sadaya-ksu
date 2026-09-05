@@ -15,7 +15,8 @@ Future<T?> showSadayaBottomSheet<T>({
     useSafeArea: true,
     builder: (sheetContext) => Padding(
       padding: EdgeInsets.only(
-          bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
+        bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+      ),
       child: SingleChildScrollView(child: Builder(builder: builder)),
     ),
   );
@@ -55,11 +56,7 @@ class LoadingView extends StatelessWidget {
 
 /// Tampilan kosong terpusat.
 class EmptyStateView extends StatelessWidget {
-  const EmptyStateView({
-    super.key,
-    required this.icon,
-    required this.message,
-  });
+  const EmptyStateView({super.key, required this.icon, required this.message});
 
   final IconData icon;
   final String message;
@@ -76,9 +73,7 @@ class EmptyStateView extends StatelessWidget {
           child: Text(
             message,
             textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
+            style: Theme.of(context).textTheme.bodyMedium
                 ?.copyWith(color: AppTheme.statusColor('inactive')),
           ),
         ),
@@ -149,31 +144,39 @@ class StatusBadge extends StatelessWidget {
 }
 
 /// Baris "label ......... nilai" untuk kartu ringkasan/detail.
+///
+/// Label boleh menyusut/membungkus ([Flexible]) agar tidak overflow di layar
+/// sempit; nilai tetap rata kanan di ujung baris.
 class InfoRow extends StatelessWidget {
   const InfoRow({
     super.key,
     required this.label,
     required this.value,
     this.bold = false,
+    this.valueColor,
   });
 
   final String label;
   final String value;
   final bool bold;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 13)),
-          const Spacer(),
+          Flexible(child: Text(label, style: const TextStyle(fontSize: 13))),
+          const SizedBox(width: 12),
           Text(
             value,
+            textAlign: TextAlign.right,
             style: TextStyle(
               fontSize: 13,
               fontWeight: bold ? FontWeight.bold : FontWeight.w500,
+              color: valueColor,
             ),
           ),
         ],

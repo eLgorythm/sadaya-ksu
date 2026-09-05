@@ -36,8 +36,5 @@ abstract interface class MemberRepository {
     String? notes,
   });
 
-  Future<Result<void>> setStatus({
-    required String id,
-    required String status,
-  });
+  Future<Result<void>> setStatus({required String id, required String status});
 }

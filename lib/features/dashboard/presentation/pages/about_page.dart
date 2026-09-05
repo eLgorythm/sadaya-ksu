@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 
 /// Halaman Tentang (About) aplikasi Sadaya.
 ///
@@ -89,8 +90,7 @@ class _AboutPageState extends State<AboutPage> {
     }
   }
 
-  String _valueOr(
-      Map<String, String> map, String key, String fallback) {
+  String _valueOr(Map<String, String> map, String key, String fallback) {
     final v = map[key];
     return (v != null && v.isNotEmpty) ? v : fallback;
   }
@@ -104,139 +104,139 @@ class _AboutPageState extends State<AboutPage> {
         scrolledUnderElevation: 0,
         title: const Text('Tentang'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Logo, nama, tagline, chip versi
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: AppColors.brand800,
-              child: const Text(
-                'CDP',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+      body: MaxWidthBox(
+        maxWidth: 720,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Logo, nama, tagline, chip versi
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: AppColors.brand800,
+                child: const Text(
+                  'CDP',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              _name,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _tagline,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-            if (versionNumber.isNotEmpty)
-              Center(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: AppColors.brand50,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.brand100),
-                  ),
-                  child: Text(
-                    versionNumber.isEmpty
-                        ? 'v—'
-                        : 'v$versionNumber • '
-                            '${_buildNumber.isEmpty ? '?' : _buildNumber}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.brand700,
+              const SizedBox(height: 12),
+              Text(
+                _name,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _tagline,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              ),
+              const SizedBox(height: 12),
+              if (versionNumber.isNotEmpty)
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.brand50,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.brand100),
+                    ),
+                    child: Text(
+                      versionNumber.isEmpty
+                          ? 'v—'
+                          : 'v$versionNumber • '
+                                '${_buildNumber.isEmpty ? '?' : _buildNumber}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.brand700,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // Kartu filosofi
-            _SectionCard(
-              title: 'Tentang Sadaya',
-              child: Text(
-                _description,
-                textAlign: TextAlign.justify,
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: Colors.grey[700],
+              // Kartu filosofi
+              _SectionCard(
+                title: 'Tentang Sadaya',
+                child: Text(
+                  _description,
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.5,
+                    color: Colors.grey[700],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            // Kartu motto
-            _SectionCard(
-              child: Text(
-                _motto,
+              // Kartu motto
+              _SectionCard(
+                child: Text(
+                  _motto,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.brand800,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Informasi Aplikasi
+              Text(
+                'Informasi Aplikasi',
+                style: Theme.of(context).textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              _InfoCard(
+                items: [
+                  _InfoItem(label: 'Nama Aplikasi', value: _appName),
+                  _InfoItem(
+                    label: 'Versi',
+                    value: versionNumber.isEmpty
+                        ? '—'
+                        : '$versionNumber (${_buildNumber.isEmpty ? '?' : _buildNumber})',
+                  ),
+                  _InfoItem(label: 'Pengembang', value: _developer),
+                  _InfoItem(label: 'Tahun', value: '$_year'),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              Text(
+                'Dibuat untuk Koperasi Cahaya Dhamma Phala',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontStyle: FontStyle.italic,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.brand800,
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
               ),
-            ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 4),
 
-            // Informasi Aplikasi
-            Text(
-              'Informasi Aplikasi',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            _InfoCard(
-              items: [
-                _InfoItem(label: 'Nama Aplikasi', value: _appName),
-                _InfoItem(
-                  label: 'Versi',
-                  value: versionNumber.isEmpty
-                      ? '—'
-                      : '$versionNumber (${_buildNumber.isEmpty ? '?' : _buildNumber})',
-                ),
-                _InfoItem(label: 'Pengembang', value: _developer),
-                _InfoItem(label: 'Tahun', value: '$_year'),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            Text(
-              'Dibuat untuk Koperasi Cahaya Dhamma Phala',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 4),
-
-            Text(
-              '0xfndLabs © $_year',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-            ),
-          ],
+              Text(
+                '0xfndLabs © $_year',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  String get versionNumber =>
-      _version.isNotEmpty ? _version : '';
+  String get versionNumber => _version.isNotEmpty ? _version : '';
 }
 
 class _SectionCard extends StatelessWidget {
@@ -257,9 +257,7 @@ class _SectionCard extends StatelessWidget {
             if (title != null) ...[
               Text(
                 title!,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
+                style: Theme.of(context).textTheme.titleSmall
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),

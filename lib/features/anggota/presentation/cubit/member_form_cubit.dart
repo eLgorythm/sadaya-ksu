@@ -12,7 +12,7 @@ part 'member_form_state.dart';
 @injectable
 class MemberFormCubit extends Cubit<MemberFormState> {
   MemberFormCubit(this._createMember, this._updateMember)
-      : super(const MemberFormInitial());
+    : super(const MemberFormInitial());
 
   final CreateMember _createMember;
   final UpdateMember _updateMember;
@@ -29,23 +29,27 @@ class MemberFormCubit extends Cubit<MemberFormState> {
     emit(const MemberFormSaving());
     final Result<MemberEntity> result;
     if (id == null) {
-      result = await _createMember(CreateMemberParams(
-        name: name,
-        address: address,
-        phone: phone,
-        joinDate: joinDate,
-        notes: notes,
-      ));
+      result = await _createMember(
+        CreateMemberParams(
+          name: name,
+          address: address,
+          phone: phone,
+          joinDate: joinDate,
+          notes: notes,
+        ),
+      );
     } else {
-      result = await _updateMember(UpdateMemberParams(
-        id: id,
-        memberNumber: memberNumber,
-        name: name,
-        address: address,
-        phone: phone,
-        joinDate: joinDate,
-        notes: notes,
-      ));
+      result = await _updateMember(
+        UpdateMemberParams(
+          id: id,
+          memberNumber: memberNumber,
+          name: name,
+          address: address,
+          phone: phone,
+          joinDate: joinDate,
+          notes: notes,
+        ),
+      );
     }
     switch (result) {
       case Ok(:final value):

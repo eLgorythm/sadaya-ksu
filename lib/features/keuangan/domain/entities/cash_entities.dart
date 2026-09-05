@@ -23,8 +23,14 @@ class CashBookEntry extends Equatable {
   bool get isIncoming => direction == 'in';
 
   @override
-  List<Object?> get props =>
-      [id, date, direction, amount, description, categoryName];
+  List<Object?> get props => [
+    id,
+    date,
+    direction,
+    amount,
+    description,
+    categoryName,
+  ];
 }
 
 /// Opsi kategori/akun lawan untuk form input.
@@ -68,10 +74,7 @@ class CashLedgerAccount extends Equatable {
 /// Ringkasan buku kas dari buku besar: total saldo berjalan + rincian per
 /// akun (Kas, Bank, setiap dana, Japinup).
 class CashLedgerSummary extends Equatable {
-  const CashLedgerSummary({
-    required this.accounts,
-    required this.total,
-  });
+  const CashLedgerSummary({required this.accounts, required this.total});
 
   final List<CashLedgerAccount> accounts;
   final double total;
@@ -129,16 +132,16 @@ class CashSources extends Equatable {
 
   @override
   List<Object?> get props => [
-        entries,
-        posKesra,
-        posSosial,
-        posPendidikan,
-        posCrk,
-        posPembangunan,
-        posSwk,
-        posJapinup,
-        totalSms,
-        totalCairBank,
-        total,
-      ];
+    entries,
+    posKesra,
+    posSosial,
+    posPendidikan,
+    posCrk,
+    posPembangunan,
+    posSwk,
+    posJapinup,
+    totalSms,
+    totalCairBank,
+    total,
+  ];
 }

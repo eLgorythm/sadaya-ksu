@@ -25,15 +25,17 @@ class AssetFormCubit extends Cubit<AssetFormState> {
     required int usefulLifeYears,
   }) async {
     emit(const AssetFormSaving());
-    final result = await _createAsset(CreateAssetParams(
-      id: assetId,
-      name: name,
-      description: description,
-      acquisitionDate: acquisitionDate,
-      cost: cost,
-      salvageValue: salvageValue,
-      usefulLifeYears: usefulLifeYears,
-    ));
+    final result = await _createAsset(
+      CreateAssetParams(
+        id: assetId,
+        name: name,
+        description: description,
+        acquisitionDate: acquisitionDate,
+        cost: cost,
+        salvageValue: salvageValue,
+        usefulLifeYears: usefulLifeYears,
+      ),
+    );
     switch (result) {
       case Ok():
         emit(const AssetFormSuccess());

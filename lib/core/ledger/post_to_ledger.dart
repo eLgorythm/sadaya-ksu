@@ -20,10 +20,10 @@ class LedgerLine extends Equatable {
   bool get isValidSide => (debit > 0) != (credit > 0);
 
   Map<String, dynamic> toMap() => {
-        'account_code': accountCode,
-        'debit_amount': debit,
-        'credit_amount': credit,
-      };
+    'account_code': accountCode,
+    'debit_amount': debit,
+    'credit_amount': credit,
+  };
 
   @override
   List<Object?> get props => [accountCode, debit, credit];
@@ -49,8 +49,14 @@ class PostToLedgerParams extends Equatable {
   final List<LedgerLine> lines;
 
   @override
-  List<Object?> get props =>
-      [entryDate, referenceId, referenceType, description, sourceBook, lines];
+  List<Object?> get props => [
+    entryDate,
+    referenceId,
+    referenceType,
+    description,
+    sourceBook,
+    lines,
+  ];
 }
 
 @lazySingleton
@@ -59,10 +65,7 @@ class LedgerRemoteDataSource {
 
   final SupabaseClient _client;
 
-  Future<void> postEntries(
-    PostToLedgerParams params,
-    String userId,
-  ) async {
+  Future<void> postEntries(PostToLedgerParams params, String userId) async {
     await _client.from('ledger_entries').insert([
       for (final line in params.lines)
         {
@@ -92,17 +95,27 @@ class PostToLedgerUseCase implements UseCase<void, PostToLedgerParams> {
       return const Err(Failure(message: 'Jurnal tidak boleh kosong'));
     }
     if (params.lines.any((line) => !line.isValidSide)) {
-      return const Err(Failure(
-          message: 'Setiap baris jurnal harus memiliki debit ATAU kredit'));
+      return const Err(
+        Failure(
+          message: 'Setiap baris jurnal harus memiliki debit ATAU kredit',
+        ),
+      );
     }
-    final totalDebit =
-        params.lines.fold<double>(0, (sum, line) => sum + line.debit);
-    final totalCredit =
-        params.lines.fold<double>(0, (sum, line) => sum + line.credit);
+    final totalDebit = params.lines.fold<double>(
+      0,
+      (sum, line) => sum + line.debit,
+    );
+    final totalCredit = params.lines.fold<double>(
+      0,
+      (sum, line) => sum + line.credit,
+    );
     if ((totalDebit - totalCredit).abs() > 0.005) {
-      return Err(Failure(
+      return Err(
+        Failure(
           message:
-              'Jurnal tidak seimbang. Debit: $totalDebit, Kredit: $totalCredit'));
+              'Jurnal tidak seimbang. Debit: $totalDebit, Kredit: $totalCredit',
+        ),
+      );
     }
     try {
       await _dataSource.postEntries(params, _client.auth.currentUser?.id ?? '');
@@ -111,7 +124,8 @@ class PostToLedgerUseCase implements UseCase<void, PostToLedgerParams> {
       return Err(Failure(message: 'Gagal mencatat jurnal (${e.message})'));
     } catch (_) {
       return const Err(
-          Failure(message: 'Gagal mencatat jurnal. Periksa koneksi internet'));
+        Failure(message: 'Gagal mencatat jurnal. Periksa koneksi internet'),
+      );
     }
   }
 }

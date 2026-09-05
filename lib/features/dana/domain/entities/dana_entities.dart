@@ -49,14 +49,14 @@ class FundTransaction extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        fundType,
-        isIncoming,
-        date,
-        amount,
-        description,
-        sourceType,
-      ];
+    id,
+    fundType,
+    isIncoming,
+    date,
+    amount,
+    description,
+    sourceType,
+  ];
 }
 
 /// Hasil perhitungan SHU dari buku besar (ledger).
@@ -131,21 +131,21 @@ class ShuDistribution extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        fiscalYear,
-        totalShu,
-        taxAmount,
-        netShu,
-        status,
-        reservePct,
-        socialPct,
-        educationPct,
-        memberSavingsPct,
-        memberServicePct,
-        managementPct,
-        staffPct,
-        developmentPct,
-        distributionDate,
-        notes,
-      ];
+    id,
+    fiscalYear,
+    totalShu,
+    taxAmount,
+    netShu,
+    status,
+    reservePct,
+    socialPct,
+    educationPct,
+    memberSavingsPct,
+    memberServicePct,
+    managementPct,
+    staffPct,
+    developmentPct,
+    distributionDate,
+    notes,
+  ];
 }

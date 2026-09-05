@@ -9,8 +9,7 @@ part 'loan_payment_state.dart';
 
 @injectable
 class LoanPaymentCubit extends Cubit<LoanPaymentState> {
-  LoanPaymentCubit(this._payInstallment)
-      : super(const LoanPaymentInitial());
+  LoanPaymentCubit(this._payInstallment) : super(const LoanPaymentInitial());
 
   final PayInstallment _payInstallment;
 
@@ -20,11 +19,13 @@ class LoanPaymentCubit extends Cubit<LoanPaymentState> {
     double? interestPaid,
   }) async {
     emit(const LoanPaymentInProgress());
-    final result = await _payInstallment(PayInstallmentParams(
-      scheduleId: scheduleId,
-      principalPaid: principalPaid,
-      interestPaid: interestPaid,
-    ));
+    final result = await _payInstallment(
+      PayInstallmentParams(
+        scheduleId: scheduleId,
+        principalPaid: principalPaid,
+        interestPaid: interestPaid,
+      ),
+    );
     switch (result) {
       case Ok():
         emit(const LoanPaymentSuccess());

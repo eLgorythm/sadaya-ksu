@@ -22,8 +22,11 @@ class Validators {
     return (value) {
       final v = value?.trim() ?? '';
       if (v.isEmpty) return '$label wajib diisi';
-      final parsed = double.tryParse(v.replaceAll('.', '').replaceAll(',', '.'));
-      if (parsed == null || parsed <= 0) return '$label harus angka lebih dari 0';
+      final parsed = double.tryParse(
+        v.replaceAll('.', '').replaceAll(',', '.'),
+      );
+      if (parsed == null || parsed <= 0)
+        return '$label harus angka lebih dari 0';
       return null;
     };
   }

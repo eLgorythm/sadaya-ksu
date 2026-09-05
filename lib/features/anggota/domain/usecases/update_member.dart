@@ -27,8 +27,15 @@ class UpdateMemberParams extends Equatable {
   final String? notes;
 
   @override
-  List<Object?> get props =>
-      [id, memberNumber, name, address, phone, joinDate, notes];
+  List<Object?> get props => [
+    id,
+    memberNumber,
+    name,
+    address,
+    phone,
+    joinDate,
+    notes,
+  ];
 }
 
 @lazySingleton

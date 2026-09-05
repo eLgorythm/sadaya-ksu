@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../domain/entities/cash_entities.dart';
@@ -129,50 +130,53 @@ class _KeuanganViewState extends State<_KeuanganView>
               label: const Text('Aksi Bank'),
             )
           : null,
-      body: BlocBuilder<KeuanganCubit, KeuanganState>(
-        builder: (context, state) {
-          switch (state) {
-            case KeuanganLoadInProgress():
-              return const LoadingView();
-            case KeuanganFailure(:final message):
-              return ErrorStateView(
-                message: message,
-                onRetry: () => GetIt.I<KeuanganCubit>().load(),
-              );
-            case KeuanganLoaded():
-              return TabBarView(
-                controller: _tabController,
-                children: [
-                  RefreshIndicator(
-                    onRefresh: () async =>
-                        await GetIt.I<KeuanganCubit>().load(silent: true),
-                    child: _SaldoBerjalanView(
-                      balance: state.summary?.total ?? state.cashBalance,
-                      accounts: state.summary?.accounts ?? const [],
+      body: MaxWidthBox(
+        maxWidth: 1200,
+        child: BlocBuilder<KeuanganCubit, KeuanganState>(
+          builder: (context, state) {
+            switch (state) {
+              case KeuanganLoadInProgress():
+                return const LoadingView();
+              case KeuanganFailure(:final message):
+                return ErrorStateView(
+                  message: message,
+                  onRetry: () => GetIt.I<KeuanganCubit>().load(),
+                );
+              case KeuanganLoaded():
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    RefreshIndicator(
+                      onRefresh: () async =>
+                          await GetIt.I<KeuanganCubit>().load(silent: true),
+                      child: _SaldoBerjalanView(
+                        balance: state.summary?.total ?? state.cashBalance,
+                        accounts: state.summary?.accounts ?? const [],
+                      ),
                     ),
-                  ),
-                  RefreshIndicator(
-                    onRefresh: () async =>
-                        await GetIt.I<KeuanganCubit>().load(silent: true),
-                    child: _KasSourceView(sources: state.cashSources),
-                  ),
-                  RefreshIndicator(
-                    onRefresh: () async =>
-                        await GetIt.I<KeuanganCubit>().load(silent: true),
-                    child: _BookListView(
-                      entries: state.bankEntries,
-                      balance: state.bankBalance,
-                      emptyMessage:
-                          'Belum ada mutasi bank.\nGunakan "Aksi Bank" untuk'
-                          ' mencatat dana masuk atau cairkan ke kas.',
+                    RefreshIndicator(
+                      onRefresh: () async =>
+                          await GetIt.I<KeuanganCubit>().load(silent: true),
+                      child: _KasSourceView(sources: state.cashSources),
                     ),
-                  ),
-                ],
-              );
-            case KeuanganInitial():
-              return const SizedBox.shrink();
-          }
-        },
+                    RefreshIndicator(
+                      onRefresh: () async =>
+                          await GetIt.I<KeuanganCubit>().load(silent: true),
+                      child: _BookListView(
+                        entries: state.bankEntries,
+                        balance: state.bankBalance,
+                        emptyMessage:
+                            'Belum ada mutasi bank.\nGunakan "Aksi Bank" untuk'
+                            ' mencatat dana masuk atau cairkan ke kas.',
+                      ),
+                    ),
+                  ],
+                );
+              case KeuanganInitial():
+                return const SizedBox.shrink();
+            }
+          },
+        ),
       ),
     );
   }

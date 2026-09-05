@@ -34,8 +34,8 @@ class AsetLoaded extends AsetState {
   double get totalCost =>
       assets.fold(0, (sum, a) => sum + (a.isActive ? a.cost : 0));
 
-  double get totalAccumulated => depreciationRows
-      .fold(0, (sum, r) => sum + r.accumulated);
+  double get totalAccumulated =>
+      depreciationRows.fold(0, (sum, r) => sum + r.accumulated);
 
   double get totalBookValue =>
       depreciationRows.fold(0, (sum, r) => sum + r.bookValue);

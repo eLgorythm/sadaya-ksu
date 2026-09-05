@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../data/datasources/laporan_remote_data_source.dart';
 
@@ -62,16 +63,13 @@ class _BalanceSheetPageState extends State<BalanceSheetPage> {
           children: [
             Text(
               'Komposisi Keuangan',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
               'Laporan Neraca Real-time (Automated)',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
-                    fontSize: 11,
-                  ),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: Colors.grey[500], fontSize: 11),
             ),
           ],
         ),
@@ -80,8 +78,7 @@ class _BalanceSheetPageState extends State<BalanceSheetPage> {
             padding: const EdgeInsets.only(right: 8),
             child: Center(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.brand100,
                   borderRadius: BorderRadius.circular(6),
@@ -108,48 +105,50 @@ class _BalanceSheetPageState extends State<BalanceSheetPage> {
           child: Container(height: 1, color: Colors.grey.shade200),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: _loading
-            ? ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(
-                    height: 300,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                ],
-              )
-            : _error != null
-                ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      const SizedBox(height: 120),
-                      Icon(Icons.error_outline,
-                          size: 48, color: Colors.red[300]),
-                      const SizedBox(height: 12),
-                      Center(child: Text(_error!)),
-                      const SizedBox(height: 12),
-                      Center(
-                        child: FilledButton(
-                          onPressed: _loadData,
-                          child: const Text('Coba Lagi'),
-                        ),
-                      ),
-                    ],
-                  )
-                : SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    child: _NeracaView(
-                      accounts: _accounts,
-                      year: _selectedYear,
-                      onYearChanged: (y) {
-                        setState(() => _selectedYear = y);
-                        _loadData();
-                      },
+      body: MaxWidthBox(
+        maxWidth: 1200,
+        child: RefreshIndicator(
+          onRefresh: _loadData,
+          child: _loading
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [
+                    SizedBox(
+                      height: 300,
+                      child: Center(child: CircularProgressIndicator()),
                     ),
+                  ],
+                )
+              : _error != null
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    const SizedBox(height: 120),
+                    Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                    const SizedBox(height: 12),
+                    Center(child: Text(_error!)),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: FilledButton(
+                        onPressed: _loadData,
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ),
+                  ],
+                )
+              : SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  child: _NeracaView(
+                    accounts: _accounts,
+                    year: _selectedYear,
+                    onYearChanged: (y) {
+                      setState(() => _selectedYear = y);
+                      _loadData();
+                    },
                   ),
+                ),
+        ),
       ),
     );
   }
@@ -184,8 +183,10 @@ class _NeracaView extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text('Periode ',
-                style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+            Text(
+              'Periode ',
+              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+            ),
             const Spacer(),
             _YearStepper(year: year, onChanged: onYearChanged),
           ],
@@ -224,8 +225,10 @@ class _NeracaView extends StatelessWidget {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
@@ -279,12 +282,11 @@ class _NeracaView extends StatelessWidget {
         _GroupCard(
           title: 'LABA / (RUGI) BERJALAN',
           icon: Icons.assessment_outlined,
-          color: labaRugi >= 0 ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+          color: labaRugi >= 0
+              ? const Color(0xFF16A34A)
+              : const Color(0xFFDC2626),
           totalText: AppFormatters.rupiah(labaRugi),
-          rows: [
-            ...groups['revenue']!.rows,
-            ...groups['expense']!.rows,
-          ],
+          rows: [...groups['revenue']!.rows, ...groups['expense']!.rows],
         ),
         const SizedBox(height: 14),
 
@@ -315,7 +317,8 @@ class _NeracaView extends StatelessWidget {
     double creditBalanceOf(Map<String, dynamic> a) {
       final debit = (a['debit_total'] as num?)?.toDouble() ?? 0;
       final credit = (a['credit_total'] as num?)?.toDouble() ?? 0;
-      return credit - debit; // saldo kredit (untuk kewajiban, ekuitas, pendapatan)
+      return credit -
+          debit; // saldo kredit (untuk kewajiban, ekuitas, pendapatan)
     }
 
     List<_RowData> assetRows = [];
@@ -329,8 +332,9 @@ class _NeracaView extends StatelessWidget {
     List<_RowData> expenseRows = [];
     double expenseTotal = 0;
 
-    for (final a in [...accounts]
-      ..sort((x, y) => (x['code'] as String).compareTo(y['code'] as String))) {
+    for (final a in [
+      ...accounts,
+    ]..sort((x, y) => (x['code'] as String).compareTo(y['code'] as String))) {
       final type = a['account_type'] as String;
       final code = a['code'] as String;
       final name = a['name'] as String;
@@ -339,27 +343,37 @@ class _NeracaView extends StatelessWidget {
         case 'asset':
           final b = balanceOf(a);
           if (b == 0) break;
-          assetRows.add(_RowData(label: _mapAccountLabel(code, name), value: b));
+          assetRows.add(
+            _RowData(label: _mapAccountLabel(code, name), value: b),
+          );
           assetTotal += b;
         case 'liability':
           final b = creditBalanceOf(a);
           if (b == 0) break;
-          liabilityRows.add(_RowData(label: _mapAccountLabel(code, name), value: b));
+          liabilityRows.add(
+            _RowData(label: _mapAccountLabel(code, name), value: b),
+          );
           liabilityTotal += b;
         case 'equity':
           final b = creditBalanceOf(a);
           if (b == 0) break;
-          equityRows.add(_RowData(label: _mapAccountLabel(code, name), value: b));
+          equityRows.add(
+            _RowData(label: _mapAccountLabel(code, name), value: b),
+          );
           equityTotal += b;
         case 'revenue':
           final b = creditBalanceOf(a);
           if (b == 0) break;
-          revenueRows.add(_RowData(label: _mapAccountLabel(code, name), value: b));
+          revenueRows.add(
+            _RowData(label: _mapAccountLabel(code, name), value: b),
+          );
           revenueTotal += b;
         case 'expense':
           final b = balanceOf(a);
           if (b == 0) break;
-          expenseRows.add(_RowData(label: _mapAccountLabel(code, name), value: b));
+          expenseRows.add(
+            _RowData(label: _mapAccountLabel(code, name), value: b),
+          );
           expenseTotal += b;
       }
     }
@@ -384,7 +398,14 @@ class _NeracaView extends StatelessWidget {
         return 'Buku Pinjaman (Piutang)';
       case '1130':
         return 'Persediaan Unit Keripik';
-      case '1120' || '1121' || '1122' || '1123' || '1124' || '1125' || '1126' || '1131':
+      case '1120' ||
+          '1121' ||
+          '1122' ||
+          '1123' ||
+          '1124' ||
+          '1125' ||
+          '1126' ||
+          '1131':
         return 'Buku Inventaris Aset ($name)';
       case '2111':
         return 'Simpanan Mana Suka';
@@ -496,8 +517,7 @@ class _GroupCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Text(
                 'Belum ada transaksi',
-                style:
-                    TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
               ),
             )
           else
@@ -509,10 +529,7 @@ class _GroupCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         r.label,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                       ),
                     ),
                     Text(
@@ -595,10 +612,7 @@ class _YearStepper extends StatelessWidget {
           onPressed: () => onChanged(year - 1),
           icon: const Icon(Icons.chevron_left, size: 20),
         ),
-        Text(
-          '$year',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        Text('$year', style: const TextStyle(fontWeight: FontWeight.bold)),
         IconButton(
           visualDensity: VisualDensity.compact,
           onPressed: () => onChanged(year + 1),

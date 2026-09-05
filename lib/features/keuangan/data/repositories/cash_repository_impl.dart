@@ -19,10 +19,15 @@ class CashRepositoryImpl implements CashRepository {
     try {
       final rows = await _dataSource.fetchEntries(book);
       final isBank = book == 'bank';
-      return Ok(rows
-          .map((row) =>
-              CashBookEntryModel.fromMap(row, isBank: isBank) as CashBookEntry)
-          .toList());
+      return Ok(
+        rows
+            .map(
+              (row) =>
+                  CashBookEntryModel.fromMap(row, isBank: isBank)
+                      as CashBookEntry,
+            )
+            .toList(),
+      );
     } on PostgrestException catch (e) {
       return Err(Failure(message: 'Gagal memuat buku (${e.message})'));
     } catch (_) {
@@ -58,10 +63,14 @@ class CashRepositoryImpl implements CashRepository {
   Future<Result<List<CashCategoryOption>>> getCategories() async {
     try {
       final rows = await _dataSource.fetchCategories();
-      return Ok(rows
-          .map((row) =>
-              CashCategoryOptionModel.fromMap(row) as CashCategoryOption)
-          .toList());
+      return Ok(
+        rows
+            .map(
+              (row) =>
+                  CashCategoryOptionModel.fromMap(row) as CashCategoryOption,
+            )
+            .toList(),
+      );
     } on PostgrestException catch (e) {
       return Err(Failure(message: 'Gagal memuat kategori (${e.message})'));
     } catch (_) {

@@ -69,11 +69,13 @@ class DanaCubit extends Cubit<DanaState> {
     }
 
     if (!isClosed) {
-      emit(DanaLoaded(
-        fundEntries: funds,
-        ledgerBalances: ledgerBalances,
-        shuList: shus,
-      ));
+      emit(
+        DanaLoaded(
+          fundEntries: funds,
+          ledgerBalances: ledgerBalances,
+          shuList: shus,
+        ),
+      );
     }
   }
 

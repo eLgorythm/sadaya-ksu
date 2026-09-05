@@ -41,20 +41,24 @@ class UsahaLoaded extends UsahaState {
   double get monthProductionKg {
     final now = DateTime.now();
     return productions
-        .where((p) =>
-            p.date.year == now.year &&
-            p.date.month == now.month &&
-            p.unit == 'kg')
+        .where(
+          (p) =>
+              p.date.year == now.year &&
+              p.date.month == now.month &&
+              p.unit == 'kg',
+        )
         .fold(0, (sum, p) => sum + p.quantityProduced);
   }
 
   double get monthProductionGram {
     final now = DateTime.now();
     return productions
-        .where((p) =>
-            p.date.year == now.year &&
-            p.date.month == now.month &&
-            p.unit == 'gram')
+        .where(
+          (p) =>
+              p.date.year == now.year &&
+              p.date.month == now.month &&
+              p.unit == 'gram',
+        )
         .fold(0, (sum, p) => sum + p.quantityProduced);
   }
 
@@ -66,8 +70,12 @@ class UsahaLoaded extends UsahaState {
   }
 
   @override
-  List<Object?> get props =>
-      [materials, materialTransactions, productions, sales];
+  List<Object?> get props => [
+    materials,
+    materialTransactions,
+    productions,
+    sales,
+  ];
 }
 
 class UsahaFailure extends UsahaState {

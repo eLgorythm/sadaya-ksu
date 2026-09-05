@@ -17,16 +17,18 @@ class PajakRepositoryImpl implements PajakRepository {
     try {
       final rows = await _remoteDataSource.fetchTaxes();
       final items = rows
-          .map((r) => TaxItem(
-                id: r['id'] as String,
-                taxType: r['tax_type'] as String,
-                description: r['description'] as String?,
-                amount: (r['amount'] as num).toDouble(),
-                taxDate: DateTime.parse(r['tax_date'] as String),
-                status: r['status'] as String,
-                referenceNumber: r['reference_number'] as String?,
-                notes: r['notes'] as String?,
-              ))
+          .map(
+            (r) => TaxItem(
+              id: r['id'] as String,
+              taxType: r['tax_type'] as String,
+              description: r['description'] as String?,
+              amount: (r['amount'] as num).toDouble(),
+              taxDate: DateTime.parse(r['tax_date'] as String),
+              status: r['status'] as String,
+              referenceNumber: r['reference_number'] as String?,
+              notes: r['notes'] as String?,
+            ),
+          )
           .toList();
       return Ok(items);
     } catch (e) {

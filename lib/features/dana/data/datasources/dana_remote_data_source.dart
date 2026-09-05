@@ -35,8 +35,10 @@ class DanaRemoteDataSource {
   }
 
   Future<Map<String, dynamic>> fetchShuCalculation(int fiscalYear) async {
-    final result = await _client
-        .rpc('calculate_shu_for_year', params: {'p_year': fiscalYear});
+    final result = await _client.rpc(
+      'calculate_shu_for_year',
+      params: {'p_year': fiscalYear},
+    );
     if (result == null || (result as List).isEmpty) {
       return {'total_revenue': 0, 'total_expense': 0, 'net_shu': 0};
     }
@@ -114,21 +116,24 @@ class DanaRemoteDataSource {
     double? developmentPct,
     String? notes,
   }) async {
-    await _client.from('shu_distributions').update({
-      'fiscal_year': fiscalYear,
-      'total_shu': totalShu,
-      'tax_amount': taxAmount,
-      'net_shu': netShu,
-      'reserve_fund_pct': reservePct ?? 0,
-      'social_fund_pct': socialPct ?? 0,
-      'education_fund_pct': educationPct ?? 0,
-'member_savings_pct': memberSavingsPct ?? 0.30,
-'member_service_pct': memberServicePct ?? 0.25,
-        'management_pct': managementPct ?? 0,
-      'staff_pct': staffPct ?? 0,
-      'development_pct': developmentPct ?? 0,
-      'notes': (notes != null && notes.isNotEmpty) ? notes : null,
-    }).eq('id', id);
+    await _client
+        .from('shu_distributions')
+        .update({
+          'fiscal_year': fiscalYear,
+          'total_shu': totalShu,
+          'tax_amount': taxAmount,
+          'net_shu': netShu,
+          'reserve_fund_pct': reservePct ?? 0,
+          'social_fund_pct': socialPct ?? 0,
+          'education_fund_pct': educationPct ?? 0,
+          'member_savings_pct': memberSavingsPct ?? 0.30,
+          'member_service_pct': memberServicePct ?? 0.25,
+          'management_pct': managementPct ?? 0,
+          'staff_pct': staffPct ?? 0,
+          'development_pct': developmentPct ?? 0,
+          'notes': (notes != null && notes.isNotEmpty) ? notes : null,
+        })
+        .eq('id', id);
   }
 
   Future<void> rpcDistributeShu(String distributionId) async {
@@ -152,16 +157,14 @@ class DanaRemoteDataSource {
     required String distributionId,
     required String status,
   }) async {
-    await _client.from('shu_distributions').update({
-      'status': status,
-    }).eq('id', distributionId);
+    await _client
+        .from('shu_distributions')
+        .update({'status': status})
+        .eq('id', distributionId);
   }
 
   /// Menghapus SHU yang belum terdistribusi.
   Future<void> deleteShu(String distributionId) async {
-    await _client
-        .from('shu_distributions')
-        .delete()
-        .eq('id', distributionId);
+    await _client.from('shu_distributions').delete().eq('id', distributionId);
   }
 }

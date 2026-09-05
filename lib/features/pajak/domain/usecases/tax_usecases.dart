@@ -35,9 +35,14 @@ class InsertTaxParams extends Equatable {
 
   @override
   List<Object?> get props => [
-        taxType, description, amount, date, status,
-        referenceNumber, notes,
-      ];
+    taxType,
+    description,
+    amount,
+    date,
+    status,
+    referenceNumber,
+    notes,
+  ];
 }
 
 @injectable
@@ -46,16 +51,15 @@ class InsertTax {
 
   final PajakRepository _repository;
 
-  Future<Result<void>> call(InsertTaxParams params) =>
-      _repository.insertTax(
-        taxType: params.taxType,
-        description: params.description,
-        amount: params.amount,
-        date: params.date,
-        status: params.status,
-        referenceNumber: params.referenceNumber,
-        notes: params.notes,
-      );
+  Future<Result<void>> call(InsertTaxParams params) => _repository.insertTax(
+    taxType: params.taxType,
+    description: params.description,
+    amount: params.amount,
+    date: params.date,
+    status: params.status,
+    referenceNumber: params.referenceNumber,
+    notes: params.notes,
+  );
 }
 
 @injectable
@@ -83,6 +87,5 @@ class DeleteTax {
 
   final PajakRepository _repository;
 
-  Future<Result<void>> call(String id) =>
-      _repository.deleteTax(id);
+  Future<Result<void>> call(String id) => _repository.deleteTax(id);
 }

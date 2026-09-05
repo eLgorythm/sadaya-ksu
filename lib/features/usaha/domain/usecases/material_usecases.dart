@@ -18,10 +18,7 @@ class GetMaterials implements UseCase<List<RawMaterial>, NoParams> {
 }
 
 class CreateMaterialParams {
-  const CreateMaterialParams({
-    required this.name,
-    required this.unit,
-  });
+  const CreateMaterialParams({required this.name, required this.unit});
 
   final String name;
   final String unit;
@@ -78,12 +75,15 @@ class RecordMaterialTransaction {
     if (params.quantity <= 0) {
       return const Err(Failure(message: 'Jumlah harus lebih dari 0'));
     }
-    if (params.isPurchase && params.unitPrice != null && params.unitPrice! < 0) {
+    if (params.isPurchase &&
+        params.unitPrice != null &&
+        params.unitPrice! < 0) {
       return const Err(Failure(message: 'Harga satuan tidak boleh negatif'));
     }
     if (params.date.isAfter(DateTime.now())) {
       return const Err(
-          Failure(message: 'Tanggal transaksi tidak boleh di masa depan'));
+        Failure(message: 'Tanggal transaksi tidak boleh di masa depan'),
+      );
     }
     return _repository.recordMaterialTransaction(
       materialId: params.materialId,

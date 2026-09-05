@@ -10,19 +10,18 @@ class CashRemoteDataSource {
   Future<List<Map<String, dynamic>>> fetchEntries(String book) async {
     final rows = book == 'cash'
         ? await _client
-            .from('cash_transactions')
-
-            /// Embed nama kategori via FK category_id.
-            .select('*, transaction_categories(code, name)')
-            .eq('is_void', false)
-            .order('transaction_date', ascending: false)
-            .order('created_at', ascending: false)
+              .from('cash_transactions')
+              /// Embed nama kategori via FK category_id.
+              .select('*, transaction_categories(code, name)')
+              .eq('is_void', false)
+              .order('transaction_date', ascending: false)
+              .order('created_at', ascending: false)
         : await _client
-            .from('bank_transactions')
-            .select()
-            .eq('is_void', false)
-            .order('transaction_date', ascending: false)
-            .order('created_at', ascending: false);
+              .from('bank_transactions')
+              .select()
+              .eq('is_void', false)
+              .order('transaction_date', ascending: false)
+              .order('created_at', ascending: false);
     return rows.cast<Map<String, dynamic>>();
   }
 
@@ -61,11 +60,14 @@ class CashRemoteDataSource {
     required DateTime date,
     required String description,
   }) async {
-    await _client.rpc('bank_dana_masuk', params: {
-      'p_amount': amount,
-      'p_description': description,
-      'p_date': date.toIso8601String().substring(0, 10),
-    });
+    await _client.rpc(
+      'bank_dana_masuk',
+      params: {
+        'p_amount': amount,
+        'p_description': description,
+        'p_date': date.toIso8601String().substring(0, 10),
+      },
+    );
   }
 
   /// Tarik tunai dari rekening ke kas. Debit Kas 1111 / Kredit Bank 1112.
@@ -74,11 +76,14 @@ class CashRemoteDataSource {
     required DateTime date,
     required String description,
   }) async {
-    await _client.rpc('bank_cair_ke_kas', params: {
-      'p_amount': amount,
-      'p_description': description,
-      'p_date': date.toIso8601String().substring(0, 10),
-    });
+    await _client.rpc(
+      'bank_cair_ke_kas',
+      params: {
+        'p_amount': amount,
+        'p_description': description,
+        'p_date': date.toIso8601String().substring(0, 10),
+      },
+    );
   }
 
   /// Membuat kategori baru + kode COA otomatis di server.
@@ -87,10 +92,10 @@ class CashRemoteDataSource {
     required String name,
     required bool isIncome,
   }) async {
-    final code = await _client.rpc('create_transaction_category', params: {
-      'p_name': name,
-      'p_type': isIncome ? 'income' : 'expense',
-    });
+    final code = await _client.rpc(
+      'create_transaction_category',
+      params: {'p_name': name, 'p_type': isIncome ? 'income' : 'expense'},
+    );
     return code as String;
   }
 }

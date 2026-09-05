@@ -18,7 +18,9 @@ class CreateLoan implements UseCase<LoanEntity, CreateLoanParams> {
       return const Err(Failure(message: 'Jumlah pinjaman harus lebih dari 0'));
     }
     if (params.tenor < 1 || params.tenor > 50) {
-      return const Err(Failure(message: 'Tenor harus antara 1 sampai 50 bulan'));
+      return const Err(
+        Failure(message: 'Tenor harus antara 1 sampai 50 bulan'),
+      );
     }
     if (params.memberId.isEmpty) {
       return const Err(Failure(message: 'Anggota belum dipilih'));

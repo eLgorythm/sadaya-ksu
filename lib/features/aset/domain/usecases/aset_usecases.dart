@@ -12,8 +12,7 @@ class GetAssets implements UseCase<List<AssetItem>, NoParams> {
   final AsetRepository _repository;
 
   @override
-  Future<Result<List<AssetItem>>> call(NoParams _) =>
-      _repository.getAssets();
+  Future<Result<List<AssetItem>>> call(NoParams _) => _repository.getAssets();
 }
 
 @lazySingleton

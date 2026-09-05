@@ -10,8 +10,7 @@ part 'saving_form_state.dart';
 
 @injectable
 class SavingFormCubit extends Cubit<SavingFormState> {
-  SavingFormCubit(this._createTransaction)
-      : super(const SavingFormInitial());
+  SavingFormCubit(this._createTransaction) : super(const SavingFormInitial());
 
   final CreateSavingTransaction _createTransaction;
 
@@ -23,13 +22,15 @@ class SavingFormCubit extends Cubit<SavingFormState> {
     String? description,
   }) async {
     emit(const SavingFormSaving());
-    final result = await _createTransaction(CreateSavingTransactionParams(
-      memberId: memberId,
-      type: type,
-      transactionType: transactionType,
-      amount: amount,
-      description: description,
-    ));
+    final result = await _createTransaction(
+      CreateSavingTransactionParams(
+        memberId: memberId,
+        type: type,
+        transactionType: transactionType,
+        amount: amount,
+        description: description,
+      ),
+    );
     switch (result) {
       case Ok(:final value):
         emit(SavingFormSuccess(transaction: value));

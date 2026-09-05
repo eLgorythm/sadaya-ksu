@@ -61,8 +61,7 @@ class _FundTransactionSheetState extends State<FundTransactionSheet> {
     _cubit.save(
       fundType: _fundType,
       isIncoming: _isIncoming,
-      amount:
-          double.tryParse(_amountController.text.replaceAll('.', '')) ?? 0,
+      amount: double.tryParse(_amountController.text.replaceAll('.', '')) ?? 0,
       date: _date,
       description: _noteController.text,
     );
@@ -104,8 +103,7 @@ class _FundTransactionSheetState extends State<FundTransactionSheet> {
                           selected: _fundType == entry.key,
                           onSelected: saving
                               ? null
-                              : (_) => setState(
-                                  () => _fundType = entry.key),
+                              : (_) => setState(() => _fundType = entry.key),
                         ),
                     ],
                   ),
@@ -172,7 +170,8 @@ class _FundTransactionSheetState extends State<FundTransactionSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.save_outlined),
                     label: Text(saving ? 'Menyimpan...' : 'Simpan'),
                   ),

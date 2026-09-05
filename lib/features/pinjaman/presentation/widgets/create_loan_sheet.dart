@@ -50,8 +50,7 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
   double get _monthlyPrincipal => _principal > 0 ? _principal / _tenor : 0;
 
   /// Pinjaman angsur: bunga total = 2% x pokok, dibayar merata per bulan.
-  double get _monthlyInterest =>
-      _tenor > 0 ? _principal * _rate / _tenor : 0;
+  double get _monthlyInterest => _tenor > 0 ? _principal * _rate / _tenor : 0;
 
   /// Pinjaman cepat: bunga = 3% x pokok (flat), dibayar sekali di akhir.
   double get _fastTotalInterest => _principal * _rate;

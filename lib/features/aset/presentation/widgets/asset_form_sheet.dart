@@ -32,20 +32,23 @@ class AssetFormSheet extends StatefulWidget {
 class _AssetFormSheetState extends State<AssetFormSheet> {
   late final AssetFormCubit _cubit = GetIt.I<AssetFormCubit>();
   final _formKey = GlobalKey<FormState>();
-  late final _nameController =
-      TextEditingController(text: widget.asset?.name);
-  late final _descController =
-      TextEditingController(text: widget.asset?.description);
+  late final _nameController = TextEditingController(text: widget.asset?.name);
+  late final _descController = TextEditingController(
+    text: widget.asset?.description,
+  );
   late final _costController = TextEditingController(
-      text: widget.asset == null
-          ? ''
-          : AppFormatters.number(widget.asset!.cost.round()));
+    text: widget.asset == null
+        ? ''
+        : AppFormatters.number(widget.asset!.cost.round()),
+  );
   late final _salvageController = TextEditingController(
-      text: widget.asset == null || widget.asset!.salvageValue == 0
-          ? ''
-          : AppFormatters.number(widget.asset!.salvageValue.round()));
+    text: widget.asset == null || widget.asset!.salvageValue == 0
+        ? ''
+        : AppFormatters.number(widget.asset!.salvageValue.round()),
+  );
   late final _lifeController = TextEditingController(
-      text: widget.asset == null ? '' : '${widget.asset!.usefulLifeYears}');
+    text: widget.asset == null ? '' : '${widget.asset!.usefulLifeYears}',
+  );
 
   DateTime _date = DateTime.now();
 
@@ -118,8 +121,9 @@ class _AssetFormSheetState extends State<AssetFormSheet> {
           final cost = _parseAmount(_costController.text);
           final salvage = _parseAmount(_salvageController.text);
           final life = int.tryParse(_lifeController.text) ?? 0;
-          final annual =
-              life > 0 ? ((cost - salvage).clamp(0, double.infinity)) / life : 0.0;
+          final annual = life > 0
+              ? ((cost - salvage).clamp(0, double.infinity)) / life
+              : 0.0;
 
           return Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -129,9 +133,8 @@ class _AssetFormSheetState extends State<AssetFormSheet> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SheetHeader(
-                      title: widget.asset == null
-                          ? 'Tambah Aset'
-                          : 'Ubah Aset'),
+                    title: widget.asset == null ? 'Tambah Aset' : 'Ubah Aset',
+                  ),
                   TextFormField(
                     controller: _nameController,
                     autofocus: true,
@@ -165,8 +168,9 @@ class _AssetFormSheetState extends State<AssetFormSheet> {
                       labelText: 'Nilai Perolehan (Rp) *',
                       prefixIcon: Icon(Icons.payments_outlined),
                     ),
-                    validator:
-                        Validators.positiveAmount(label: 'Nilai perolehan'),
+                    validator: Validators.positiveAmount(
+                      label: 'Nilai perolehan',
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -212,9 +216,12 @@ class _AssetFormSheetState extends State<AssetFormSheet> {
                             const Icon(Icons.trending_down, size: 18),
                             const SizedBox(width: 8),
                             Expanded(child: Text('Penyusutan ± / tahun')),
-                            Text(AppFormatters.rupiah(annual),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
+                            Text(
+                              AppFormatters.rupiah(annual),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -237,13 +244,16 @@ class _AssetFormSheetState extends State<AssetFormSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.save_outlined),
-                    label: Text(saving
-                        ? 'Menyimpan...'
-                        : widget.asset == null
-                            ? 'Simpan'
-                            : 'Simpan Perubahan'),
+                    label: Text(
+                      saving
+                          ? 'Menyimpan...'
+                          : widget.asset == null
+                          ? 'Simpan'
+                          : 'Simpan Perubahan',
+                    ),
                   ),
                 ],
               ),

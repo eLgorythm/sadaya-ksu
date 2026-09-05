@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../cubit/members_cubit.dart';
@@ -52,113 +53,118 @@ class _PickerViewState extends State<_PickerView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Cari nama anggota...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: ValueListenableBuilder<TextEditingValue>(
-                  valueListenable: _searchController,
-                  builder: (context, value, _) {
-                    if (value.text.isEmpty) return const SizedBox.shrink();
-                    return IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        FocusScope.of(context).unfocus();
-                        _searchController.clear();
-                        GetIt.I<MembersCubit>().searchChanged('');
-                      },
-                    );
-                  },
-                ),
-              ),
-              onChanged: (value) {
-                _lastSearch = value;
-                GetIt.I<MembersCubit>().searchChanged(value);
-              },
-            ),
-          ),
-          SizedBox(
-            height: 56,
-            child: BlocBuilder<MembersCubit, MembersState>(
-              builder: (context, state) {
-                return ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  children: [
-                    _PickerFilterChip(
-                      label: 'Semua',
-                      selected: state.statusFilter == null,
-                      onTap: () =>
-                          GetIt.I<MembersCubit>().filterChanged(null),
-                    ),
-                    const SizedBox(width: 8),
-                    _PickerFilterChip(
-                      label: 'Aktif',
-                      selected: state.statusFilter == 'active',
-                      onTap: () =>
-                          GetIt.I<MembersCubit>().filterChanged('active'),
-                    ),
-                    const SizedBox(width: 8),
-                    _PickerFilterChip(
-                      label: 'Nonaktif',
-                      selected: state.statusFilter == 'inactive',
-                      onTap: () =>
-                          GetIt.I<MembersCubit>().filterChanged('inactive'),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          Expanded(
-            child: BlocBuilder<MembersCubit, MembersState>(
-              builder: (context, state) {
-                switch (state) {
-                  case MembersLoadInProgress():
-                    return const LoadingView();
-                  case MembersFailure(:final message):
-                    return ErrorStateView(
-                      message: message,
-                      onRetry: () => GetIt.I<MembersCubit>().load(),
-                    );
-                  case MembersLoadSuccess(:final members):
-                    if (members.isEmpty) {
-                      return const EmptyStateView(
-                        icon: Icons.group_outlined,
-                        message: 'Tidak ada anggota yang cocok.',
-                      );
-                    }
-                    return RefreshIndicator(
-                      onRefresh: () async =>
-                          await GetIt.I<MembersCubit>().load(),
-                      child: ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                        itemCount: members.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final member = members[index];
-                          return _PickerMemberCard(
-                            memberNumber: member.memberNumber,
-                            name: member.name,
-                            phone: member.phone,
-                            joinDate: member.joinDate,
-                            isActive: member.isActive,
-                            onTap: () => Navigator.of(context).pop(member),
-                          );
+      body: MaxWidthBox(
+        maxWidth: 720,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Cari nama anggota...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _searchController,
+                    builder: (context, value, _) {
+                      if (value.text.isEmpty) return const SizedBox.shrink();
+                      return IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          _searchController.clear();
+                          GetIt.I<MembersCubit>().searchChanged('');
                         },
-                      ),
-                    );
-                }
-              },
+                      );
+                    },
+                  ),
+                ),
+                onChanged: (value) {
+                  _lastSearch = value;
+                  GetIt.I<MembersCubit>().searchChanged(value);
+                },
+              ),
             ),
-          ),
-        ],
+            SizedBox(
+              height: 56,
+              child: BlocBuilder<MembersCubit, MembersState>(
+                builder: (context, state) {
+                  return ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    children: [
+                      _PickerFilterChip(
+                        label: 'Semua',
+                        selected: state.statusFilter == null,
+                        onTap: () =>
+                            GetIt.I<MembersCubit>().filterChanged(null),
+                      ),
+                      const SizedBox(width: 8),
+                      _PickerFilterChip(
+                        label: 'Aktif',
+                        selected: state.statusFilter == 'active',
+                        onTap: () =>
+                            GetIt.I<MembersCubit>().filterChanged('active'),
+                      ),
+                      const SizedBox(width: 8),
+                      _PickerFilterChip(
+                        label: 'Nonaktif',
+                        selected: state.statusFilter == 'inactive',
+                        onTap: () =>
+                            GetIt.I<MembersCubit>().filterChanged('inactive'),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            Expanded(
+              child: BlocBuilder<MembersCubit, MembersState>(
+                builder: (context, state) {
+                  switch (state) {
+                    case MembersLoadInProgress():
+                      return const LoadingView();
+                    case MembersFailure(:final message):
+                      return ErrorStateView(
+                        message: message,
+                        onRetry: () => GetIt.I<MembersCubit>().load(),
+                      );
+                    case MembersLoadSuccess(:final members):
+                      if (members.isEmpty) {
+                        return const EmptyStateView(
+                          icon: Icons.group_outlined,
+                          message: 'Tidak ada anggota yang cocok.',
+                        );
+                      }
+                      return RefreshIndicator(
+                        onRefresh: () async =>
+                            await GetIt.I<MembersCubit>().load(),
+                        child: ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                          itemCount: members.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 8),
+                          itemBuilder: (context, index) {
+                            final member = members[index];
+                            return _PickerMemberCard(
+                              memberNumber: member.memberNumber,
+                              name: member.name,
+                              phone: member.phone,
+                              joinDate: member.joinDate,
+                              isActive: member.isActive,
+                              onTap: () => Navigator.of(context).pop(member),
+                            );
+                          },
+                        ),
+                      );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -186,8 +192,7 @@ class _PickerMemberCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         leading: CircleAvatar(
           backgroundColor: isActive
               ? AppColors.primaryGreen.withValues(alpha: 0.15)
@@ -211,8 +216,10 @@ class _PickerMemberCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (phone?.isNotEmpty ?? false) Text(phone!, maxLines: 1),
-            Text('Masuk: ${AppFormatters.date(joinDate)}',
-                style: const TextStyle(fontSize: 12)),
+            Text(
+              'Masuk: ${AppFormatters.date(joinDate)}',
+              style: const TextStyle(fontSize: 12),
+            ),
           ],
         ),
         isThreeLine: true,

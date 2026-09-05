@@ -23,13 +23,15 @@ class FundFormCubit extends Cubit<FundFormState> {
     required String description,
   }) async {
     emit(const FundFormSaving());
-    final result = await _createEntry(CreateFundEntryParams(
-      fundType: fundType,
-      isIncoming: isIncoming,
-      amount: amount,
-      date: date,
-      description: description,
-    ));
+    final result = await _createEntry(
+      CreateFundEntryParams(
+        fundType: fundType,
+        isIncoming: isIncoming,
+        amount: amount,
+        date: date,
+        description: description,
+      ),
+    );
     switch (result) {
       case Ok():
         emit(const FundFormSuccess());

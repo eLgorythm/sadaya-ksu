@@ -15,11 +15,7 @@ class MembersLoadInProgress extends MembersState {
 }
 
 class MembersLoadSuccess extends MembersState {
-  const MembersLoadSuccess(
-    this.members, {
-    super.search,
-    super.statusFilter,
-  });
+  const MembersLoadSuccess(this.members, {super.search, super.statusFilter});
 
   final List<MemberEntity> members;
 

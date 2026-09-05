@@ -82,12 +82,14 @@ class UsahaCubit extends Cubit<UsahaState> {
     }
 
     if (!isClosed) {
-      emit(UsahaLoaded(
-        materials: materials,
-        materialTransactions: txs,
-        productions: productions,
-        sales: sales,
-      ));
+      emit(
+        UsahaLoaded(
+          materials: materials,
+          materialTransactions: txs,
+          productions: productions,
+          sales: sales,
+        ),
+      );
     }
   }
 
@@ -98,12 +100,13 @@ class UsahaCubit extends Cubit<UsahaState> {
     if (current is! UsahaLoaded) return;
     if (!current.sales.any((s) => s.id == saleId)) return;
     if (isClosed) return;
-    emit(UsahaLoaded(
-      materials: current.materials,
-      materialTransactions: current.materialTransactions,
-      productions: current.productions,
-      sales:
-          current.sales.where((s) => s.id != saleId).toList(),
-    ));
+    emit(
+      UsahaLoaded(
+        materials: current.materials,
+        materialTransactions: current.materialTransactions,
+        productions: current.productions,
+        sales: current.sales.where((s) => s.id != saleId).toList(),
+      ),
+    );
   }
 }

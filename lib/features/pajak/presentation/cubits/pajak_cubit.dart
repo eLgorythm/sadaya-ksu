@@ -18,13 +18,11 @@ class PajakState {
   final String? error;
   final String? successMessage;
 
-  double get totalPaid => taxes
-      .where((t) => t.isPaid)
-      .fold(0.0, (sum, t) => sum + t.amount);
+  double get totalPaid =>
+      taxes.where((t) => t.isPaid).fold(0.0, (sum, t) => sum + t.amount);
 
-  double get totalUnpaid => taxes
-      .where((t) => !t.isPaid)
-      .fold(0.0, (sum, t) => sum + t.amount);
+  double get totalUnpaid =>
+      taxes.where((t) => !t.isPaid).fold(0.0, (sum, t) => sum + t.amount);
 
   PajakState copyWith({
     List<TaxItem>? taxes,
@@ -43,12 +41,8 @@ class PajakState {
 
 @lazySingleton
 class PajakCubit extends Cubit<PajakState> {
-  PajakCubit(
-    this._getTaxes,
-    this._insertTax,
-    this._updateTax,
-    this._deleteTax,
-  ) : super(const PajakState());
+  PajakCubit(this._getTaxes, this._insertTax, this._updateTax, this._deleteTax)
+    : super(const PajakState());
 
   final GetTaxes _getTaxes;
   final InsertTax _insertTax;
@@ -72,8 +66,12 @@ class PajakCubit extends Cubit<PajakState> {
     switch (result) {
       case Ok():
         await load(silent: true);
-        emit(state.copyWith(
-            loading: false, successMessage: 'Pajak berhasil ditambahkan'));
+        emit(
+          state.copyWith(
+            loading: false,
+            successMessage: 'Pajak berhasil ditambahkan',
+          ),
+        );
       case Err(:final failure):
         emit(state.copyWith(loading: false, error: failure.message));
     }
@@ -85,8 +83,12 @@ class PajakCubit extends Cubit<PajakState> {
     switch (result) {
       case Ok():
         await load(silent: true);
-        emit(state.copyWith(
-            loading: false, successMessage: 'Pajak berhasil diupdate'));
+        emit(
+          state.copyWith(
+            loading: false,
+            successMessage: 'Pajak berhasil diupdate',
+          ),
+        );
       case Err(:final failure):
         emit(state.copyWith(loading: false, error: failure.message));
     }
@@ -98,8 +100,12 @@ class PajakCubit extends Cubit<PajakState> {
     switch (result) {
       case Ok():
         await load(silent: true);
-        emit(state.copyWith(
-            loading: false, successMessage: 'Pajak berhasil dihapus'));
+        emit(
+          state.copyWith(
+            loading: false,
+            successMessage: 'Pajak berhasil dihapus',
+          ),
+        );
       case Err(:final failure):
         emit(state.copyWith(loading: false, error: failure.message));
     }

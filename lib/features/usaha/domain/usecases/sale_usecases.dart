@@ -13,8 +13,7 @@ class GetSales implements UseCase<List<SaleRecord>, NoParams> {
   final UsahaRepository _repository;
 
   @override
-  Future<Result<List<SaleRecord>>> call(NoParams _) =>
-      _repository.getSales();
+  Future<Result<List<SaleRecord>>> call(NoParams _) => _repository.getSales();
 }
 
 class CreateSaleParams {
@@ -60,7 +59,8 @@ class CreateSale {
     }
     if (params.date.isAfter(DateTime.now())) {
       return const Err(
-          Failure(message: 'Tanggal penjualan tidak boleh di masa depan'));
+        Failure(message: 'Tanggal penjualan tidak boleh di masa depan'),
+      );
     }
     return _repository.createSale(
       productType: params.productType,

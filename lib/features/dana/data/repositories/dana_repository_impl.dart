@@ -54,12 +54,13 @@ class DanaRepositoryImpl implements DanaRepository {
       final data = await _dataSource.fetchLedgerSummary(year);
       final accounts = (data['accounts'] as List<dynamic>? ?? [])
           .whereType<Map<String, dynamic>>()
-          .map((m) => LedgerBalance(
-                code: m['code'] as String,
-                name: m['name'] as String,
-                balance:
-                    double.tryParse('${m['balance']}') ?? 0,
-              ))
+          .map(
+            (m) => LedgerBalance(
+              code: m['code'] as String,
+              name: m['name'] as String,
+              balance: double.tryParse('${m['balance']}') ?? 0,
+            ),
+          )
           .toList();
       return Ok(accounts);
     } on PostgrestException catch (e) {
@@ -73,15 +74,19 @@ class DanaRepositoryImpl implements DanaRepository {
   Future<Result<ShuCalculation>> calculateShu(int fiscalYear) async {
     try {
       final row = await _dataSource.fetchShuCalculation(fiscalYear);
-      return Ok(ShuCalculation(
-        totalRevenue: (row['total_revenue'] as num).toDouble(),
-        totalExpense: (row['total_expense'] as num).toDouble(),
-        netShu: (row['net_shu'] as num).toDouble(),
-      ));
+      return Ok(
+        ShuCalculation(
+          totalRevenue: (row['total_revenue'] as num).toDouble(),
+          totalExpense: (row['total_expense'] as num).toDouble(),
+          netShu: (row['net_shu'] as num).toDouble(),
+        ),
+      );
     } on PostgrestException catch (e) {
       return Err(Failure(message: e.message));
     } catch (_) {
-      return const Err(Failure(message: 'Gagal menghitung SHU dari buku besar'));
+      return const Err(
+        Failure(message: 'Gagal menghitung SHU dari buku besar'),
+      );
     }
   }
 
@@ -131,7 +136,8 @@ class DanaRepositoryImpl implements DanaRepository {
     } on PostgrestException catch (e) {
       if (e.code == '23505') {
         return const Err(
-            Failure(message: 'SHU untuk tahun fiskal itu sudah ada'));
+          Failure(message: 'SHU untuk tahun fiskal itu sudah ada'),
+        );
       }
       return Err(Failure(message: e.message));
     } catch (_) {
@@ -177,7 +183,8 @@ class DanaRepositoryImpl implements DanaRepository {
     } on PostgrestException catch (e) {
       if (e.code == '23505') {
         return const Err(
-            Failure(message: 'SHU untuk tahun fiskal itu sudah ada'));
+          Failure(message: 'SHU untuk tahun fiskal itu sudah ada'),
+        );
       }
       return Err(Failure(message: e.message));
     } catch (_) {

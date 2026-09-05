@@ -85,8 +85,11 @@ class ShuFormCubit extends Cubit<ShuFormState> {
           case Ok():
             break;
           case Err(:final failure):
-            emit(ShuFormFailure(
-                'Tersimpan tapi gagal menyetujui: ${failure.message}'));
+            emit(
+              ShuFormFailure(
+                'Tersimpan tapi gagal menyetujui: ${failure.message}',
+              ),
+            );
             return;
         }
       }
@@ -110,8 +113,11 @@ class ShuFormCubit extends Cubit<ShuFormState> {
         case Ok():
           break;
         case Err(:final failure):
-          emit(ShuFormFailure(
-              'Tersimpan tapi gagal menyetujui: ${failure.message}'));
+          emit(
+            ShuFormFailure(
+              'Tersimpan tapi gagal menyetujui: ${failure.message}',
+            ),
+          );
           return;
       }
     }

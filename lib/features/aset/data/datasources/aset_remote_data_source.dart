@@ -29,23 +29,33 @@ class AsetRemoteDataSource {
     required double salvageValue,
     required int usefulLifeYears,
   }) async {
-    final row = await _client.from('assets').insert({
-      'name': name,
-      if (description != null && description.isNotEmpty)
-        'description': description,
-      'acquisition_date': acquisitionDate.toIso8601String().substring(0, 10),
-      'acquisition_cost': cost,
-      'salvage_value': salvageValue,
-      'useful_life_years': usefulLifeYears,
-    }).select('id').single();
+    final row = await _client
+        .from('assets')
+        .insert({
+          'name': name,
+          if (description != null && description.isNotEmpty)
+            'description': description,
+          'acquisition_date': acquisitionDate.toIso8601String().substring(
+            0,
+            10,
+          ),
+          'acquisition_cost': cost,
+          'salvage_value': salvageValue,
+          'useful_life_years': usefulLifeYears,
+        })
+        .select('id')
+        .single();
 
     // Auto-post ke ledger: debit 1120 Inventaris / credit 1111 Kas
-    await _client.rpc('post_asset_acquisition', params: {
-      'p_asset_id': row['id'],
-      'p_amount': cost,
-      'p_date': acquisitionDate.toIso8601String().substring(0, 10),
-      'p_description': 'Pembelian aset: $name',
-    });
+    await _client.rpc(
+      'post_asset_acquisition',
+      params: {
+        'p_asset_id': row['id'],
+        'p_amount': cost,
+        'p_date': acquisitionDate.toIso8601String().substring(0, 10),
+        'p_description': 'Pembelian aset: $name',
+      },
+    );
   }
 
   Future<void> updateAsset({
@@ -57,16 +67,22 @@ class AsetRemoteDataSource {
     required double salvageValue,
     required int usefulLifeYears,
   }) async {
-    await _client.from('assets').update({
-      'name': name,
-      'description': (description != null && description.isNotEmpty)
-          ? description
-          : null,
-      'acquisition_date': acquisitionDate.toIso8601String().substring(0, 10),
-      'acquisition_cost': cost,
-      'salvage_value': salvageValue,
-      'useful_life_years': usefulLifeYears,
-    }).eq('id', id);
+    await _client
+        .from('assets')
+        .update({
+          'name': name,
+          'description': (description != null && description.isNotEmpty)
+              ? description
+              : null,
+          'acquisition_date': acquisitionDate.toIso8601String().substring(
+            0,
+            10,
+          ),
+          'acquisition_cost': cost,
+          'salvage_value': salvageValue,
+          'useful_life_years': usefulLifeYears,
+        })
+        .eq('id', id);
   }
 
   /// Riwayat penyusutan terhapus otomatis (FK on delete cascade).

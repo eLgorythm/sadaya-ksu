@@ -58,8 +58,16 @@ class SavingTransactionEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [id, memberId, typeCode, typeCode, amount, date, description, isVoid];
+  List<Object?> get props => [
+    id,
+    memberId,
+    typeCode,
+    typeCode,
+    amount,
+    date,
+    description,
+    isVoid,
+  ];
 }
 
 class MemberSavingsSummary extends Equatable {

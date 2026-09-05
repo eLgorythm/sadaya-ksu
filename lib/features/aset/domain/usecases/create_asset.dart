@@ -49,14 +49,14 @@ class CreateAssetParams extends Equatable {
 
   @override
   List<Object?> get props => [
-        name,
-        description,
-        acquisitionDate,
-        cost,
-        salvageValue,
-        usefulLifeYears,
-        id,
-      ];
+    name,
+    description,
+    acquisitionDate,
+    cost,
+    salvageValue,
+    usefulLifeYears,
+    id,
+  ];
 }
 
 /// Mendaftarkan aset tetap baru ke buku inventaris.
@@ -78,14 +78,16 @@ class CreateAsset {
     }
     if (params.salvageValue >= params.cost) {
       return const Err(
-          Failure(message: 'Nilai residu harus lebih kecil dari nilai perolehan'));
+        Failure(message: 'Nilai residu harus lebih kecil dari nilai perolehan'),
+      );
     }
     if (params.usefulLifeYears < 1 || params.usefulLifeYears > 50) {
       return const Err(Failure(message: 'Umur pakai harus 1-50 tahun'));
     }
     if (params.acquisitionDate.isAfter(DateTime.now())) {
       return const Err(
-          Failure(message: 'Tanggal perolehan tidak boleh di masa depan'));
+        Failure(message: 'Tanggal perolehan tidak boleh di masa depan'),
+      );
     }
     if (params.isEditing) {
       return _repository.updateAsset(

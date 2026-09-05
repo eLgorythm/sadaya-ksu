@@ -85,19 +85,19 @@ class CreateShuDistributionParams extends Equatable {
 
   @override
   List<Object?> get props => [
-        fiscalYear,
-        totalShu,
-        taxAmount,
-        reservePct,
-        socialPct,
-        educationPct,
-        memberSavingsPct,
-        memberServicePct,
-        managementPct,
-        staffPct,
-        developmentPct,
-        notes,
-      ];
+    fiscalYear,
+    totalShu,
+    taxAmount,
+    reservePct,
+    socialPct,
+    educationPct,
+    memberSavingsPct,
+    memberServicePct,
+    managementPct,
+    staffPct,
+    developmentPct,
+    notes,
+  ];
 }
 
 /// Menyimpan perhitungan SHU tahunan sebagai draft.
@@ -137,7 +137,10 @@ class UpdateShuDistribution {
 
   final DanaRepository _repository;
 
-  Future<Result<void>> call(String id, CreateShuDistributionParams params) async {
+  Future<Result<void>> call(
+    String id,
+    CreateShuDistributionParams params,
+  ) async {
     final error = params.validate();
     if (error != null) {
       return Err(Failure(message: error));

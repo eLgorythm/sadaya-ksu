@@ -12,7 +12,7 @@ part 'members_state.dart';
 @lazySingleton
 class MembersCubit extends Cubit<MembersState> {
   MembersCubit(this._repository, this._setStatus)
-      : super(const MembersLoadSuccess([]));
+    : super(const MembersLoadSuccess([]));
 
   final MemberRepository _repository;
   final SetMemberStatus _setStatus;
@@ -26,10 +26,7 @@ class MembersCubit extends Cubit<MembersState> {
   Future<void> load({bool silent = false}) async {
     final seq = ++_loadSeq;
     if (!silent || state is! MembersLoadSuccess) {
-      emit(MembersLoadInProgress(
-        search: _search,
-        statusFilter: _statusFilter,
-      ));
+      emit(MembersLoadInProgress(search: _search, statusFilter: _statusFilter));
     }
     final result = await _repository.getMembers(
       MemberFilters(search: _search, status: _statusFilter),
@@ -37,17 +34,21 @@ class MembersCubit extends Cubit<MembersState> {
     if (seq != _loadSeq) return;
     switch (result) {
       case Ok(:final value):
-        emit(MembersLoadSuccess(
-          value,
-          search: _search,
-          statusFilter: _statusFilter,
-        ));
+        emit(
+          MembersLoadSuccess(
+            value,
+            search: _search,
+            statusFilter: _statusFilter,
+          ),
+        );
       case Err(:final failure):
-        emit(MembersFailure(
-          message: failure.message,
-          search: _search,
-          statusFilter: _statusFilter,
-        ));
+        emit(
+          MembersFailure(
+            message: failure.message,
+            search: _search,
+            statusFilter: _statusFilter,
+          ),
+        );
     }
   }
 
@@ -65,17 +66,20 @@ class MembersCubit extends Cubit<MembersState> {
     required String id,
     required String status,
   }) async {
-    final result =
-        await _setStatus(SetMemberStatusParams(id: id, status: status));
+    final result = await _setStatus(
+      SetMemberStatusParams(id: id, status: status),
+    );
     switch (result) {
       case Ok():
         await load();
       case Err(:final failure):
-        emit(MembersFailure(
-          message: failure.message,
-          search: _search,
-          statusFilter: _statusFilter,
-        ));
+        emit(
+          MembersFailure(
+            message: failure.message,
+            search: _search,
+            statusFilter: _statusFilter,
+          ),
+        );
     }
   }
 }

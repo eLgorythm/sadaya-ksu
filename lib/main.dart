@@ -20,9 +20,7 @@ Future<void> main() async {
 
   configureDependencies();
 
-  runApp(
-    SadayaApp(routerConfig: AppRouter.build(getIt<SupabaseClient>())),
-  );
+  runApp(SadayaApp(routerConfig: AppRouter.build(getIt<SupabaseClient>())));
 }
 
 class SadayaApp extends StatelessWidget {

@@ -23,7 +23,8 @@ class LoanRepositoryImpl implements LoanRepository {
       return Err(Failure(message: 'Gagal memuat pinjaman (${e.message})'));
     } catch (_) {
       return const Err(
-          Failure(message: 'Gagal memuat pinjaman. Periksa koneksi'));
+        Failure(message: 'Gagal memuat pinjaman. Periksa koneksi'),
+      );
     }
   }
 
@@ -35,16 +36,18 @@ class LoanRepositoryImpl implements LoanRepository {
       if (loanRow == null) {
         return const Err(Failure(message: 'Pinjaman tidak ditemukan'));
       }
-      return Ok(LoanDetail(
-        loan: LoanModel.fromMap(loanRow),
-        schedules:
-            schedules.map(InstallmentScheduleModel.fromMap).toList(),
-      ));
+      return Ok(
+        LoanDetail(
+          loan: LoanModel.fromMap(loanRow),
+          schedules: schedules.map(InstallmentScheduleModel.fromMap).toList(),
+        ),
+      );
     } on PostgrestException catch (e) {
       return Err(Failure(message: 'Gagal memuat detail (${e.message})'));
     } catch (_) {
       return const Err(
-          Failure(message: 'Gagal memuat detail. Periksa koneksi'));
+        Failure(message: 'Gagal memuat detail. Periksa koneksi'),
+      );
     }
   }
 
@@ -72,7 +75,8 @@ class LoanRepositoryImpl implements LoanRepository {
       return Err(Failure(message: message.isEmpty ? e.message : message));
     } catch (_) {
       return const Err(
-          Failure(message: 'Gagal menyimpan pinjaman. Periksa koneksi'));
+        Failure(message: 'Gagal menyimpan pinjaman. Periksa koneksi'),
+      );
     }
   }
 
@@ -94,7 +98,8 @@ class LoanRepositoryImpl implements LoanRepository {
       return Err(Failure(message: message.isEmpty ? e.message : message));
     } catch (_) {
       return const Err(
-          Failure(message: 'Gagal mencatat pembayaran. Periksa koneksi'));
+        Failure(message: 'Gagal mencatat pembayaran. Periksa koneksi'),
+      );
     }
   }
 }

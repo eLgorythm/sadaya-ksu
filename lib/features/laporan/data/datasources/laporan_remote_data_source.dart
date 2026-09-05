@@ -49,10 +49,16 @@ class LaporanRemoteDataSource {
       query = query.eq('source_book', sourceBook);
     }
     if (fromDate != null) {
-      query = query.gte('entry_date', fromDate.toIso8601String().substring(0, 10));
+      query = query.gte(
+        'entry_date',
+        fromDate.toIso8601String().substring(0, 10),
+      );
     }
     if (toDate != null) {
-      query = query.lte('entry_date', toDate.toIso8601String().substring(0, 10));
+      query = query.lte(
+        'entry_date',
+        toDate.toIso8601String().substring(0, 10),
+      );
     }
     final rows = await query
         .order('entry_date', ascending: true)

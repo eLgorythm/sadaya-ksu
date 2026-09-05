@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../data/datasources/laporan_remote_data_source.dart';
 
@@ -71,16 +72,13 @@ class _BukuBesarPageState extends State<BukuBesarPage> {
           children: [
             Text(
               'Buku Besar',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
               'Jurnal rinci per akun (real-time)',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
-                    fontSize: 11,
-                  ),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: Colors.grey[500], fontSize: 11),
             ),
           ],
         ),
@@ -96,54 +94,56 @@ class _BukuBesarPageState extends State<BukuBesarPage> {
           child: Container(height: 1, color: Colors.grey.shade200),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: _loading
-            ? ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(
-                    height: 300,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                ],
-              )
-            : _error != null
-                ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      const SizedBox(height: 120),
-                      Icon(Icons.error_outline,
-                          size: 48, color: Colors.red[300]),
-                      const SizedBox(height: 12),
-                      Center(child: Text(_error!)),
-                      const SizedBox(height: 12),
-                      Center(
-                        child: FilledButton(
-                          onPressed: _loadData,
-                          child: const Text('Coba Lagi'),
-                        ),
-                      ),
-                    ],
-                  )
-                : SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    child: _LedgerView(
-                      year: _year,
-                      accountCode: _selectedCode,
-                      accounts: _allAccounts,
-                      entries: _entries,
-                      onYearChanged: (y) {
-                        setState(() => _year = y);
-                        _loadData();
-                      },
-                      onAccountChanged: (code) {
-                        setState(() => _selectedCode = code);
-                        _loadData();
-                      },
+      body: MaxWidthBox(
+        maxWidth: 1200,
+        child: RefreshIndicator(
+          onRefresh: _loadData,
+          child: _loading
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [
+                    SizedBox(
+                      height: 300,
+                      child: Center(child: CircularProgressIndicator()),
                     ),
+                  ],
+                )
+              : _error != null
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    const SizedBox(height: 120),
+                    Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                    const SizedBox(height: 12),
+                    Center(child: Text(_error!)),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: FilledButton(
+                        onPressed: _loadData,
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ),
+                  ],
+                )
+              : SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  child: _LedgerView(
+                    year: _year,
+                    accountCode: _selectedCode,
+                    accounts: _allAccounts,
+                    entries: _entries,
+                    onYearChanged: (y) {
+                      setState(() => _year = y);
+                      _loadData();
+                    },
+                    onAccountChanged: (code) {
+                      setState(() => _selectedCode = code);
+                      _loadData();
+                    },
                   ),
+                ),
+        ),
       ),
     );
   }
@@ -169,9 +169,7 @@ class _LedgerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Peta akun lengkap (Chart of Accounts): kode -> {name, account_type}.
-    final accountMap = {
-      for (final a in accounts) a['code'] as String: a,
-    };
+    final accountMap = {for (final a in accounts) a['code'] as String: a};
 
     // Kelompokkan baris per akun (urutan akun mengikuti kode).
     final groups = <String, List<Map<String, dynamic>>>{};
@@ -196,8 +194,10 @@ class _LedgerView extends StatelessWidget {
         // Periode + filter akun
         Row(
           children: [
-            Text('Periode ',
-                style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+            Text(
+              'Periode ',
+              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+            ),
             _YearStepper(year: year, onChanged: onYearChanged),
             const Spacer(),
             Flexible(
@@ -381,13 +381,14 @@ class _AccountSection extends StatelessWidget {
           // Header akun
           Container(
             color: _typeColor.withValues(alpha: 0.06),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: _typeColor,
                     borderRadius: BorderRadius.circular(6),
@@ -447,8 +448,7 @@ class _AccountSection extends StatelessWidget {
                   children: [
                     Text(
                       'Saldo',
-                      style:
-                          TextStyle(fontSize: 9, color: Colors.grey[500]),
+                      style: TextStyle(fontSize: 9, color: Colors.grey[500]),
                     ),
                     Text(
                       AppFormatters.rupiah(balance),
@@ -500,8 +500,7 @@ class _LedgerRow extends StatelessWidget {
     final date = DateTime.tryParse(dateRaw);
     final debit = (entry['debit_amount'] as num?)?.toDouble() ?? 0;
     final credit = (entry['credit_amount'] as num?)?.toDouble() ?? 0;
-    final description =
-        (entry['description'] as String?)?.trim() ?? '—';
+    final description = (entry['description'] as String?)?.trim() ?? '—';
     final source = (entry['source_book'] as String?) ?? '';
 
     final amountColor = AppColors.brand900;
@@ -518,10 +517,7 @@ class _LedgerRow extends StatelessWidget {
             width: 58,
             child: Text(
               date != null ? AppFormatters.date(date) : dateRaw,
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 10, color: Colors.grey[500]),
             ),
           ),
           const SizedBox(width: 8),
@@ -542,7 +538,9 @@ class _LedgerRow extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 1),
+                        horizontal: 5,
+                        vertical: 1,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(4),
@@ -561,7 +559,9 @@ class _LedgerRow extends StatelessWidget {
                         padding: const EdgeInsets.only(left: 6),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 1),
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.brand50,
                             borderRadius: BorderRadius.circular(4),
@@ -658,8 +658,7 @@ class _AccountDropdown extends StatelessWidget {
     final items = <String, String>{
       '': 'Semua Akun',
       for (final a in accounts)
-        a['code'] as String:
-            '${a['code']} — ${a['name']}',
+        a['code'] as String: '${a['code']} — ${a['name']}',
     };
 
     return DropdownButtonFormField<String>(
@@ -668,8 +667,7 @@ class _AccountDropdown extends StatelessWidget {
       isExpanded: false,
       decoration: InputDecoration(
         isDense: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: Colors.grey.shade200),
@@ -685,14 +683,16 @@ class _AccountDropdown extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       dropdownColor: Colors.white,
       items: items.entries
-          .map((e) => DropdownMenuItem<String>(
-                value: e.key,
-                child: Text(
-                  e.value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ))
+          .map(
+            (e) => DropdownMenuItem<String>(
+              value: e.key,
+              child: Text(
+                e.value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          )
           .toList(),
       onChanged: (v) => onChanged(v == null || v.isEmpty ? null : v),
     );
@@ -714,10 +714,7 @@ class _YearStepper extends StatelessWidget {
           onPressed: () => onChanged(year - 1),
           icon: const Icon(Icons.chevron_left, size: 20),
         ),
-        Text(
-          '$year',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        Text('$year', style: const TextStyle(fontWeight: FontWeight.bold)),
         IconButton(
           visualDensity: VisualDensity.compact,
           onPressed: () => onChanged(year + 1),

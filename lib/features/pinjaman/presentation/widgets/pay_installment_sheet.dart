@@ -17,8 +17,9 @@ class PayInstallmentSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final breakdown =
-        InterestDistributionBreakdown.fromInterest(schedule.interestAmount);
+    final breakdown = InterestDistributionBreakdown.fromInterest(
+      schedule.interestAmount,
+    );
     return BlocProvider.value(
       value: _cubit,
       child: BlocConsumer<LoanPaymentCubit, LoanPaymentState>(
@@ -41,16 +42,19 @@ class PayInstallmentSheet extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SheetHeader(
-                    title: 'Bayar Cicilan ke-${schedule.installmentNumber}'),
+                  title: 'Bayar Cicilan ke-${schedule.installmentNumber}',
+                ),
                 const SizedBox(height: 8),
                 InfoBox(
                   children: [
                     InfoRow(
-                        label: 'Pokok',
-                        value: AppFormatters.rupiah(schedule.principalAmount)),
+                      label: 'Pokok',
+                      value: AppFormatters.rupiah(schedule.principalAmount),
+                    ),
                     InfoRow(
-                        label: 'Bunga',
-                        value: AppFormatters.rupiah(schedule.interestAmount)),
+                      label: 'Bunga',
+                      value: AppFormatters.rupiah(schedule.interestAmount),
+                    ),
                     const Divider(height: 16),
                     InfoRow(
                       label: 'Total',
@@ -59,8 +63,10 @@ class PayInstallmentSheet extends StatelessWidget {
                     ),
                     if (schedule.interestAmount > 0) ...[
                       const SizedBox(height: 8),
-                      Text('Distribusi bunga:',
-                          style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        'Distribusi bunga:',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                       Text(
                         'Japinup ${AppFormatters.rupiah(breakdown.japinup)} • '
                         'Kesra ${AppFormatters.rupiah(breakdown.kesra)} • '
@@ -86,11 +92,14 @@ class PayInstallmentSheet extends StatelessWidget {
                       ? const SizedBox(
                           width: 18,
                           height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Icon(Icons.check_circle_outline),
-                  label: Text(processing
-                      ? 'Memproses...'
-                      : 'Bayar ${AppFormatters.rupiah(schedule.totalAmount)}'),
+                  label: Text(
+                    processing
+                        ? 'Memproses...'
+                        : 'Bayar ${AppFormatters.rupiah(schedule.totalAmount)}',
+                  ),
                 ),
               ],
             ),

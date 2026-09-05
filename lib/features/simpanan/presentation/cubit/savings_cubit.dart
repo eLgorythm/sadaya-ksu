@@ -12,7 +12,7 @@ part 'savings_state.dart';
 @lazySingleton
 class SavingsCubit extends Cubit<SavingsState> {
   SavingsCubit(this._getMemberSavings, this._getSavingsTypes)
-      : super(const SavingsInitial());
+    : super(const SavingsInitial());
 
   final GetMemberSavings _getMemberSavings;
   final GetSavingsTypes _getSavingsTypes;
@@ -26,20 +26,15 @@ class SavingsCubit extends Cubit<SavingsState> {
       case Ok(:final value):
         _types = value;
       case Err(:final failure):
-        emit(SavingsFailure(
-          message: failure.message,
-          memberId: memberId,
-        ));
+        emit(SavingsFailure(message: failure.message, memberId: memberId));
         return;
     }
     final summaryResult = await _getMemberSavings(memberId);
     switch (summaryResult) {
       case Ok(:final value):
-        emit(SavingsLoadSuccess(
-          memberId: memberId,
-          types: _types,
-          summary: value,
-        ));
+        emit(
+          SavingsLoadSuccess(memberId: memberId, types: _types, summary: value),
+        );
       case Err(:final failure):
         emit(SavingsFailure(message: failure.message, memberId: memberId));
     }

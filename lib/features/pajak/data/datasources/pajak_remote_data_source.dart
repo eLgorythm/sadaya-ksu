@@ -24,15 +24,18 @@ class PajakRemoteDataSource {
     String? referenceNumber,
     String? notes,
   }) async {
-    final result = await _client.rpc('insert_tax', params: {
-      'p_tax_type': taxType,
-      'p_description': description,
-      'p_amount': amount,
-      'p_date': date.toIso8601String().substring(0, 10),
-      'p_status': status,
-      'p_reference_number': referenceNumber,
-      'p_notes': notes,
-    });
+    final result = await _client.rpc(
+      'insert_tax',
+      params: {
+        'p_tax_type': taxType,
+        'p_description': description,
+        'p_amount': amount,
+        'p_date': date.toIso8601String().substring(0, 10),
+        'p_status': status,
+        'p_reference_number': referenceNumber,
+        'p_notes': notes,
+      },
+    );
     return result as String;
   }
 
@@ -46,16 +49,19 @@ class PajakRemoteDataSource {
     String? referenceNumber,
     String? notes,
   }) async {
-    await _client.rpc('update_tax', params: {
-      'p_id': id,
-      'p_tax_type': taxType,
-      'p_description': description,
-      'p_amount': amount,
-      'p_date': date.toIso8601String().substring(0, 10),
-      'p_status': status,
-      'p_reference_number': referenceNumber,
-      'p_notes': notes,
-    });
+    await _client.rpc(
+      'update_tax',
+      params: {
+        'p_id': id,
+        'p_tax_type': taxType,
+        'p_description': description,
+        'p_amount': amount,
+        'p_date': date.toIso8601String().substring(0, 10),
+        'p_status': status,
+        'p_reference_number': referenceNumber,
+        'p_notes': notes,
+      },
+    );
   }
 
   Future<void> deleteTax(String id) async {

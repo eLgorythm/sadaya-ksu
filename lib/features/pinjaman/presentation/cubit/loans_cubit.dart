@@ -12,7 +12,7 @@ part 'loans_state.dart';
 @lazySingleton
 class LoansCubit extends Cubit<LoansState> {
   LoansCubit(this._getMemberLoans, this._loanRepository)
-      : super(const LoansInitial());
+    : super(const LoansInitial());
 
   final GetMemberLoans _getMemberLoans;
   final LoanRepository _loanRepository;
@@ -48,8 +48,7 @@ class LoansCubit extends Cubit<LoansState> {
   Future<void> refreshDetail({required String memberId}) async {
     final current = state;
     if (current is! LoansDetailLoaded) return;
-    final result =
-        await _loanRepository.getLoanDetail(current.detail.loan.id);
+    final result = await _loanRepository.getLoanDetail(current.detail.loan.id);
     switch (result) {
       case Ok(:final value):
         emit(LoansDetailLoaded(memberId: memberId, detail: value));

@@ -55,8 +55,7 @@ class CreateProduction {
       return const Err(Failure(message: 'Satuan produksi tidak dikenal'));
     }
     if (params.quantity <= 0) {
-      return const Err(
-          Failure(message: 'Jumlah produksi harus lebih dari 0'));
+      return const Err(Failure(message: 'Jumlah produksi harus lebih dari 0'));
     }
     if (params.quantityPack != null && params.quantityPack! < 0) {
       return const Err(Failure(message: 'Jumlah pack tidak valid'));
@@ -66,17 +65,17 @@ class CreateProduction {
     }
     if (params.date.isAfter(DateTime.now())) {
       return const Err(
-          Failure(message: 'Tanggal produksi tidak boleh di masa depan'));
+        Failure(message: 'Tanggal produksi tidak boleh di masa depan'),
+      );
     }
     return _repository.createProduction(
       productType: params.productType,
       date: params.date,
       quantity: params.quantity,
       unit: params.unit,
-      quantityPack:
-          (params.quantityPack != null && params.quantityPack! > 0)
-              ? params.quantityPack
-              : null,
+      quantityPack: (params.quantityPack != null && params.quantityPack! > 0)
+          ? params.quantityPack
+          : null,
       cost: params.cost,
       notes: params.notes?.trim(),
     );

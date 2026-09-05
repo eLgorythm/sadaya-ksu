@@ -31,10 +31,7 @@ class LoansListLoaded extends LoansState {
 }
 
 class LoansDetailLoaded extends LoansState {
-  const LoansDetailLoaded({
-    required this.memberId,
-    required this.detail,
-  });
+  const LoansDetailLoaded({required this.memberId, required this.detail});
 
   final String memberId;
   final LoanDetail detail;
