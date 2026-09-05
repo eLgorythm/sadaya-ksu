@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/utils/result.dart';
+import '../entities/dana_entities.dart';
 import '../repositories/dana_repository.dart';
 
 class CreateFundEntryParams extends Equatable {
@@ -32,8 +33,8 @@ class CreateFundEntry {
   final DanaRepository _repository;
 
   Future<Result<void>> call(CreateFundEntryParams params) async {
-    if (params.fundType.isEmpty) {
-      return const Err(Failure(message: 'Jenis dana wajib dipilih'));
+    if (!kFundPosLabels.containsKey(params.fundType)) {
+      return const Err(Failure(message: 'Sumber pos dana wajib dipilih'));
     }
     if (params.amount <= 0) {
       return const Err(Failure(message: 'Nominal harus lebih dari 0'));

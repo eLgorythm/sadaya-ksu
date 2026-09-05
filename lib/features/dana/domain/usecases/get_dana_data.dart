@@ -37,3 +37,13 @@ class GetShuDistributions implements UseCase<List<ShuDistribution>, NoParams> {
   Future<Result<List<ShuDistribution>>> call(NoParams _) =>
       _repository.getShuDistributions();
 }
+
+@lazySingleton
+class GetCairBankTotal implements UseCase<double, NoParams> {
+  GetCairBankTotal(this._repository);
+
+  final DanaRepository _repository;
+
+  @override
+  Future<Result<double>> call(NoParams _) => _repository.getCairBankTotal();
+}

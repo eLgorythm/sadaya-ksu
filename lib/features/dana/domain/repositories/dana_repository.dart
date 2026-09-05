@@ -7,6 +7,7 @@ abstract interface class DanaRepository {
   /// Saldo per akun dari buku besar (kas + bank + dana + Japinup) utk tahun.
   Future<Result<List<LedgerBalance>>> getLedgerBalances(int year);
 
+  /// Catat kas masuk/keluar dana manual (posting jurnal via RPC).
   Future<Result<void>> createFundEntry({
     required String fundType,
     required bool isIncoming,
@@ -14,6 +15,9 @@ abstract interface class DanaRepository {
     required String description,
     required DateTime date,
   });
+
+  /// Total kumulatif transfer bank → kas.
+  Future<Result<double>> getCairBankTotal();
 
   Future<Result<ShuCalculation>> calculateShu(int fiscalYear);
 

@@ -10,6 +10,40 @@ const Map<String, String> kFundLabels = {
   'reserve': 'Dana Cadangan',
 };
 
+/// Label 7 pos dana (urutan tampil di Buku Dana & pilihan sumber kas
+/// masuk/keluar). Inventaris tidak termasuk → tidak bisa jadi sumber.
+const Map<String, String> kFundPosLabels = {
+  'welfare': 'Kesra (Kesejahteraan)',
+  'social': 'Dana Sosial',
+  'education': 'Dana Pendidikan',
+  'crk': 'Dana CRK',
+  'development': 'Dana Pembangunan',
+  'japinup': 'Japinup',
+  'swk': 'SWK',
+};
+
+/// Kode akun buku besar untuk tiap pos dana.
+const Map<String, String> kFundPosAccounts = {
+  'welfare': '2119',
+  'social': '2114',
+  'education': '2115',
+  'crk': '3115',
+  'development': '3114',
+  'japinup': '4111',
+  'swk': '2113',
+};
+
+/// Urutan tampil 7 pos dana di Buku Dana & form kas masuk/keluar.
+const List<String> kFundPosOrder = [
+  'welfare',
+  'social',
+  'education',
+  'crk',
+  'development',
+  'japinup',
+  'swk',
+];
+
 /// Saldo satu akun dari buku besar (nilai utuh |saldo natural|).
 class LedgerBalance extends Equatable {
   const LedgerBalance({
@@ -45,7 +79,8 @@ class FundTransaction extends Equatable {
   final String description;
   final String? sourceType;
 
-  String get fundLabel => kFundLabels[fundType] ?? fundType;
+  String get fundLabel =>
+      kFundPosLabels[fundType] ?? kFundLabels[fundType] ?? fundType;
 
   @override
   List<Object?> get props => [

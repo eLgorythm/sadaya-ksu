@@ -33,7 +33,7 @@ class DanaRepositoryImpl implements DanaRepository {
     required DateTime date,
   }) async {
     try {
-      await _dataSource.insertFundTransaction(
+      await _dataSource.postFundEntry(
         fundType: fundType,
         isIncoming: isIncoming,
         amount: amount,
@@ -45,6 +45,17 @@ class DanaRepositoryImpl implements DanaRepository {
       return Err(Failure(message: e.message));
     } catch (_) {
       return const Err(Failure(message: 'Gagal menyimpan transaksi dana'));
+    }
+  }
+
+  @override
+  Future<Result<double>> getCairBankTotal() async {
+    try {
+      return Ok(await _dataSource.fetchCairBankTotal());
+    } on PostgrestException catch (e) {
+      return Err(Failure(message: e.message));
+    } catch (_) {
+      return const Err(Failure(message: 'Gagal memuat total cair dari bank'));
     }
   }
 

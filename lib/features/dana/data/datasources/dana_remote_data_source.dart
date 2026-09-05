@@ -17,21 +17,34 @@ class DanaRemoteDataSource {
     return List<Map<String, dynamic>>.from(rows);
   }
 
-  Future<void> insertFundTransaction({
+  /// Catat kas masuk/keluar dana manual sekaligus memposting jurnal
+  /// ke buku besar (Debit/Kredit 1111 vs akun pos).
+  Future<void> postFundEntry({
     required String fundType,
     required bool isIncoming,
     required double amount,
     required String description,
     required DateTime date,
   }) async {
-    await _client.from('fund_transactions').insert({
-      'fund_type': fundType,
-      'transaction_type': isIncoming ? 'income' : 'expense',
-      'transaction_date': date.toIso8601String().substring(0, 10),
-      'amount': amount,
-      'description': description,
-      'source_type': 'manual',
-    });
+    await _client.rpc(
+      'post_fund_entry',
+      params: {
+        'p_fund_type': fundType,
+        'p_transaction_type': isIncoming ? 'income' : 'expense',
+        'p_amount': amount,
+        'p_description': description,
+        'p_date': date.toIso8601String().substring(0, 10),
+      },
+    );
+  }
+
+  /// Total kumulatif transfer bank → kas (tanpa p_year).
+  Future<double> fetchCairBankTotal() async {
+    final result = await _client.rpc(
+      'get_cair_bank_total',
+      params: {'p_year': null},
+    );
+    return double.tryParse('$result') ?? 0;
   }
 
   Future<Map<String, dynamic>> fetchShuCalculation(int fiscalYear) async {

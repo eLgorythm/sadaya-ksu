@@ -20,11 +20,15 @@ class DanaLoaded extends DanaState {
     required this.fundEntries,
     required this.shuList,
     this.ledgerBalances = const [],
+    this.cairBankTotal = 0,
   });
 
   final List<FundTransaction> fundEntries;
   final List<ShuDistribution> shuList;
   final List<LedgerBalance> ledgerBalances;
+
+  /// Total kumulatif transfer bank → kas.
+  final double cairBankTotal;
 
   /// Saldo tiap jenis dana (pemasukan - pengeluaran).
   Map<String, double> get balances {
@@ -46,14 +50,22 @@ class DanaLoaded extends DanaState {
     return 0;
   }
 
-  /// Saldo Japinup (jasa pinjaman) dari buku besar.
-  double get japinupBalance => ledgerBalanceOf('4111');
-
-  /// Saldo SWK (Simpanan Wajib Kredit) dari buku besar.
-  double get swkBalance => ledgerBalanceOf('2113');
+  /// Total Kas = jumlah saldo 7 pos dana dari buku besar.
+  double get totalKas {
+    var total = 0.0;
+    for (final pos in kFundPosOrder) {
+      total += ledgerBalanceOf(kFundPosAccounts[pos]!);
+    }
+    return total;
+  }
 
   @override
-  List<Object?> get props => [fundEntries, shuList, ledgerBalances];
+  List<Object?> get props => [
+    fundEntries,
+    shuList,
+    ledgerBalances,
+    cairBankTotal,
+  ];
 }
 
 class DanaFailure extends DanaState {

@@ -10,7 +10,7 @@ import '../../../../core/widgets/sadaya_message.dart';
 import '../../domain/entities/dana_entities.dart';
 import '../cubit/fund_form_cubit.dart';
 
-/// Sheet pencatatan pemasukan/penggunaan dana manual.
+/// Sheet pencatatan kas masuk/keluar dana manual (sumber = 7 pos dana).
 /// Menutup diri sendiri dengan hasil true; halaman pemanggil me-reload.
 class FundTransactionSheet extends StatefulWidget {
   const FundTransactionSheet({super.key});
@@ -33,8 +33,8 @@ class _FundTransactionSheetState extends State<FundTransactionSheet> {
   final _noteController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  String _fundType = kFundLabels.keys.first;
-  bool _isIncoming = true;
+  String _fundType = kFundPosOrder.first;
+  bool _isIncoming = false;
   DateTime _date = DateTime.now();
 
   @override
@@ -92,18 +92,18 @@ class _FundTransactionSheetState extends State<FundTransactionSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SheetHeader(title: 'Catat Transaksi Dana'),
+                  const SheetHeader(title: 'Catat Kas Dana'),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      for (final entry in kFundLabels.entries)
+                      for (final pos in kFundPosOrder)
                         ChoiceChip(
-                          label: Text(entry.value),
-                          selected: _fundType == entry.key,
+                          label: Text(kFundPosLabels[pos]!),
+                          selected: _fundType == pos,
                           onSelected: saving
                               ? null
-                              : (_) => setState(() => _fundType = entry.key),
+                              : (_) => setState(() => _fundType = pos),
                         ),
                     ],
                   ),

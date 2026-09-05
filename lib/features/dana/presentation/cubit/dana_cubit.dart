@@ -18,6 +18,7 @@ class DanaCubit extends Cubit<DanaState> {
     this._getFundTransactions,
     this._getLedgerBalances,
     this._getShuDistributions,
+    this._getCairBankTotal,
     this._approveShu,
     this._distributeShu,
     this._deleteShu,
@@ -27,6 +28,7 @@ class DanaCubit extends Cubit<DanaState> {
   final GetFundTransactions _getFundTransactions;
   final GetLedgerBalances _getLedgerBalances;
   final GetShuDistributions _getShuDistributions;
+  final GetCairBankTotal _getCairBankTotal;
   final ApproveShu _approveShu;
   final DistributeShu _distributeShu;
   final DeleteShu _deleteShu;
@@ -68,12 +70,23 @@ class DanaCubit extends Cubit<DanaState> {
         return;
     }
 
+    final cairResult = await _getCairBankTotal(const NoParams());
+    final double cairBankTotal;
+    switch (cairResult) {
+      case Ok(:final value):
+        cairBankTotal = value;
+      case Err(:final failure):
+        if (!isClosed) emit(DanaFailure(failure.message));
+        return;
+    }
+
     if (!isClosed) {
       emit(
         DanaLoaded(
           fundEntries: funds,
           ledgerBalances: ledgerBalances,
           shuList: shus,
+          cairBankTotal: cairBankTotal,
         ),
       );
     }

@@ -9,8 +9,11 @@ import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../../../core/widgets/sadaya_message.dart';
+import '../../../keuangan/domain/usecases/bank_action.dart';
+import '../../../keuangan/presentation/widgets/bank_action_sheet.dart';
 import '../../domain/entities/dana_entities.dart';
 import '../cubit/dana_cubit.dart';
+import '../widgets/fund_transaction_sheet.dart';
 import '../widgets/shu_form_sheet.dart';
 
 const _fundColors = <String, Color>{
@@ -20,27 +23,9 @@ const _fundColors = <String, Color>{
   'crk': Color(0xFFEF6C00),
   'development': Color(0xFF00838F),
   'reserve': Color(0xFF5D4037),
+  'japinup': Color(0xFFD84315),
+  'swk': Color(0xFF2E7D32),
 };
-
-/// Kode akun buku besar untuk tiap jenis dana.
-const _kFundAccount = <String, String>{
-  'social': '2114',
-  'education': '2115',
-  'welfare': '2119',
-  'crk': '3115',
-  'development': '3114',
-};
-
-/// Urutan & subset pos dana yang ditampilkan (5 pos distribusi jasa).
-/// Dana Cadangan (reserve) sengaja tidak disertakan karena sudah
-/// tercakup oleh CRK.
-const List<String> _kFundDisplayKeys = [
-  'welfare',
-  'social',
-  'education',
-  'crk',
-  'development',
-];
 
 class DanaPage extends StatefulWidget {
   const DanaPage({super.key});
@@ -68,6 +53,19 @@ class _DanaPageState extends State<DanaPage>
 
   void _onTabChanged() {
     if (mounted && !_tabController.indexIsChanging) setState(() {});
+  }
+
+  Future<void> _openFundSheet() async {
+    final saved = await FundTransactionSheet.show(context);
+    if (saved && mounted) _cubit.load(silent: true);
+  }
+
+  Future<void> _openCairBank() async {
+    final saved = await BankActionSheet.show(
+      context,
+      action: BankAction.cairKas,
+    );
+    if (saved && mounted) _cubit.load(silent: true);
   }
 
   @override
@@ -111,6 +109,7 @@ class _DanaPageState extends State<DanaPage>
                     _FundTab(
                       state: state,
                       onReload: () => _cubit.load(silent: true),
+                      onCair: _openCairBank,
                     ),
                     _ShuTab(
                       state: state,
@@ -122,75 +121,166 @@ class _DanaPageState extends State<DanaPage>
           },
         ),
       ),
-      floatingActionButton: !isShuTab
-          ? null
-          : FloatingActionButton.extended(
+      floatingActionButton: isShuTab
+          ? FloatingActionButton.extended(
               onPressed: () async {
                 final saved = await ShuFormSheet.show(context);
                 if (saved) _cubit.load(silent: true);
               },
               icon: const Icon(Icons.calculate_outlined),
               label: const Text('Hitung SHU'),
+            )
+          : FloatingActionButton.extended(
+              onPressed: _openFundSheet,
+              icon: const Icon(Icons.add_card_outlined),
+              label: const Text('Catat Dana'),
             ),
     );
   }
 }
 
 class _FundTab extends StatelessWidget {
-  const _FundTab({required this.state, required this.onReload});
+  const _FundTab({
+    required this.state,
+    required this.onReload,
+    required this.onCair,
+  });
 
   final DanaLoaded state;
   final VoidCallback onReload;
+  final VoidCallback onCair;
 
   @override
   Widget build(BuildContext context) {
     final entries = state.fundEntries;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: ResponsiveGrid(
+    return RefreshIndicator(
+      onRefresh: () async => onReload(),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+        children: [
+          _TotalKasCard(balance: state.totalKas),
+          const SizedBox(height: 12),
+          ResponsiveGrid(
             children: [
-              for (final type in _kFundDisplayKeys)
+              for (final type in kFundPosOrder)
                 _FundBalanceCard(
                   fundType: type,
-                  balance: state.ledgerBalanceOf(_kFundAccount[type]!),
+                  balance: state.ledgerBalanceOf(kFundPosAccounts[type]!),
                 ),
-              _JapinupCard(balance: state.japinupBalance),
-              _SwkCard(balance: state.swkBalance),
             ],
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text(
-            'Transaksi',
-            style: Theme.of(context).textTheme.titleMedium,
+          const SizedBox(height: 12),
+          _CairBankCard(total: state.cairBankTotal, onCair: onCair),
+          const SizedBox(height: 16),
+          Text('Transaksi', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 4),
+          if (entries.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 32),
+              child: Center(
+                child: Text(
+                  'Belum ada transaksi dana.\n'
+                  'Pemasukan dari distribusi jasa masuk otomatis.\n'
+                  'Tekan "Catat Dana" untuk kas masuk/keluar manual.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            )
+          else
+            ...entries.map((entry) => _FundTile(entry: entry)),
+        ],
+      ),
+    );
+  }
+}
+
+class _TotalKasCard extends StatelessWidget {
+  const _TotalKasCard({required this.balance});
+
+  final double balance;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primaryGreen,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Total Kas (7 Pos Dana)',
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
           ),
-        ),
-        Expanded(
-          child: entries.isEmpty
-              ? RefreshIndicator(
-                  onRefresh: () async => onReload(),
-                  child: EmptyStateView(
-                    icon: Icons.volunteer_activism_outlined,
-                    message:
-                        'Belum ada transaksi dana.\n'
-                        'Pemasukan dari distribusi jasa masuk otomatis.',
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: () async => onReload(),
-                  child: ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
-                    itemCount: entries.length,
-                    itemBuilder: (_, index) => _FundTile(entry: entries[index]),
+          const SizedBox(height: 4),
+          Text(
+            AppFormatters.rupiah(balance),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CairBankCard extends StatelessWidget {
+  const _CairBankCard({required this.total, required this.onCair});
+
+  final double total;
+  final VoidCallback onCair;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Cair dari Bank',
+                  style: Theme.of(context).textTheme.labelLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  AppFormatters.rupiah(total),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Total uang yang ditarik dari rekening ke kas.',
+              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onCair,
+                icon: const Icon(Icons.currency_exchange, size: 18),
+                label: const Text('Cair dari Bank'),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -217,91 +307,9 @@ class _FundBalanceCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    kFundLabels[fundType] ?? fundType,
+                    kFundPosLabels[fundType] ?? fundType,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppFormatters.rupiah(balance),
-              style: Theme.of(context).textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold, color: color),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _JapinupCard extends StatelessWidget {
-  const _JapinupCard({required this.balance});
-
-  final double balance;
-
-  @override
-  Widget build(BuildContext context) {
-    const color = Color(0xFFD84315);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(radius: 5, backgroundColor: color),
-                const SizedBox(width: 6),
-                const Expanded(
-                  child: Text(
-                    'Japinup',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppFormatters.rupiah(balance),
-              style: Theme.of(context).textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold, color: color),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SwkCard extends StatelessWidget {
-  const _SwkCard({required this.balance});
-
-  final double balance;
-
-  @override
-  Widget build(BuildContext context) {
-    const color = Color(0xFF2E7D32);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(radius: 5, backgroundColor: color),
-                const SizedBox(width: 6),
-                const Expanded(
-                  child: Text(
-                    'SWK',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
