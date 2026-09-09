@@ -2,6 +2,16 @@
 
 **Sistem Informasi Koperasi KSU Cahaya Dhamma Phala**
 
+| | |
+|---|---|
+| **Versi** | `0.9.9` (build 26) |
+| **Teknologi** | Flutter · Supabase · PostgreSQL |
+| **Struktur** | Clean Architecture (feature-first) |
+| **Pengembang** | **0xfndlabs** — Elfan Dwi Saputra |
+| **Platform** | Android · iOS · Windows (desktop) |
+
+> "Koperasi yang tertata dimulai dari satu buku besar yang jujur."
+
 Dokumen ini menjelaskan produk yang dihasilkan dari program kerja KKN: aplikasi **Sadaya**. Berisi deskripsi produk, teknologi yang digunakan, arsitektur dan cara kerja, rincian modul, aturan bisnis yang tertanam, keamanan, serta laporan yang dihasilkan.
 
 ---
@@ -16,6 +26,17 @@ Keunggulan utama:
 - **Auto-posting jurnal (double-entry)** — setiap transaksi otomatis membentuk jurnal debit-kredit yang seimbang; buku besar, jurnal, dan neraca selalu tersusun real-time.
 - **Aturan bisnis di sisi server** — validasi saldo, distribusi bunga, dan pengamanan data dijalankan di basis data (atomik), bukan hanya di antarmuka.
 - **Ramah pengguna** — antarmuka berbahasa Indonesia, tata letak responsif desktop maupun mobile, formulir dengan format rupiah otomatis.
+
+### Sorotan (Highlights)
+
+| Capaian | Keterangan |
+|---|---|
+| 🧾 **16 modul** | Kas, Bank, Pajak, Simpanan (3), Pinjaman, SHU, Dana (3), Neraca, Jurnal, Aset (2), Unit Krisado |
+| ⚖️ **Neraca real-time** | Setiap transaksi otomatis mem-posting jurnal; laporan Aset = Kewajiban + Ekuitas selalu tersusun |
+| 🔐 **Aturan di server** | Validasi saldo, distribusi jasa 7 pos, dan double-entry berjalan atomik di PostgreSQL |
+| 💰 **Unit Krisado mandiri** | Kas unit berdiri sendiri (akun `1114`) + tombol **Ambil dari Bank** |
+| 📱 **Lintas platform** | Android, iOS, dan Windows — satu basis kode Flutter |
+| 🧪 **Teruji** | 70+ tes otomatis lulus untuk aturan domain (bunga, simpanan, pembukuan) |
 
 ---
 
@@ -74,7 +95,7 @@ Prinsip penting:
 
 - Ringkasan neraca real-time: **Aset, Piutang Pinjaman, Ekuitas/Modal, Stok Keripik, Status Neraca (SEIMBANG/SELISIH)**.
 - Statistik anggota: Total / Aktif / Nonaktif.
-- Aksi cepat: Setor Simpanan, Cairkan Pinjaman, POS Keripik, Kas Umum.
+- Aksi cepat: Setor Simpanan, Cairkan Pinjaman, Unit Krisado, Kas Umum.
 - Navigasi **16 modul koperasi** dengan filter kelompok (Utama & Kas, Simpan Pinjam, Dana & SHU, Aset & Usaha).
 
 ### 4.2 Data Anggota
@@ -138,11 +159,13 @@ Setoran: Debit Kas / Kredit akun simpanan. Tarikan (hanya SMS) diblokir bila sal
 - Buku pajak (PPh 21, PPh 23, PPN, Pajak Lainnya) dengan status Dibayar/Belum.
 - Prinsip **akrual**: saat belum dibayar tercatat sebagai Hutang Pajak (kewajiban); "Tandai Dibayar" mem-posting jurnal penyelesaian.
 
-### 4.9 Unit Usaha Keripik
+### 4.9 Unit Krisado
 
+- **Saldo unit mandiri**: kas unit berdiri sendiri (akun `1114`), terpisah dari kas koperasi.
+- **Ambil dari Bank**: tarik uang dari Buku Bank ke kas unit (jurnal Debit 1114 / Kredit 1112 + baris penarikan di Buku Bank), dengan validasi saldo bank.
 - **Bahan Baku**: daftar jenis bahan + satuan, stok, pembelian (stok masuk + harga) dan pemakaian (stok keluar; dibatasi stok tersedia).
 - **Produksi**: catat hasil, satuan (kg/gram), hasil pack, biaya.
-- **Penjualan**: catat produk, jumlah, harga dengan pratinjau total (omzet bulan berjalan).
+- **Penjualan**: catat produk, jumlah, harga dengan pratinjau total (omzet bulan berjalan); posting Debit Kas Unit / Kredit Pendapatan.
 
 ### 4.10 Laporan
 
@@ -189,3 +212,9 @@ Setoran: Debit Kas / Kredit akun simpanan. Tarikan (hanya SMS) diblokir bila sal
 ## 8. Capaian dan Penutup
 
 Aplikasi Sadaya telah diuji bersama pengurus untuk kasus transaksi riil (simpanan, pencairan & pembayaran pinjaman, kas masuk/keluar dana, aksi bank, penyusutan aset) dengan hasil jurnal yang selalu seimbang dan laporan tersusun otomatis. Pengembangan selanjutnya mencakup hak akses berjenjang, ekspor laporan (PDF/Excel), void berjejak, dan pencadangan rutin.
+
+---
+
+*Dikembangkan oleh **0xfndlabs** (Elfan Dwi Saputra) — KKN KSU Cahaya Dhamma Phala, 2026.*
+
+*Sadaya: satu aplikasi, satu buku besar, satu koperasi yang sehat.* 🦄
