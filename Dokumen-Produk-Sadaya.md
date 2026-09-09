@@ -12,6 +12,9 @@
 
 > "Koperasi yang tertata dimulai dari satu buku besar yang jujur."
 
+📄 *Dokumen lengkap, kode sumber, dan rilis terbaru tersedia di GitHub:*
+**https://github.com/eLgorythm/sadaya-ksu**
+
 Dokumen ini menjelaskan produk yang dihasilkan dari program kerja KKN: aplikasi **Sadaya**. Berisi deskripsi produk, teknologi yang digunakan, arsitektur dan cara kerja, rincian modul, aturan bisnis yang tertanam, keamanan, serta laporan yang dihasilkan.
 
 ---
