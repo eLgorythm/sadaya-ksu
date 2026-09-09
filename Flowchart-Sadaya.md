@@ -16,7 +16,7 @@ Renders otomatis di GitHub, VS Code (plugin Markdown Preview Mermaid), atau http
 flowchart TD
     U[Pengurus / Anggota Koperasi] -->|Login email + password| AUTH[Auth Supabase<br/>GoRouter redirect]
 
-    AUTH -->|Session valid| SHELL[MainShellPage<br/>Bottom Nav: Beranda • Neraca • Input • Buku Besar • Pengaturan]
+    AUTH -->|Session valid| SHELL[MainShellPage<br/>Nav adaptif: Beranda • Neraca • Input • Buku Besar • Pengaturan]
     AUTH -->|Tidak login| LOGIN[/login/]
 
     SHELL --> B[Dashboard]
@@ -37,17 +37,19 @@ flowchart TD
     B --> MOD10[Dana Pendidikan]
     B --> MOD11[Dana Kesejahteraan]
     B --> MOD12[Komposisi Keuangan]
-    B --> MOD13[Buku Inventaris]
-    B --> MOD14[Penyusutan Aset]
-    B --> MOD15[Unit Keripik]
+    B --> MOD13[Jurnal]
+    B --> MOD14[Buku Inventaris]
+    B --> MOD15[Penyusutan Aset]
+    B --> MOD16[Unit Krisado]
 
     MOD1 & MOD2 --> KEU[/keuangan/]
     MOD3 --> PAJAK[/pajak/]
     MOD4 & MOD5 & MOD6 & MOD7 --> PIHL[Pilih Anggota<br/>/pilih-anggota/]
     MOD8 & MOD9 & MOD10 & MOD11 --> DANA[/dana/]
     MOD12 --> NERACA2[Tab Neraca dalam Shell]
-    MOD13 & MOD14 --> ASET[/aset/]
-    MOD15 --> USAHA[/usaha/]
+    MOD13 --> JURNAL[/jurnal/]
+    MOD14 & MOD15 --> ASET[/aset/]
+    MOD16 --> USAHA[/usaha/]
 
     KEU --> POST[Posting otomatis ke Buku Besar]
     PAJAK --> POST
@@ -62,6 +64,10 @@ flowchart TD
     BB -->|baca langsung ledger_entries| LEDGER
     LEDGER --> BB3[Buku Besar per akun<br/>jurnal rinci + saldo berjalan]
     PAJAK -->|akrual| HUTANG[2122 Hutang Pajak<br/>Buku Pajak • Hutang • masuk KEWAJIBAN]
+
+    USAHA --> KASUNIT[Unit Krisado: kas mandiri 1114<br/>Penjualan D 1114 / Beli bahan K 1114]
+    KASUNIT --> AMBIL[Ambil dari Bank<br/>D 1114 / K 1112 • baris debit di Buku Bank]
+    AMBIL --> POST
 ```
 
 ---
@@ -89,11 +95,11 @@ flowchart TD
     HERO --> STATS[Baris Statistik Anggota<br/>Total • Aktif • Nonaktif]
     STATS --> QA[Aksi Cepat Transaksi]
     STATS --> FILTER[Filter Tab Modul<br/>Semua • Utama & Kas • Simpan Pinjam • Dana & SHU • Aset & Usaha]
-    FILTER --> GRID[Grid 15 Modul Koperasi<br/>badge Neraca pada modul yg posting ke ledger]
+    FILTER --> GRID[Grid 16 Modul Koperasi<br/>badge Neraca pada modul yg posting ke ledger]
 
     QA -->|Setor Simpanan| QA1[Pilih Anggota → /simpanan/id]
     QA -->|Cairkan Pinjaman| QA2[Pilih Anggota → /pinjaman/id]
-    QA -->|POS Keripik| QA3[/usaha/]
+    QA -->|Unit Krisado| QA3[/usaha/]
     QA -->|Kas Umum| QA4[/keuangan/]
 
     GRID --> TAP{Cari modul diklik?}
@@ -118,7 +124,7 @@ flowchart TD
         PIN[Pinjaman<br/>loans/cash_ledger]
         DAN[SHU & Dana<br/>dana.rpc]
         AST[Aset & Penyusutan<br/>aset.rpc]
-        USA[Unit Keripik<br/>usaha.rpc]
+        USA[Unit Krisado<br/>usaha.rpc: kas mandiri 1114<br/>Ambil dari Bank: D 1114 / K 1112 + baris Buku Bank]
         P[Pajak<br/>pajak.rpc: akrual 2122 Hutang<br/>saat belum dibayar, lalu kas 1111]
     end
 
