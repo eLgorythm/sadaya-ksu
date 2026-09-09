@@ -49,11 +49,11 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
 
   double get _monthlyPrincipal => _principal > 0 ? _principal / _tenor : 0;
 
-  /// Pinjaman angsur: bunga total = 2% x pokok, dibayar merata per bulan.
-  double get _monthlyInterest => _tenor > 0 ? _principal * _rate / _tenor : 0;
+  /// Pinjaman angsur: bunga = 2% x pokok per angsuran (flat).
+  double get _monthlyInterest => _principal * _rate;
 
-  /// Pinjaman cepat: bunga = 3% x pokok (flat), dibayar sekali di akhir.
-  double get _fastTotalInterest => _principal * _rate;
+  /// Pinjaman cepat: total bunga = 3% x pokok x tenor (dibayar di akhir).
+  double get _fastTotalInterest => _principal * _rate * _tenor;
 
   @override
   Widget build(BuildContext context) {
@@ -147,8 +147,11 @@ class _CreateLoanSheetState extends State<CreateLoanSheet> {
                   InfoBox(
                     children: [
                       Text(
-                        'Bunga/jasa ${(_rate * 100).toStringAsFixed(0)}% × pokok'
-                        ' (${_isFast ? 'dibayar sekali di akhir tenor' : 'merata per angsuran'})',
+                        _isFast
+                            ? 'Bunga/jasa ${(_rate * 100).toStringAsFixed(0)}% × pokok × tenor'
+                                  ' (total, dibayar di akhir tenor)'
+                            : 'Bunga/jasa ${(_rate * 100).toStringAsFixed(0)}% × pokok'
+                                  ' per angsuran',
                         style: const TextStyle(fontSize: 12),
                       ),
                       if (_principal > 0) ...[

@@ -39,11 +39,12 @@ class LoanEntity extends Equatable {
 
   double get monthlyPrincipal => principalAmount / tenor;
 
-  /// Bunga per bulan (pinjaman angsur): total bunga 2% x pokok, merata /tenor.
-  double get monthlyInterest => principalAmount * interestRate / tenor;
+  /// Bunga per angsuran (pinjaman angsur): 2% x pokok, flat per angsuran.
+  /// Total bunga = 2% x pokok x tenor (contoh 10jt/tenor10 = 200rb/angsuran).
+  double get monthlyInterest => principalAmount * interestRate;
 
-  /// Total bunga pinjaman cepat (flat 3% x pokok).
-  double get fastTotalInterest => principalAmount * interestRate;
+  /// Total bunga pinjaman cepat: 3% x pokok x tenor (dibayar di akhir tenor).
+  double get fastTotalInterest => principalAmount * interestRate * tenor;
 
   double get monthlyInstallment => monthlyPrincipal + monthlyInterest;
   double get totalPaid => totalPaidPrincipal + totalPaidInterest;

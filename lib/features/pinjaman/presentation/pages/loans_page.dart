@@ -305,7 +305,7 @@ class _LoanDetailView extends StatelessWidget {
                 if (loan.isFast) ...[
                   InfoRow(
                     label:
-                        'Bunga/jasa (${(loan.interestRate * 100).toStringAsFixed(0)}% × pokok)',
+                        'Bunga/jasa (${(loan.interestRate * 100).toStringAsFixed(0)}% × pokok × tenor)',
                     value: AppFormatters.rupiah(loan.fastTotalInterest),
                   ),
                   InfoRow(
@@ -318,13 +318,13 @@ class _LoanDetailView extends StatelessWidget {
                 ] else ...[
                   InfoRow(
                     label:
-                        'Bunga/jasa total (${(loan.interestRate * 100).toStringAsFixed(0)}% × pokok)',
+                        'Bunga/jasa total (${(loan.interestRate * 100).toStringAsFixed(0)}% × pokok × tenor)',
                     value: AppFormatters.rupiah(
-                      loan.principalAmount * loan.interestRate,
+                      loan.principalAmount * loan.interestRate * loan.tenor,
                     ),
                   ),
                   InfoRow(
-                    label: 'Bunga/bln (merata)',
+                    label: 'Bunga/bln (2% × pokok)',
                     value: AppFormatters.rupiah(loan.monthlyInterest),
                   ),
                 ],

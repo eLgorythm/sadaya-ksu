@@ -14,9 +14,14 @@ void main() {
       expect(d.crk, 5000);
       expect(d.pembangunan, 5000);
 
-      final sum = d.japinup +
-          d.kesra + d.swk + d.sosial +
-          d.pendidikan + d.crk + d.pembangunan;
+      final sum =
+          d.japinup +
+          d.kesra +
+          d.swk +
+          d.sosial +
+          d.pendidikan +
+          d.crk +
+          d.pembangunan;
       expect(sum, 200000);
     });
 
@@ -25,9 +30,14 @@ void main() {
       const interest = 33333.0;
       final d = InterestDistributionBreakdown.fromInterest(interest);
 
-      final sum = d.japinup +
-          d.kesra + d.swk + d.sosial +
-          d.pendidikan + d.crk + d.pembangunan;
+      final sum =
+          d.japinup +
+          d.kesra +
+          d.swk +
+          d.sosial +
+          d.pendidikan +
+          d.crk +
+          d.pembangunan;
       // Toleransi 1 sen: aritmetika double tidak eksak, sisi DB (NUMERIC) eksak.
       expect(sum, closeTo(interest, 0.01));
       expect((d.japinup - interest * 0.55).abs(), lessThan(1));
@@ -52,8 +62,14 @@ void main() {
       expect(d.pendidikan, closeTo(interest * 0.05 / 3.00, 0.5));
       expect(d.crk, closeTo(interest * 0.05 / 3.00, 0.5));
       expect(d.pembangunan, closeTo(interest * 0.05 / 3.00, 0.5));
-      final sum = d.japinup + d.kesra + d.swk + d.sosial +
-          d.pendidikan + d.crk + d.pembangunan;
+      final sum =
+          d.japinup +
+          d.kesra +
+          d.swk +
+          d.sosial +
+          d.pendidikan +
+          d.crk +
+          d.pembangunan;
       expect(sum, closeTo(interest, 0.01));
     });
   });
@@ -75,9 +91,9 @@ void main() {
       );
 
       expect(loan.monthlyPrincipal, 100000);
-      // Bunga/jasa angsur = 2% x pokok, merata per bulan = 2% x 1jt / 10 = 2.000
-      expect(loan.monthlyInterest, 2000);
-      expect(loan.monthlyInstallment, 102000);
+      // Bunga/jasa angsur = 2% x pokok per angsuran (flat) = 2% x 1jt = 20.000
+      expect(loan.monthlyInterest, 20000);
+      expect(loan.monthlyInstallment, 120000);
       expect(loan.progress, closeTo(0.1, 0.001));
       expect(loan.isActive, isTrue);
       expect(loan.isPaidOff, isFalse);
