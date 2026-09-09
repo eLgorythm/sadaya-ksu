@@ -682,7 +682,7 @@ class _QuickActionsRow extends StatelessWidget {
         const SizedBox(width: 8),
         _QuickAction(
           icon: Icons.cookie_outlined,
-          label: 'POS\nKeripik',
+          label: 'Unit\nKrisado',
           bg: const Color(0xFFFFFBEB),
           fg: const Color(0xFFD97706),
           onTap: () => context.push('/usaha'),

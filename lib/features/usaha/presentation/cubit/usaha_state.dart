@@ -21,12 +21,16 @@ class UsahaLoaded extends UsahaState {
     required this.materialTransactions,
     required this.productions,
     required this.sales,
+    this.chipBalance = 0,
   });
 
   final List<RawMaterial> materials;
   final List<MaterialTransaction> materialTransactions;
   final List<ProductionRecord> productions;
   final List<SaleRecord> sales;
+
+  /// Saldo kas Unit Krisado (akun mandiri).
+  final double chipBalance;
 
   /// Omzet penjualan bulan berjalan.
   double get monthRevenue {
@@ -75,6 +79,7 @@ class UsahaLoaded extends UsahaState {
     materialTransactions,
     productions,
     sales,
+    chipBalance,
   ];
 }
 

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/utils/result.dart';
+import '../../domain/usecases/chip_usecases.dart';
 import '../../domain/usecases/material_usecases.dart';
 import '../../domain/usecases/production_usecases.dart';
 import '../../domain/usecases/sale_usecases.dart';
@@ -165,6 +166,37 @@ class SaleFormCubit extends Cubit<UsahaFormState> {
         unitPrice: unitPrice,
         buyer: buyer,
         notes: notes,
+      ),
+    );
+    switch (result) {
+      case Ok():
+        emit(const UsahaFormSuccess());
+      case Err(:final failure):
+        emit(UsahaFormFailure(failure.message));
+    }
+  }
+}
+
+/// Tarik uang dari rekening bank (Buku Bank) ke kas Unit Krisado.
+@Injectable()
+class ChipAmbilBankFormCubit extends Cubit<UsahaFormState> {
+  ChipAmbilBankFormCubit(this._ambil) : super(const UsahaFormInitial());
+
+  final ChipAmbilDariBank _ambil;
+
+  void reset() => emit(const UsahaFormInitial());
+
+  Future<void> save({
+    required double amount,
+    required DateTime date,
+    required String description,
+  }) async {
+    emit(const UsahaFormSaving());
+    final result = await _ambil(
+      ChipAmbilDariBankParams(
+        amount: amount,
+        date: date,
+        description: description,
       ),
     );
     switch (result) {

@@ -162,4 +162,36 @@ class UsahaRepositoryImpl implements UsahaRepository {
       return const Err(Failure(message: 'Gagal menghapus penjualan'));
     }
   }
+
+  @override
+  Future<Result<double>> getChipBalance() async {
+    try {
+      final balance = await _dataSource.fetchChipBusinessBalance();
+      return Ok(balance);
+    } on PostgrestException catch (e) {
+      return Err(Failure(message: e.message));
+    } catch (_) {
+      return const Err(Failure(message: 'Gagal memuat saldo unit'));
+    }
+  }
+
+  @override
+  Future<Result<void>> chipAmbilDariBank({
+    required double amount,
+    required String description,
+    required DateTime date,
+  }) async {
+    try {
+      await _dataSource.chipAmbilDariBank(
+        amount: amount,
+        description: description,
+        date: date,
+      );
+      return const Ok(null);
+    } on PostgrestException catch (e) {
+      return Err(Failure(message: e.message));
+    } catch (_) {
+      return const Err(Failure(message: 'Gagal tarik dana dari bank'));
+    }
+  }
 }

@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/usaha_entities.dart';
+import '../../domain/usecases/chip_usecases.dart';
 import '../../domain/usecases/material_usecases.dart';
 import '../../domain/usecases/production_usecases.dart';
 import '../../domain/usecases/sale_usecases.dart';
@@ -20,12 +21,14 @@ class UsahaCubit extends Cubit<UsahaState> {
     this._getMaterialTransactions,
     this._getProductions,
     this._getSales,
+    this._getChipBalance,
   ) : super(const UsahaInitial());
 
   final GetMaterials _getMaterials;
   final GetMaterialTransactions _getMaterialTransactions;
   final GetProductions _getProductions;
   final GetSales _getSales;
+  final GetChipBalance _getChipBalance;
 
   /// Muat seluruh data unit usaha. [silent] menjaga tampilan tetap
   /// terlihat (tanpa spinner) bila data sudah ada — untuk pembaruan
@@ -35,11 +38,12 @@ class UsahaCubit extends Cubit<UsahaState> {
       emit(const UsahaLoadInProgress());
     }
 
-    // Empat permintaan dijalankan paralel, bukan berurutan.
+    // Lima permintaan dijalankan paralel, bukan berurutan.
     final materialsFuture = _getMaterials(const NoParams());
     final transactionsFuture = _getMaterialTransactions(const NoParams());
     final productionsFuture = _getProductions(const NoParams());
     final salesFuture = _getSales(const NoParams());
+    final chipBalanceFuture = _getChipBalance(const NoParams());
 
     final materialsResult = await materialsFuture;
     final List<RawMaterial> materials;
@@ -81,6 +85,16 @@ class UsahaCubit extends Cubit<UsahaState> {
         return;
     }
 
+    final chipBalanceResult = await chipBalanceFuture;
+    final double chipBalance;
+    switch (chipBalanceResult) {
+      case Ok(:final value):
+        chipBalance = value;
+      case Err(:final failure):
+        if (!isClosed) emit(UsahaFailure(failure.message));
+        return;
+    }
+
     if (!isClosed) {
       emit(
         UsahaLoaded(
@@ -88,6 +102,7 @@ class UsahaCubit extends Cubit<UsahaState> {
           materialTransactions: txs,
           productions: productions,
           sales: sales,
+          chipBalance: chipBalance,
         ),
       );
     }
@@ -106,6 +121,7 @@ class UsahaCubit extends Cubit<UsahaState> {
         materialTransactions: current.materialTransactions,
         productions: current.productions,
         sales: current.sales.where((s) => s.id != saleId).toList(),
+        chipBalance: current.chipBalance,
       ),
     );
   }

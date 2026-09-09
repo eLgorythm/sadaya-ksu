@@ -48,4 +48,14 @@ abstract interface class UsahaRepository {
   });
 
   Future<Result<void>> deleteSale(String id);
+
+  /// Saldo kas Unit Krisado (Rupiah).
+  Future<Result<double>> getChipBalance();
+
+  /// Tarik uang dari rekening bank (Buku Bank) ke kas Unit Krisado.
+  Future<Result<void>> chipAmbilDariBank({
+    required double amount,
+    required String description,
+    required DateTime date,
+  });
 }

@@ -147,7 +147,7 @@ const List<ModuleItem> kModules = [
   ),
   ModuleItem(
     id: 'keripik',
-    title: 'Unit Keripik',
+    title: 'Unit Krisado',
     category: ModuleCategory.aset,
     icon: Icons.cookie_outlined,
     description: 'POS & Stok Keripik',

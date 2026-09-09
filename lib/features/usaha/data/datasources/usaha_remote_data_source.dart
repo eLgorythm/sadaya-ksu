@@ -129,4 +129,32 @@ class UsahaRemoteDataSource {
     await _client.rpc('void_chip_sale', params: {'p_sale_id': id});
     await _client.from('chip_sales').delete().eq('id', id);
   }
+
+  // ---------- Saldo unit & ambil dari bank ----------
+  /// Saldo kas Unit Krisado (akun 1114, source_chip_business).
+  Future<double> fetchChipBusinessBalance() async {
+    final result = await _client
+        .rpc('get_chip_business_summary')
+        .select()
+        .single();
+    final map = Map<String, dynamic>.from(result as Map);
+    return (map['balance'] as num).toDouble();
+  }
+
+  /// Tarik uang dari rekening bank (Buku Bank) ke kas Unit Krisado.
+  /// Bank_transactions type 'debit' = penarikan rekening.
+  Future<void> chipAmbilDariBank({
+    required double amount,
+    required String description,
+    required DateTime date,
+  }) async {
+    await _client.rpc(
+      'chip_ambil_dari_bank',
+      params: {
+        'p_amount': amount,
+        'p_description': description.trim(),
+        'p_date': date.toIso8601String().substring(0, 10),
+      },
+    );
+  }
 }

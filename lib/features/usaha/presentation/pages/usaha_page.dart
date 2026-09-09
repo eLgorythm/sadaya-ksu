@@ -11,6 +11,7 @@ import '../../../../core/widgets/sadaya_message.dart';
 import '../../domain/entities/usaha_entities.dart';
 import '../../domain/usecases/sale_usecases.dart';
 import '../cubit/usaha_cubit.dart';
+import '../widgets/chip_ambil_bank_sheet.dart';
 import '../widgets/material_sheets.dart';
 import '../widgets/production_sale_sheets.dart';
 
@@ -75,7 +76,7 @@ class _UsahaPageState extends State<UsahaPage>
           final loaded = state is UsahaLoaded ? state : null;
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Unit Usaha Keripik'),
+              title: const Text('Unit Usaha Krisado'),
               bottom: TabBar(
                 controller: _tabController,
                 tabs: const [
@@ -93,12 +94,19 @@ class _UsahaPageState extends State<UsahaPage>
                   message: message,
                   onRetry: () => _cubit.load(),
                 ),
-                UsahaLoaded() => TabBarView(
-                  controller: _tabController,
+                UsahaLoaded() => Column(
                   children: [
-                    _MaterialsTab(state: state),
-                    _ProductionsTab(state: state),
-                    _SalesTab(state: state),
+                    _ChipSaldoCard(state: state),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _MaterialsTab(state: state),
+                          _ProductionsTab(state: state),
+                          _SalesTab(state: state),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               },
@@ -110,6 +118,68 @@ class _UsahaPageState extends State<UsahaPage>
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// ===========================================================================
+// KARTU SALDO UNIT KRISADO
+// ===========================================================================
+class _ChipSaldoCard extends StatelessWidget {
+  const _ChipSaldoCard({required this.state});
+
+  final UsahaLoaded state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Card(
+        margin: EdgeInsets.zero,
+        color: AppColors.primaryGreen,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Saldo Unit Krisado',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      AppFormatters.rupiah(state.chipBalance),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              FilledButton.tonalIcon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.primaryGreen,
+                ),
+                onPressed: () async {
+                  final cubit = context.read<UsahaCubit>();
+                  final saved = await ChipAmbilBankSheet.show(context);
+                  if (saved) cubit.load(silent: true);
+                },
+                icon: const Icon(Icons.account_balance_outlined, size: 18),
+                label: const Text('Ambil dari Bank'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
