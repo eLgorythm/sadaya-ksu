@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/responsive/responsive_context.dart';
 import '../../../../core/responsive/responsive_scaffold.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../core/utils/result.dart';
@@ -133,49 +134,69 @@ class _ChipSaldoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Mobile: kolom vertikal (saldo atas, tombol selebar kartu).
+    // Desktop: saldo kiri, tombol kanan pada satu baris.
+    final isMobile = context.isMobile;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Card(
         margin: EdgeInsets.zero,
         color: AppColors.primaryGreen,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-          child: Row(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Saldo Unit Krisado',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
-                      ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.paid_outlined,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Saldo Unit Krisado',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          AppFormatters.rupiah(state.chipBalance),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isMobile ? 20 : 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      AppFormatters.rupiah(state.chipBalance),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              FilledButton.tonalIcon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.primaryGreen,
+              SizedBox(height: isMobile ? 12 : 0),
+              SizedBox(
+                width: isMobile ? double.infinity : null,
+                child: FilledButton.tonalIcon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppColors.primaryGreen,
+                  ),
+                  onPressed: () async {
+                    final cubit = context.read<UsahaCubit>();
+                    final saved = await ChipAmbilBankSheet.show(context);
+                    if (saved) cubit.load(silent: true);
+                  },
+                  icon: const Icon(Icons.account_balance_outlined, size: 18),
+                  label: const Text('Ambil dari Bank'),
                 ),
-                onPressed: () async {
-                  final cubit = context.read<UsahaCubit>();
-                  final saved = await ChipAmbilBankSheet.show(context);
-                  if (saved) cubit.load(silent: true);
-                },
-                icon: const Icon(Icons.account_balance_outlined, size: 18),
-                label: const Text('Ambil dari Bank'),
               ),
             ],
           ),
