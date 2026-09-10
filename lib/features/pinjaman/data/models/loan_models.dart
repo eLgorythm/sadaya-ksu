@@ -47,12 +47,15 @@ class InstallmentScheduleModel extends InstallmentScheduleEntity {
     required super.totalAmount,
     required super.status,
     super.paidDate,
+    super.loanType,
   });
 
   /// [map] berasal dari select dengan embed pembayaran:
   /// `*, installment_payments(payment_date)` — ambil tanggal terbaru.
+  /// Sertakan embed `loan:loans(loan_type)` agar mengetahui jenis pinjaman.
   factory InstallmentScheduleModel.fromMap(Map<String, dynamic> map) {
     DateTime? paidDate;
+    String loanType = 'regular';
     final payments = map['installment_payments'];
     if (payments is List && payments.isNotEmpty) {
       for (final p in payments) {
@@ -64,6 +67,10 @@ class InstallmentScheduleModel extends InstallmentScheduleEntity {
         }
       }
     }
+    final loan = map['loan'];
+    if (loan is Map<String, dynamic> && loan['loan_type'] != null) {
+      loanType = loan['loan_type'].toString();
+    }
     return InstallmentScheduleModel(
       id: map['id'] as String,
       installmentNumber: (map['installment_number'] as num).toInt(),
@@ -73,6 +80,7 @@ class InstallmentScheduleModel extends InstallmentScheduleEntity {
       totalAmount: double.tryParse('${map['total_amount']}') ?? 0,
       status: map['status'] as String,
       paidDate: paidDate,
+      loanType: loanType,
     );
   }
 }

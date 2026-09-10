@@ -42,6 +42,11 @@ class _DanaPageState extends State<DanaPage>
     vsync: this,
   );
 
+  /// Tahun buku yang sedang ditampilkan (default: tahun berjalan).
+  int _selectedYear = DateTime.now().year;
+
+  static const List<int> _yearOptions = [2025, 2026];
+
   @override
   void initState() {
     super.initState();
@@ -55,9 +60,15 @@ class _DanaPageState extends State<DanaPage>
     if (mounted && !_tabController.indexIsChanging) setState(() {});
   }
 
+  Future<void> _onYearChanged(int? year) async {
+    if (year == null || year == _selectedYear) return;
+    setState(() => _selectedYear = year);
+    await _cubit.load(year: year);
+  }
+
   Future<void> _openFundSheet() async {
     final saved = await FundTransactionSheet.show(context);
-    if (saved && mounted) _cubit.load(silent: true);
+    if (saved && mounted) _cubit.load(silent: true, year: _selectedYear);
   }
 
   Future<void> _openCairBank() async {
@@ -65,7 +76,7 @@ class _DanaPageState extends State<DanaPage>
       context,
       action: BankAction.cairKas,
     );
-    if (saved && mounted) _cubit.load(silent: true);
+    if (saved && mounted) _cubit.load(silent: true, year: _selectedYear);
   }
 
   @override
@@ -81,6 +92,20 @@ class _DanaPageState extends State<DanaPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dana & SHU'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: DropdownButton<int>(
+              value: _selectedYear,
+              underline: const SizedBox.shrink(),
+              items: [
+                for (final y in _yearOptions)
+                  DropdownMenuItem(value: y, child: Text('$y')),
+              ],
+              onChanged: _onYearChanged,
+            ),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -100,7 +125,7 @@ class _DanaPageState extends State<DanaPage>
               case DanaFailure(:final message):
                 return ErrorStateView(
                   message: message,
-                  onRetry: () => _cubit.load(),
+                  onRetry: () => _cubit.load(year: _selectedYear),
                 );
               case DanaLoaded():
                 return TabBarView(
@@ -108,12 +133,12 @@ class _DanaPageState extends State<DanaPage>
                   children: [
                     _FundTab(
                       state: state,
-                      onReload: () => _cubit.load(silent: true),
+                      onReload: () => _cubit.load(silent: true, year: _selectedYear),
                       onCair: _openCairBank,
                     ),
                     _ShuTab(
                       state: state,
-                      onReload: () => _cubit.load(silent: true),
+                      onReload: () => _cubit.load(silent: true, year: _selectedYear),
                     ),
                   ],
                 );
@@ -125,7 +150,7 @@ class _DanaPageState extends State<DanaPage>
           ? FloatingActionButton.extended(
               onPressed: () async {
                 final saved = await ShuFormSheet.show(context);
-                if (saved) _cubit.load(silent: true);
+                if (saved) _cubit.load(silent: true, year: _selectedYear);
               },
               icon: const Icon(Icons.calculate_outlined),
               label: const Text('Hitung SHU'),

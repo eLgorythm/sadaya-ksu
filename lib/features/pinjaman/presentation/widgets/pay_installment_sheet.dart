@@ -19,6 +19,7 @@ class PayInstallmentSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final breakdown = InterestDistributionBreakdown.fromInterest(
       schedule.interestAmount,
+      base: schedule.interestBase,
     );
     return BlocProvider.value(
       value: _cubit,

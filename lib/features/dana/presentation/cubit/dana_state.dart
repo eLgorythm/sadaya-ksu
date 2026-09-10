@@ -19,6 +19,7 @@ class DanaLoaded extends DanaState {
   const DanaLoaded({
     required this.fundEntries,
     required this.shuList,
+    this.year = 0,
     this.ledgerBalances = const [],
     this.cairBankTotal = 0,
   });
@@ -26,6 +27,9 @@ class DanaLoaded extends DanaState {
   final List<FundTransaction> fundEntries;
   final List<ShuDistribution> shuList;
   final List<LedgerBalance> ledgerBalances;
+
+  /// Tahun buku yang sedang ditampilkan.
+  final int year;
 
   /// Total kumulatif transfer bank → kas.
   final double cairBankTotal;
@@ -63,6 +67,7 @@ class DanaLoaded extends DanaState {
   List<Object?> get props => [
     fundEntries,
     shuList,
+    year,
     ledgerBalances,
     cairBankTotal,
   ];

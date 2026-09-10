@@ -35,7 +35,8 @@ class DanaCubit extends Cubit<DanaState> {
   final CancelShuDistribution _cancelDistribution;
 
   /// Memuat ulang seluruh data modul dana & SHU.
-  Future<void> load({bool silent = false}) async {
+  Future<void> load({bool silent = false, int? year}) async {
+    final selected = year ?? DateTime.now().year;
     if (!silent || state is! DanaLoaded) {
       emit(const DanaLoadInProgress());
     }
@@ -50,7 +51,7 @@ class DanaCubit extends Cubit<DanaState> {
         return;
     }
 
-    final ledgerResult = await _getLedgerBalances(DateTime.now().year);
+    final ledgerResult = await _getLedgerBalances(selected);
     final List<LedgerBalance> ledgerBalances;
     switch (ledgerResult) {
       case Ok(:final value):
@@ -83,6 +84,7 @@ class DanaCubit extends Cubit<DanaState> {
     if (!isClosed) {
       emit(
         DanaLoaded(
+          year: selected,
           fundEntries: funds,
           ledgerBalances: ledgerBalances,
           shuList: shus,

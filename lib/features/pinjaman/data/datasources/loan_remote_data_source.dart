@@ -21,7 +21,8 @@ class LoanRemoteDataSource {
         .from('installment_schedules')
         /// Embed tanggal bayar (relasi FK schedule_id) agar UI bisa
         /// menampilkan "Dibayar pada <tanggal>" untuk jadwal lunas.
-        .select('*, installment_payments(payment_date)')
+        /// Sertakan loan_type dari induk loans untuk distribusi jasa.
+        .select('*, installment_payments(payment_date), loan:loans(loan_type)')
         .eq('loan_id', loanId)
         .order('installment_number', ascending: true);
     return rows.cast<Map<String, dynamic>>();

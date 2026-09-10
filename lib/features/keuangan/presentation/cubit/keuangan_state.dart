@@ -20,6 +20,7 @@ class KeuanganLoaded extends KeuanganState {
     required this.cashEntries,
     required this.bankEntries,
     required this.categories,
+    this.year = 0,
     this.summary,
     this.cashSources,
   });
@@ -27,6 +28,9 @@ class KeuanganLoaded extends KeuanganState {
   final List<CashBookEntry> cashEntries;
   final List<CashBookEntry> bankEntries;
   final List<CashCategoryOption> categories;
+
+  /// Tahun buku yang sedang ditampilkan.
+  final int year;
 
   /// Ringkasan saldo dari buku besar (kas + bank + dana + Japinup).
   final CashLedgerSummary? summary;
@@ -50,6 +54,7 @@ class KeuanganLoaded extends KeuanganState {
     cashEntries,
     bankEntries,
     categories,
+    year,
     summary,
     cashSources,
   ];

@@ -52,6 +52,11 @@ class _KeuanganViewState extends State<_KeuanganView>
     vsync: this,
   );
 
+  /// Tahun buku yang sedang ditampilkan (default: tahun berjalan).
+  int _selectedYear = DateTime.now().year;
+
+  static const List<int> _yearOptions = [2025, 2026];
+
   @override
   void initState() {
     super.initState();
@@ -69,12 +74,18 @@ class _KeuanganViewState extends State<_KeuanganView>
     if (mounted && !_tabController.indexIsChanging) setState(() {});
   }
 
+  Future<void> _onYearChanged(int? year) async {
+    if (year == null || year == _selectedYear) return;
+    setState(() => _selectedYear = year);
+    await GetIt.I<KeuanganCubit>().load(year: year);
+  }
+
   /// Aksi khusus pada tab Buku Bank (index 2): dana masuk ke rekening
   /// dan cairkan ke kas. Tab Kas & Saldo Berjalan tidak punya catat manual.
   Future<void> _openBankAction(BuildContext context, BankAction action) async {
     final saved = await BankActionSheet.show(context, action: action);
     if (saved && context.mounted) {
-      GetIt.I<KeuanganCubit>().load(silent: true);
+      GetIt.I<KeuanganCubit>().load(silent: true, year: _selectedYear);
     }
   }
 
@@ -114,6 +125,20 @@ class _KeuanganViewState extends State<_KeuanganView>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kas Umum & Bank'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: DropdownButton<int>(
+              value: _selectedYear,
+              underline: const SizedBox.shrink(),
+              items: [
+                for (final y in _yearOptions)
+                  DropdownMenuItem(value: y, child: Text('$y')),
+              ],
+              onChanged: _onYearChanged,
+            ),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -140,7 +165,8 @@ class _KeuanganViewState extends State<_KeuanganView>
               case KeuanganFailure(:final message):
                 return ErrorStateView(
                   message: message,
-                  onRetry: () => GetIt.I<KeuanganCubit>().load(),
+                  onRetry: () =>
+                      GetIt.I<KeuanganCubit>().load(year: _selectedYear),
                 );
               case KeuanganLoaded():
                 return TabBarView(
@@ -148,7 +174,7 @@ class _KeuanganViewState extends State<_KeuanganView>
                   children: [
                     RefreshIndicator(
                       onRefresh: () async =>
-                          await GetIt.I<KeuanganCubit>().load(silent: true),
+                          await GetIt.I<KeuanganCubit>().load(silent: true, year: _selectedYear),
                       child: _SaldoBerjalanView(
                         balance: state.summary?.total ?? state.cashBalance,
                         accounts: state.summary?.accounts ?? const [],
@@ -156,12 +182,12 @@ class _KeuanganViewState extends State<_KeuanganView>
                     ),
                     RefreshIndicator(
                       onRefresh: () async =>
-                          await GetIt.I<KeuanganCubit>().load(silent: true),
+                          await GetIt.I<KeuanganCubit>().load(silent: true, year: _selectedYear),
                       child: _KasSourceView(sources: state.cashSources),
                     ),
                     RefreshIndicator(
                       onRefresh: () async =>
-                          await GetIt.I<KeuanganCubit>().load(silent: true),
+                          await GetIt.I<KeuanganCubit>().load(silent: true, year: _selectedYear),
                       child: _BookListView(
                         entries: state.bankEntries,
                         balance: state.bankBalance,

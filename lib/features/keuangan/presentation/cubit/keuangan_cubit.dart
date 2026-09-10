@@ -44,6 +44,7 @@ class KeuanganCubit extends Cubit<KeuanganState> {
         if (current is KeuanganLoaded) {
           emit(
             KeuanganLoaded(
+              year: current.year,
               cashEntries: current.cashEntries,
               bankEntries: current.bankEntries,
               categories: [
@@ -65,16 +66,16 @@ class KeuanganCubit extends Cubit<KeuanganState> {
     return result;
   }
 
-  Future<void> load({bool silent = false}) async {
+  Future<void> load({bool silent = false, int? year}) async {
+    final selected = year ?? DateTime.now().year;
     if (!silent || state is! KeuanganLoaded) {
       emit(const KeuanganLoadInProgress());
     }
-    final year = DateTime.now().year;
     final cash = await _getEntries('cash');
     final bank = await _getEntries('bank');
     final categories = await _getCategories(const NoParams());
-    final summary = await _getSummary(year);
-    final sources = await _getSources(year);
+    final summary = await _getSummary(selected);
+    final sources = await _getSources(selected);
 
     if (cash case Err(:final failure)) {
       emit(KeuanganFailure(failure.message));
@@ -99,6 +100,7 @@ class KeuanganCubit extends Cubit<KeuanganState> {
 
     emit(
       KeuanganLoaded(
+        year: selected,
         cashEntries: (cash as Ok).value,
         bankEntries: (bank as Ok).value,
         categories: (categories as Ok).value,
